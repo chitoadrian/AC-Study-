@@ -12,8 +12,8 @@ let currentSection = 'dashboard';
 let isDarkTheme = !localStorage.getItem('theme') || localStorage.getItem('theme') === 'dark';
 let isTabletOrSmaller = window.innerWidth <= 768;
 
-// Datos simulados de usuarios
-const simulatedUsers = {
+// Datos simulados de usuarios. En el futuro esto puede conectarse con Supabase.
+const defaultUsers = {
     'adrian@example.com': {
         password: 'password123',
         name: 'Adrian Maximiliano Chito Vargas'
@@ -23,6 +23,22 @@ const simulatedUsers = {
         name: 'Usuario Prueba'
     }
 };
+
+function getUsers() {
+    const storedUsers = localStorage.getItem('simulatedUsers');
+    if (!storedUsers) return { ...defaultUsers };
+
+    try {
+        return { ...defaultUsers, ...JSON.parse(storedUsers) };
+    } catch (error) {
+        localStorage.removeItem('simulatedUsers');
+        return { ...defaultUsers };
+    }
+}
+
+function saveUsers(users) {
+    localStorage.setItem('simulatedUsers', JSON.stringify(users));
+}
 
 // ============================================
 // INICIALIZACIÓN
@@ -57,6 +73,8 @@ function initializeApp() {
 
     // Generar calendario
     generateCalendar();
+    renderSavedSubjects();
+    renderSavedCalendarEvents();
 }
 
 // ============================================
@@ -97,13 +115,7 @@ function showRegister() {
 }
 
 function startPrototype() {
-    currentUser = {
-        email: 'adrian@example.com',
-        name: 'Adrian Maximiliano Chito Vargas'
-    };
-
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    showApp();
+    showRegister();
 }
 
 function showApp() {
@@ -115,7 +127,29 @@ function showApp() {
 function updateDashboardGreeting() {
     const dashboardTitle = document.querySelector('#dashboard .section-header h1');
     if (dashboardTitle) {
-        dashboardTitle.textContent = 'Hola Adrian 👋';
+        const firstName = currentUser?.name ? currentUser.name.split(' ')[0] : 'Adrian';
+        dashboardTitle.textContent = `Hola ${firstName} 👋`;
+    }
+
+    updateProfileInfo();
+}
+
+function updateProfileInfo() {
+    const profileName = document.getElementById('profile-name');
+    const profileAvatar = document.querySelector('.profile-avatar');
+
+    if (profileName && currentUser?.name) {
+        profileName.textContent = currentUser.name;
+    }
+
+    if (profileAvatar && currentUser?.name) {
+        const initials = currentUser.name
+            .split(' ')
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(part => part[0].toUpperCase())
+            .join('');
+        profileAvatar.textContent = initials || 'AC';
     }
 }
 
@@ -129,11 +163,13 @@ function handleLogin(event) {
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value.trim();
 
+    const users = getUsers();
+
     // Validar contra usuarios simulados
-    if (simulatedUsers[email] && simulatedUsers[email].password === password) {
+    if (users[email] && users[email].password === password) {
         currentUser = {
             email: email,
-            name: simulatedUsers[email].name
+            name: users[email].name
         };
 
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -160,11 +196,14 @@ function handleRegister(event) {
         return;
     }
 
-    // Simular registro (crear usuario en memoria)
-    simulatedUsers[email] = {
+    const users = getUsers();
+
+    // Simular registro persistente en localStorage
+    users[email] = {
         password: password,
         name: name
     };
+    saveUsers(users);
 
     currentUser = {
         email: email,
@@ -347,6 +386,107 @@ function addTaskUI() {
 
     tasksList.appendChild(newTask);
     alert('¡Tarea agregada correctamente!');
+}
+
+// ============================================
+// MATERIAS PERSONALIZADAS
+// ============================================
+
+function getSavedSubjects() {
+    try {
+        return JSON.parse(localStorage.getItem('customSubjects')) || [];
+    } catch (error) {
+        localStorage.removeItem('customSubjects');
+        return [];
+    }
+}
+
+function saveSubjects(subjects) {
+    localStorage.setItem('customSubjects', JSON.stringify(subjects));
+}
+
+function addSubjectUI() {
+    const name = prompt('Nombre de la nueva materia:');
+    if (!name) return;
+
+    const tasks = prompt('¿Cuántas tareas pendientes tiene esta materia?', '0') || '0';
+    const subject = {
+        name: name.trim(),
+        tasks: tasks.trim(),
+        progress: 0,
+        color: 'custom'
+    };
+
+    const subjects = getSavedSubjects();
+    subjects.push(subject);
+    saveSubjects(subjects);
+    renderSubjectCard(subject);
+    updateSubjectCounter();
+    alert(`Materia "${subject.name}" creada correctamente.`);
+}
+
+function renderSavedSubjects() {
+    getSavedSubjects().forEach(renderSubjectCard);
+    updateSubjectCounter();
+}
+
+function renderSubjectCard(subject) {
+    const grid = document.querySelector('.subjects-grid');
+    if (!grid) return;
+
+    const card = document.createElement('div');
+    card.className = 'subject-card subject-custom';
+    card.innerHTML = `
+        <div class="subject-header">
+            <h3>${escapeHTML(subject.name)}</h3>
+            <span class="subject-icon">📘</span>
+        </div>
+        <div class="subject-stats">
+            <div class="stat">
+                <span class="stat-name">Promedio</span>
+                <span class="stat-num">--</span>
+            </div>
+            <div class="stat">
+                <span class="stat-name">Tareas</span>
+                <span class="stat-num">${escapeHTML(subject.tasks)}</span>
+            </div>
+            <div class="stat">
+                <span class="stat-name">Progreso</span>
+                <span class="stat-num">${subject.progress}%</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: ${subject.progress}%; background: linear-gradient(90deg, #7c3aed, #06b6d4)"></div>
+        </div>
+        <p class="last-activity">Última actividad: creada por el estudiante</p>
+        <button class="btn-secondary btn-small" onclick="alert('Abriendo materia personalizada...')">Acceder →</button>
+    `;
+
+    grid.appendChild(card);
+}
+
+function updateSubjectCounter() {
+    const totalSubjects = 4 + getSavedSubjects().length;
+    const cards = document.querySelectorAll('.stat-card');
+
+    cards.forEach(card => {
+        const label = card.querySelector('.stat-label');
+        if (label && label.textContent.includes('Materias Activas')) {
+            const value = card.querySelector('.stat-value');
+            const subtext = card.querySelector('.stat-subtext');
+            if (value) value.textContent = totalSubjects;
+            if (subtext) subtext.textContent = 'Materias creadas y activas en tu cuenta';
+        }
+    });
+}
+
+function escapeHTML(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
 }
 
 // ============================================
@@ -539,6 +679,70 @@ function copyToClipboard() {
     }
 
     fallbackCopy(content);
+}
+
+// ============================================
+// CALENDARIO PERSONALIZADO
+// ============================================
+
+function getSavedEvents() {
+    try {
+        return JSON.parse(localStorage.getItem('customCalendarEvents')) || [];
+    } catch (error) {
+        localStorage.removeItem('customCalendarEvents');
+        return [];
+    }
+}
+
+function saveEvents(events) {
+    localStorage.setItem('customCalendarEvents', JSON.stringify(events));
+}
+
+function addCalendarEventUI() {
+    const title = prompt('Nombre del evento académico:');
+    if (!title) return;
+
+    const day = prompt('Día del mes:', '18') || '18';
+    const type = prompt('Tipo de evento: examen, entrega, exposición o clase', 'exposición') || 'evento';
+    const time = prompt('Hora o detalle:', 'Por definir') || 'Por definir';
+
+    const event = {
+        title: title.trim(),
+        day: day.trim().padStart(2, '0'),
+        type: type.trim(),
+        time: time.trim()
+    };
+
+    const events = getSavedEvents();
+    events.push(event);
+    saveEvents(events);
+    renderCalendarEvent(event);
+    alert(`Evento "${event.title}" agregado al calendario.`);
+}
+
+function renderSavedCalendarEvents() {
+    getSavedEvents().forEach(renderCalendarEvent);
+}
+
+function renderCalendarEvent(event) {
+    const list = document.getElementById('custom-events-list');
+    if (!list) return;
+
+    const item = document.createElement('div');
+    item.className = 'event-item event-custom';
+    item.innerHTML = `
+        <div class="event-date">
+            <span class="day">${escapeHTML(event.day)}</span>
+            <span class="month">Jun</span>
+        </div>
+        <div class="event-content">
+            <h4>${escapeHTML(event.title)}</h4>
+            <p>${escapeHTML(event.time)}</p>
+            <span class="event-badge">${escapeHTML(event.type)}</span>
+        </div>
+    `;
+
+    list.appendChild(item);
 }
 
 function fallbackCopy(content) {

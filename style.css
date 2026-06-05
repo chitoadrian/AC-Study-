@@ -2168,6 +2168,27 @@ body.light-theme .auth-card {
     border: 1px solid rgba(6, 182, 212, 0.28);
 }
 
+.subject-custom {
+    border-color: rgba(6, 182, 212, 0.34);
+}
+
+.subject-custom::before {
+    background: linear-gradient(90deg, var(--color-blue), var(--color-purple), var(--color-pink));
+}
+
+#custom-events-list {
+    display: grid;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.event-custom {
+    border-left-color: var(--color-purple);
+    background:
+        linear-gradient(135deg, rgba(124, 58, 237, 0.16), rgba(6, 182, 212, 0.08)),
+        var(--bg-dark);
+}
+
 .profile-layout {
     display: grid;
     grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);

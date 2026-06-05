@@ -22,7 +22,7 @@
             <div class="hero-content">
                 <h1>Gestión Educativa Inteligente Personalizada</h1>
                 <p>Organiza tus estudios, potencia tu aprendizaje con IA y alcanza tus metas académicas</p>
-                <button class="btn-large" onclick="startPrototype()">Empezar ahora</button>
+                <button class="btn-large" onclick="showRegister()">Empezar ahora</button>
             </div>
             <div class="hero-visual">
                 <div class="floating-card card-1">
@@ -387,7 +387,8 @@
             <section id="subjects" class="section">
                 <div class="section-header">
                     <h1>Materias</h1>
-                    <p class="subtitle">Manage todas tus asignaturas en un solo lugar</p>
+                    <p class="subtitle">Crea y organiza tus asignaturas en un solo lugar</p>
+                    <button class="btn-primary btn-small" onclick="addSubjectUI()">+ Nueva materia</button>
                 </div>
 
                 <div class="subjects-grid">
@@ -606,6 +607,7 @@
                 <div class="section-header">
                     <h1>Calendario</h1>
                     <p class="subtitle">Visualiza todos tus eventos académicos</p>
+                    <button class="btn-primary btn-small" onclick="addCalendarEventUI()">+ Nuevo evento</button>
                 </div>
 
                 <div class="calendar-container">
@@ -615,6 +617,7 @@
 
                     <div class="events-list">
                         <h3>Próximos Eventos (Junio 2026)</h3>
+                        <div id="custom-events-list"></div>
                         <div class="event-item event-exam">
                             <div class="event-date">
                                 <span class="day">08</span>
@@ -1032,7 +1035,7 @@
                         <div class="profile-avatar">AC</div>
                         <div class="profile-details">
                             <span class="profile-role">Estudiante</span>
-                            <h2>Adrian Chito</h2>
+                            <h2 id="profile-name">Adrian Chito</h2>
                             <p>Estudiante de Informática desarrollando AC Study como proyecto de grado.</p>
                             <div class="profile-tags">
                                 <span>Organización académica</span>
