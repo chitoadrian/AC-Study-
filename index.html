@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AC Study - Gestión Educativa Inteligente Personalizada</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="page active">
+        <nav class="landing-nav">
+            <div class="nav-logo">AC Study</div>
+            <div class="nav-actions">
+                <button class="btn-secondary" onclick="showLogin()">Inicia sesión</button>
+                <button class="btn-primary" onclick="showRegister()">Registrarse</button>
+                <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Gestión Educativa Inteligente Personalizada</h1>
+                <p>Organiza tus estudios, potencia tu aprendizaje con IA y alcanza tus metas académicas</p>
+                <button class="btn-large" onclick="showRegister()">Empezar ahora →</button>
+            </div>
+            <div class="hero-visual">
+                <div class="floating-card card-1">
+                    <span class="icon">📚</span>
+                    <p>Organización</p>
+                </div>
+                <div class="floating-card card-2">
+                    <span class="icon">🤖</span>
+                    <p>IA Inteligente</p>
+                </div>
+                <div class="floating-card card-3">
+                    <span class="icon">📊</span>
+                    <p>Progreso</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="benefits">
+            <h2>¿Por qué elegir AC Study?</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">📋</div>
+                    <h3>Organización Académica</h3>
+                    <p>Gestiona todas tus materias, tareas y evaluaciones en un solo lugar</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🤖</div>
+                    <h3>Asistente IA</h3>
+                    <p>Obtén resúmenes, preguntas de práctica y flashcards generadas automáticamente</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📅</div>
+                    <h3>Calendario Inteligente</h3>
+                    <p>Visualiza todas tus actividades académicas y planifica tu tiempo eficientemente</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📈</div>
+                    <h3>Progreso Estudiantil</h3>
+                    <p>Rastrear tu rendimiento, niveles, logros y mantén una racha de estudio consistente</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-project">
+            <div class="about-container">
+                <div class="about-text">
+                    <h2>Acerca de AC Study</h2>
+                    <p class="about-description">
+                        AC Study es una plataforma educativa inteligente que ayuda a los estudiantes a organizar materias, tareas, calendario, notas y mejorar el aprendizaje mediante herramientas digitales e inteligencia artificial simulada. 
+                    </p>
+                    <p class="about-description">
+                        Nuestro objetivo es proporcionar a cada estudiante una experiencia de aprendizaje personalizada, permitiendo una mejor gestión del tiempo académico y potenciando el desarrollo de habilidades de estudio con soporte de tecnología inteligente.
+                    </p>
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <span class="feature-icon">✓</span>
+                            <span>Organización completa de estudios</span>
+                        </div>
+                        <div class="about-feature">
+                            <span class="feature-icon">✓</span>
+                            <span>Asistente IA para generación de contenido</span>
+                        </div>
+                        <div class="about-feature">
+                            <span class="feature-icon">✓</span>
+                            <span>Gamificación y seguimiento de progreso</span>
+                        </div>
+                        <div class="about-feature">
+                            <span class="feature-icon">✓</span>
+                            <span>Interfaz intuitiva y moderna</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-visual">
+                    <div class="about-stat">
+                        <span class="stat-num">11+</span>
+                        <span class="stat-label">Secciones</span>
+                    </div>
+                    <div class="about-stat">
+                        <span class="stat-num">50+</span>
+                        <span class="stat-label">Características</span>
+                    </div>
+                    <div class="about-stat">
+                        <span class="stat-num">100%</span>
+                        <span class="stat-label">Responsive</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="landing-footer">
+            <p>&copy; 2026 AC Study. Proyecto de Grado - Gestión Educativa Inteligente Personalizada</p>
+        </footer>
+    </div>
+
+    <!-- LOGIN PAGE -->
+    <div id="login-page" class="page">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2>Inicia sesión</h2>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="login-email" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn-primary btn-block">Inicia sesión</button>
+                </form>
+                <p class="auth-link">¿No tienes cuenta? <a href="#" onclick="showRegister()">Regístrate aquí</a></p>
+                <button class="btn-secondary btn-block" onclick="showLanding()">← Volver</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTER PAGE -->
+    <div id="register-page" class="page">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2>Crear cuenta</h2>
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label>Nombre completo</label>
+                        <input type="text" id="register-name" placeholder="Adrian Lopez" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="register-email" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="register-password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn-primary btn-block">Crear cuenta</button>
+                </form>
+                <p class="auth-link">¿Ya tienes cuenta? <a href="#" onclick="showLogin()">Inicia sesión aquí</a></p>
+                <button class="btn-secondary btn-block" onclick="showLanding()">← Volver</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="app-page" class="page">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-logo">AC Study</h1>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" onclick="navigateTo('dashboard')" class="nav-item active" data-section="dashboard">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">Inicio</span>
+                </a>
+                <a href="#" onclick="navigateTo('subjects')" class="nav-item" data-section="subjects">
+                    <span class="nav-icon">📚</span>
+                    <span class="nav-label">Materias</span>
+                </a>
+                <a href="#" onclick="navigateTo('tasks')" class="nav-item" data-section="tasks">
+                    <span class="nav-icon">✓</span>
+                    <span class="nav-label">Tareas</span>
+                </a>
+                <a href="#" onclick="navigateTo('calendar')" class="nav-item" data-section="calendar">
+                    <span class="nav-icon">📅</span>
+                    <span class="nav-label">Calendario</span>
+                </a>
+                <a href="#" onclick="navigateTo('grades')" class="nav-item" data-section="grades">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Notas</span>
+                </a>
+                <a href="#" onclick="navigateTo('ai-assistant')" class="nav-item" data-section="ai-assistant">
+                    <span class="nav-icon">🤖</span>
+                    <span class="nav-label">Asistente IA</span>
+                </a>
+                <a href="#" onclick="navigateTo('progress')" class="nav-item" data-section="progress">
+                    <span class="nav-icon">🎮</span>
+                    <span class="nav-label">Progreso</span>
+                </a>
+                <a href="#" onclick="navigateTo('backpack')" class="nav-item" data-section="backpack">
+                    <span class="nav-icon">🎒</span>
+                    <span class="nav-label">Mochila Digital</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="theme-toggle sidebar-theme" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+                <button class="btn-secondary btn-block" onclick="handleLogout()">Cerrar sesión</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- DASHBOARD SECTION -->
+            <section id="dashboard" class="section active">
+                <div class="section-header">
+                    <h1>Hola Adrian Maximiliano 👋</h1>
+                    <p class="subtitle">Bienvenido de vuelta. Aquí está tu resumen académico</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon">✓</span>
+                            <span class="stat-label">Tareas Pendientes</span>
+                        </div>
+                        <div class="stat-value">5</div>
+                        <div class="stat-subtext">De 12 totales</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 58%"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon">📝</span>
+                            <span class="stat-label">Próximo Examen</span>
+                        </div>
+                        <div class="stat-value">Matemática</div>
+                        <div class="stat-subtext">En 8 días</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 75%; background: linear-gradient(90deg, #fd71af, #ffc800)"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon">📊</span>
+                            <span class="stat-label">Promedio Actual</span>
+                        </div>
+                        <div class="stat-value">8.5</div>
+                        <div class="stat-subtext">Excelente desempeño</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%; background: linear-gradient(90deg, #49ccf9, #7b68ee)"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon">🔥</span>
+                            <span class="stat-label">Racha de Estudio</span>
+                        </div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-subtext">días consecutivos</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%; background: linear-gradient(90deg, #ffc800, #fd71af)"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon">🎮</span>
+                            <span class="stat-label">Nivel y XP</span>
+                        </div>
+                        <div class="stat-value">Nivel 7</div>
+                        <div class="stat-subtext">2340 / 3000 XP</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 78%"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon">⏰</span>
+                            <span class="stat-label">Tiempo Estudiado</span>
+                        </div>
+                        <div class="stat-value">24.5h</div>
+                        <div class="stat-subtext">Esta semana</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-row">
+                    <div class="card">
+                        <h3>📚 Actividad Reciente</h3>
+                        <ul class="activity-list">
+                            <li>
+                                <span class="activity-time">Hace 2 horas</span>
+                                <span class="activity-text">Completaste la tarea de <strong>Física: Caída Libre</strong></span>
+                            </li>
+                            <li>
+                                <span class="activity-time">Hace 5 horas</span>
+                                <span class="activity-text">Registraste una nota 9.5 en <strong>Inglés</strong></span>
+                            </li>
+                            <li>
+                                <span class="activity-time">Hace 1 día</span>
+                                <span class="activity-text">Desbloqueaste el logro <strong>"Estudiante Dedicado"</strong></span>
+                            </li>
+                            <li>
+                                <span class="activity-time">Hace 2 días</span>
+                                <span class="activity-text">Generaste resumen en <strong>Programación</strong> con IA</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>🎯 Recomendaciones</h3>
+                        <div class="recommendations">
+                            <div class="recommendation-item">
+                                <span>📌</span>
+                                <p>Te faltan 3 tareas de Programación. ¡Complétales pronto!</p>
+                            </div>
+                            <div class="recommendation-item">
+                                <span>🧠</span>
+                                <p>Tu promedio en Física bajó. Considera usar el asistente IA</p>
+                            </div>
+                            <div class="recommendation-item">
+                                <span>🎓</span>
+                                <p>Estás cerca de subir a Nivel 8. Solo te faltan 660 XP</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SUBJECTS SECTION -->
+            <section id="subjects" class="section">
+                <div class="section-header">
+                    <h1>Materias</h1>
+                    <p class="subtitle">Manage todas tus asignaturas en un solo lugar</p>
+                </div>
+
+                <div class="subjects-grid">
+                    <div class="subject-card subject-math">
+                        <div class="subject-header">
+                            <h3>Matemática</h3>
+                            <span class="subject-icon">🔢</span>
+                        </div>
+                        <div class="subject-stats">
+                            <div class="stat">
+                                <span class="stat-name">Promedio</span>
+                                <span class="stat-num">8.7</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-name">Tareas</span>
+                                <span class="stat-num">8/10</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-name">Progreso</span>
+                                <span class="stat-num">87%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 87%; background: linear-gradient(90deg, #7b68ee, #49ccf9)"></div>
+                        </div>
+                        <p class="last-activity">Última actividad: Hace 3 horas</p>
+                        <button class="btn-secondary btn-small" onclick="alert('Accediendo a Matemática...')">Acceder →</button>
+                    </div>
+
+                    <div class="subject-card subject-physics">
+                        <div class="subject-header">
+                            <h3>Física</h3>
+                            <span class="subject-icon">⚛️</span>
+                        </div>
+                        <div class="subject-stats">
+                            <div class="stat">
+                                <span class="stat-name">Promedio</span>
+                                <span class="stat-num">7.9</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-name">Tareas</span>
+                                <span class="stat-num">7/10</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-name">Progreso</span>
+                                <span class="stat-num">79%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 79%; background: linear-gradient(90deg, #fd71af, #ffc800)"></div>
+                        </div>
+                        <p class="last-activity">Última actividad: Hace 1 día</p>
+                        <button class="btn-secondary btn-small" onclick="alert('Accediendo a Física...')">Acceder →</button>
+                    </div>
+
+                    <div class="subject-card subject-programming">
+                        <div class="subject-header">
+                            <h3>Programación</h3>
+                            <span class="subject-icon">💻</span>
+                        </div>
+                        <div class="subject-stats">
+                            <div class="stat">
+                                <span class="stat-name">Promedio</span>
+                                <span class="stat-num">9.2</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-name">Tareas</span>
+                                <span class="stat-num">9/10</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-name">Progreso</span>
+                                <span class="stat-num">92%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 92%; background: linear-gradient(90deg, #49ccf9, #7b68ee)"></div>
+                        </div>
+                        <p class="last-activity">Última actividad: Hace 2 horas</p>
+                        <button class="btn-secondary btn-small" onclick="alert('Accediendo a Programación...')">Acceder →</button>
+                    </div>
+
+                    <div class="subject-card subject-english">
+                        <div class="subject-header">
+                            <h3>Inglés</h3>
+                            <span class="subject-icon">🌐</span>
+                        </div>
+                        <div class="subject-stats">
+                            <div class="stat">
+                                <span class="stat-name">Promedio</span>
+                                <span class="stat-num">8.3</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-name">Tareas</span>
+                                <span class="stat-num">8/10</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-name">Progreso</span>
+                                <span class="stat-num">83%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 83%; background: linear-gradient(90deg, #ffc800, #fd71af)"></div>
+                        </div>
+                        <p class="last-activity">Última actividad: Hace 5 horas</p>
+                        <button class="btn-secondary btn-small" onclick="alert('Accediendo a Inglés...')">Acceder →</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TASKS SECTION -->
+            <section id="tasks" class="section">
+                <div class="section-header">
+                    <h1>Tareas</h1>
+                    <p class="subtitle">Organiza y completa tus actividades académicas</p>
+                    <button class="btn-primary btn-small" onclick="addTaskUI()">+ Nueva tarea</button>
+                </div>
+
+                <div class="tasks-container">
+                    <div class="task-filter">
+                        <button class="filter-btn active" onclick="filterTasks('all')">Todas</button>
+                        <button class="filter-btn" onclick="filterTasks('pending')">Pendientes</button>
+                        <button class="filter-btn" onclick="filterTasks('completed')">Completadas</button>
+                    </div>
+
+                    <div class="tasks-list" id="tasks-list">
+                        <div class="task-item" data-status="pending">
+                            <div class="task-checkbox">
+                                <input type="checkbox" onclick="toggleTask(this)">
+                            </div>
+                            <div class="task-content">
+                                <h4>Resolver ejercicios de Ecuaciones Cuadráticas</h4>
+                                <p class="task-subject">📐 Matemática</p>
+                                <p class="task-date">Vence: 10 de Junio</p>
+                            </div>
+                            <div class="task-priority high">Alta</div>
+                        </div>
+
+                        <div class="task-item" data-status="pending">
+                            <div class="task-checkbox">
+                                <input type="checkbox" onclick="toggleTask(this)">
+                            </div>
+                            <div class="task-content">
+                                <h4>Leer Capítulo 5 - Leyes de Newton</h4>
+                                <p class="task-subject">⚛️ Física</p>
+                                <p class="task-date">Vence: 12 de Junio</p>
+                            </div>
+                            <div class="task-priority medium">Media</div>
+                        </div>
+
+                        <div class="task-item" data-status="completed">
+                            <div class="task-checkbox">
+                                <input type="checkbox" onclick="toggleTask(this)" checked>
+                            </div>
+                            <div class="task-content">
+                                <h4>Proyecto: Crear calculadora en Python</h4>
+                                <p class="task-subject">💻 Programación</p>
+                                <p class="task-date">Completada: 4 de Junio</p>
+                            </div>
+                            <div class="task-priority high">Alta</div>
+                        </div>
+
+                        <div class="task-item" data-status="pending">
+                            <div class="task-checkbox">
+                                <input type="checkbox" onclick="toggleTask(this)">
+                            </div>
+                            <div class="task-content">
+                                <h4>Redactar ensayo en Inglés</h4>
+                                <p class="task-subject">🌐 Inglés</p>
+                                <p class="task-date">Vence: 15 de Junio</p>
+                            </div>
+                            <div class="task-priority low">Baja</div>
+                        </div>
+
+                        <div class="task-item" data-status="pending">
+                            <div class="task-checkbox">
+                                <input type="checkbox" onclick="toggleTask(this)">
+                            </div>
+                            <div class="task-content">
+                                <h4>Estudiar para Quiz de Programación</h4>
+                                <p class="task-subject">💻 Programación</p>
+                                <p class="task-date">Vence: 8 de Junio</p>
+                            </div>
+                            <div class="task-priority high">Alta</div>
+                        </div>
+
+                        <div class="task-item" data-status="completed">
+                            <div class="task-checkbox">
+                                <input type="checkbox" onclick="toggleTask(this)" checked>
+                            </div>
+                            <div class="task-content">
+                                <h4>Resolver práctica de integrales</h4>
+                                <p class="task-subject">📐 Matemática</p>
+                                <p class="task-date">Completada: 2 de Junio</p>
+                            </div>
+                            <div class="task-priority medium">Media</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CALENDAR SECTION -->
+            <section id="calendar" class="section">
+                <div class="section-header">
+                    <h1>Calendario</h1>
+                    <p class="subtitle">Visualiza todos tus eventos académicos</p>
+                </div>
+
+                <div class="calendar-container">
+                    <div class="calendar-mini" id="mini-calendar">
+                        <!-- Generado por JavaScript -->
+                    </div>
+
+                    <div class="events-list">
+                        <h3>Próximos Eventos (Junio 2026)</h3>
+                        <div class="event-item event-exam">
+                            <div class="event-date">
+                                <span class="day">08</span>
+                                <span class="month">Jun</span>
+                            </div>
+                            <div class="event-content">
+                                <h4>Quiz de Programación</h4>
+                                <p>Hora: 10:00 AM - 11:00 AM</p>
+                                <span class="event-badge">Examen</span>
+                            </div>
+                        </div>
+
+                        <div class="event-item event-deadline">
+                            <div class="event-date">
+                                <span class="day">10</span>
+                                <span class="month">Jun</span>
+                            </div>
+                            <div class="event-content">
+                                <h4>Entrega: Ejercicios de Matemática</h4>
+                                <p>Antes de las 11:59 PM</p>
+                                <span class="event-badge">Entrega</span>
+                            </div>
+                        </div>
+
+                        <div class="event-item event-exam">
+                            <div class="event-date">
+                                <span class="day">15</span>
+                                <span class="month">Jun</span>
+                            </div>
+                            <div class="event-content">
+                                <h4>Examen Parcial de Matemática</h4>
+                                <p>Hora: 9:00 AM - 12:00 PM</p>
+                                <span class="event-badge">Examen</span>
+                            </div>
+                        </div>
+
+                        <div class="event-item event-class">
+                            <div class="event-date">
+                                <span class="day">12</span>
+                                <span class="month">Jun</span>
+                            </div>
+                            <div class="event-content">
+                                <h4>Clase de Repaso: Física</h4>
+                                <p>Hora: 3:00 PM - 4:30 PM</p>
+                                <span class="event-badge">Clase</span>
+                            </div>
+                        </div>
+
+                        <div class="event-item event-deadline">
+                            <div class="event-date">
+                                <span class="day">20</span>
+                                <span class="month">Jun</span>
+                            </div>
+                            <div class="event-content">
+                                <h4>Entrega: Proyecto Final de Programación</h4>
+                                <p>Antes de las 11:59 PM</p>
+                                <span class="event-badge">Proyecto</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- GRADES SECTION -->
+            <section id="grades" class="section">
+                <div class="section-header">
+                    <h1>Notas</h1>
+                    <p class="subtitle">Registra y monitorea tu desempeño académico</p>
+                    <button class="btn-primary btn-small" onclick="showAddGradeForm()">+ Registrar nota</button>
+                </div>
+
+                <div class="grades-container">
+                    <div class="add-grade-form" id="add-grade-form" style="display: none;">
+                        <h3>Registrar nueva nota</h3>
+                        <form onsubmit="addGrade(event)">
+                            <div class="form-group">
+                                <label>Materia</label>
+                                <select id="grade-subject" required>
+                                    <option value="">Selecciona una materia</option>
+                                    <option value="Matemática">Matemática</option>
+                                    <option value="Física">Física</option>
+                                    <option value="Programación">Programación</option>
+                                    <option value="Inglés">Inglés</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Evaluación</label>
+                                <input type="text" id="grade-evaluation" placeholder="ej: Quiz 1, Parcial 2..." required>
+                            </div>
+                            <div class="form-group">
+                                <label>Nota (0-10)</label>
+                                <input type="number" id="grade-value" min="0" max="10" step="0.1" required>
+                            </div>
+                            <button type="submit" class="btn-primary">Guardar nota</button>
+                            <button type="button" class="btn-secondary" onclick="hideAddGradeForm()">Cancelar</button>
+                        </form>
+                    </div>
+
+                    <div class="grades-grid">
+                        <div class="grade-card">
+                            <h3>📐 Matemática</h3>
+                            <div class="grades-list">
+                                <div class="grade-item">
+                                    <span class="grade-name">Parcial 1</span>
+                                    <span class="grade-value">8.5</span>
+                                </div>
+                                <div class="grade-item">
+                                    <span class="grade-name">Quiz 2</span>
+                                    <span class="grade-value">9.0</span>
+                                </div>
+                                <div class="grade-item">
+                                    <span class="grade-name">Taller 3</span>
+                                    <span class="grade-value">8.2</span>
+                                </div>
+                                <div class="grade-item">
+                                    <span class="grade-name">Promedio</span>
+                                    <span class="grade-value grade-average">8.57</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grade-card">
+                            <h3>⚛️ Física</h3>
+                            <div class="grades-list">
+                                <div class="grade-item">
+                                    <span class="grade-name">Parcial 1</span>
+                                    <span class="grade-value">7.8</span>
+                                </div>
+                                <div class="grade-item">
+                                    <span class="grade-name">Quiz 2</span>
+                                    <span class="grade-value">8.0</span>
+                                </div>
+                                <div class="grade-item">
+                                    <span class="grade-name">Laboratorio</span>
+                                    <span class="grade-value">7.9</span>
+                                </div>
+                                <div class="grade-item">
+                                    <span class="grade-name">Promedio</span>
+                                    <span class="grade-value grade-average">7.90</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grade-card">
+                            <h3>💻 Programación</h3>
+                            <div class="grades-list">
+                                <div class="grade-item">
+                                    <span class="grade-name">Parcial 1</span>
+                                    <span class="grade-value">9.2</span>
+                                </div>
+                                <div class="grade-item">
+                                    <span class="grade-name">Proyecto 1</span>
+                                    <span class="grade-value">9.5</span>
+                                </div>
+                                <div class="grade-item">
+                                    <span class="grade-name">Quiz 3</span>
+                                    <span class="grade-value">8.8</span>
+                                </div>
+                                <div class="grade-item">
+                                    <span class="grade-name">Promedio</span>
+                                    <span class="grade-value grade-average">9.17</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grade-card">
+                            <h3>🌐 Inglés</h3>
+                            <div class="grades-list">
+                                <div class="grade-item">
+                                    <span class="grade-name">Speaking</span>
+                                    <span class="grade-value">8.0</span>
+                                </div>
+                                <div class="grade-item">
+                                    <span class="grade-name">Writing</span>
+                                    <span class="grade-value">8.5</span>
+                                </div>
+                                <div class="grade-item">
+                                    <span class="grade-name">Reading</span>
+                                    <span class="grade-value">8.3</span>
+                                </div>
+                                <div class="grade-item">
+                                    <span class="grade-name">Promedio</span>
+                                    <span class="grade-value grade-average">8.27</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI ASSISTANT SECTION -->
+            <section id="ai-assistant" class="section">
+                <div class="section-header">
+                    <h1>Asistente IA Simulado</h1>
+                    <p class="subtitle">Genera resúmenes, preguntas y flashcards instantáneamente</p>
+                </div>
+
+                <div class="ai-container">
+                    <div class="ai-input-section">
+                        <div class="form-group">
+                            <label>¿Sobre qué tema deseas aprender?</label>
+                            <textarea id="ai-topic" placeholder="Ejemplo: Fotosíntesis, Ecuaciones Diferenciales, Variables en Python..." rows="4"></textarea>
+                        </div>
+
+                        <div class="ai-buttons">
+                            <button class="btn-primary" onclick="generateSummary()">📝 Generar Resumen</button>
+                            <button class="btn-primary" onclick="generateQuestions()">❓ Crear Preguntas</button>
+                            <button class="btn-primary" onclick="generateFlashcards()">🎴 Crear Flashcards</button>
+                        </div>
+                    </div>
+
+                    <div class="ai-output-section" id="ai-output-section" style="display: none;">
+                        <div class="ai-result">
+                            <div class="result-header">
+                                <h3 id="result-title">Resultado</h3>
+                                <button class="btn-close" onclick="closeAIResult()">✕</button>
+                            </div>
+                            <div class="result-content" id="result-content">
+                                <!-- Contenido generado por IA -->
+                            </div>
+                            <div class="result-actions">
+                                <button class="btn-secondary" onclick="copyToClipboard()">📋 Copiar</button>
+                                <button class="btn-secondary" onclick="downloadResult()">⬇️ Descargar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PROGRESS SECTION -->
+            <section id="progress" class="section">
+                <div class="section-header">
+                    <h1>Tu Progreso</h1>
+                    <p class="subtitle">Gamificación educativa - Nivel, XP, Racha y Logros</p>
+                </div>
+
+                <div class="progress-container">
+                    <div class="level-display">
+                        <div class="level-card">
+                            <div class="level-number">7</div>
+                            <p>NIVEL ACTUAL</p>
+                            <div class="xp-bar">
+                                <div class="xp-fill" style="width: 78%"></div>
+                            </div>
+                            <p class="xp-text">2340 / 3000 XP</p>
+                        </div>
+
+                        <div class="stats-row">
+                            <div class="progress-stat">
+                                <span class="stat-label">🔥 Racha Actual</span>
+                                <span class="stat-value">12 días</span>
+                            </div>
+                            <div class="progress-stat">
+                                <span class="stat-label">🏆 Logros</span>
+                                <span class="stat-value">8/12</span>
+                            </div>
+                            <div class="progress-stat">
+                                <span class="stat-label">⏱️ Horas Estudiadas</span>
+                                <span class="stat-value">156.5h</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="achievements-section">
+                        <h3>🏆 Logros Desbloqueados</h3>
+                        <div class="achievements-grid">
+                            <div class="achievement unlocked" title="Primer paso: Completa tu primer tarea">
+                                <div class="achievement-icon">🚀</div>
+                                <p>Primer Paso</p>
+                            </div>
+                            <div class="achievement unlocked" title="Estudioso: Estudia 10 horas">
+                                <div class="achievement-icon">📚</div>
+                                <p>Estudioso</p>
+                            </div>
+                            <div class="achievement unlocked" title="Sin parar: Mantén una racha de 7 días">
+                                <div class="achievement-icon">🔥</div>
+                                <p>Sin Parar</p>
+                            </div>
+                            <div class="achievement unlocked" title="Promedio 8: Obtén promedio de 8.0 o más">
+                                <div class="achievement-icon">🎓</div>
+                                <p>Muy Bien</p>
+                            </div>
+                            <div class="achievement unlocked" title="Escritor: Crea 5 notas">
+                                <div class="achievement-icon">✍️</div>
+                                <p>Escritor</p>
+                            </div>
+                            <div class="achievement unlocked" title="Asistente: Usa 10 veces el asistente IA">
+                                <div class="achievement-icon">🤖</div>
+                                <p>Asistente</p>
+                            </div>
+                            <div class="achievement unlocked" title="Matemático: Completa 15 tareas de Matemática">
+                                <div class="achievement-icon">🔢</div>
+                                <p>Matemático</p>
+                            </div>
+                            <div class="achievement unlocked" title="Progresista: Completa 30 tareas">
+                                <div class="achievement-icon">⭐</div>
+                                <p>Progresista</p>
+                            </div>
+                            <div class="achievement locked" title="Leyenda: Sube a nivel 10">
+                                <div class="achievement-icon">👑</div>
+                                <p>Leyenda</p>
+                            </div>
+                            <div class="achievement locked" title="Maestro: Obtén promedio 9.5 en todas las materias">
+                                <div class="achievement-icon">🏅</div>
+                                <p>Maestro</p>
+                            </div>
+                            <div class="achievement locked" title="Racha Infinita: Mantén racha de 30 días">
+                                <div class="achievement-icon">♾️</div>
+                                <p>Racha Infinita</p>
+                            </div>
+                            <div class="achievement locked" title="Sabio: Usa asistente IA 50 veces">
+                                <div class="achievement-icon">🧙</div>
+                                <p>Sabio</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BACKPACK SECTION -->
+            <section id="backpack" class="section">
+                <div class="section-header">
+                    <h1>Mochila Digital</h1>
+                    <p class="subtitle">Tus recursos guardados y archivos académicos</p>
+                </div>
+
+                <div class="backpack-container">
+                    <div class="resource-card">
+                        <div class="resource-icon">📄</div>
+                        <h4>Apuntes de Física</h4>
+                        <p class="resource-type">PDF • 2.4 MB</p>
+                        <p class="resource-date">Agregado: 28 de Mayo</p>
+                        <div class="resource-actions">
+                            <button class="btn-secondary btn-small" onclick="alert('Abriendo Apuntes de Física...')">👁️ Ver</button>
+                            <button class="btn-secondary btn-small" onclick="downloadResource('Apuntes_Fisica.pdf')">⬇️ Descargar</button>
+                        </div>
+                    </div>
+
+                    <div class="resource-card">
+                        <div class="resource-icon">📚</div>
+                        <h4>Guía de Matemática</h4>
+                        <p class="resource-type">DOCX • 1.8 MB</p>
+                        <p class="resource-date">Agregado: 1 de Junio</p>
+                        <div class="resource-actions">
+                            <button class="btn-secondary btn-small" onclick="alert('Abriendo Guía de Matemática...')">👁️ Ver</button>
+                            <button class="btn-secondary btn-small" onclick="downloadResource('Guia_Matematica.docx')">⬇️ Descargar</button>
+                        </div>
+                    </div>
+
+                    <div class="resource-card">
+                        <div class="resource-icon">💻</div>
+                        <h4>Informe de Programación</h4>
+                        <p class="resource-type">PDF • 3.2 MB</p>
+                        <p class="resource-date">Agregado: 3 de Junio</p>
+                        <div class="resource-actions">
+                            <button class="btn-secondary btn-small" onclick="alert('Abriendo Informe de Programación...')">👁️ Ver</button>
+                            <button class="btn-secondary btn-small" onclick="downloadResource('Informe_Programacion.pdf')">⬇️ Descargar</button>
+                        </div>
+                    </div>
+
+                    <div class="resource-card">
+                        <div class="resource-icon">🎥</div>
+                        <h4>Videos Educativos (Carpeta)</h4>
+                        <p class="resource-type">Carpeta • 12 archivos</p>
+                        <p class="resource-date">Agregado: 15 de Abril</p>
+                        <div class="resource-actions">
+                            <button class="btn-secondary btn-small" onclick="alert('Abriendo carpeta de Videos...')">👁️ Ver</button>
+                            <button class="btn-secondary btn-small" onclick="downloadResource('Videos_Educativos.zip')">⬇️ Descargar</button>
+                        </div>
+                    </div>
+
+                    <div class="resource-card">
+                        <div class="resource-icon">📊</div>
+                        <h4>Tabla de Elementos</h4>
+                        <p class="resource-type">XLSX • 856 KB</p>
+                        <p class="resource-date">Agregado: 22 de Mayo</p>
+                        <div class="resource-actions">
+                            <button class="btn-secondary btn-small" onclick="alert('Abriendo Tabla de Elementos...')">👁️ Ver</button>
+                            <button class="btn-secondary btn-small" onclick="downloadResource('Tabla_Elementos.xlsx')">⬇️ Descargar</button>
+                        </div>
+                    </div>
+
+                    <div class="resource-card">
+                        <div class="resource-icon">📖</div>
+                        <h4>Diccionario de Inglés</h4>
+                        <p class="resource-type">PDF • 5.6 MB</p>
+                        <p class="resource-date">Agregado: 10 de Abril</p>
+                        <div class="resource-actions">
+                            <button class="btn-secondary btn-small" onclick="alert('Abriendo Diccionario...')">👁️ Ver</button>
+                            <button class="btn-secondary btn-small" onclick="downloadResource('Diccionario_Ingles.pdf')">⬇️ Descargar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
