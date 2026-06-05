@@ -28,10 +28,6 @@ const simulatedUsers = {
 // INICIALIZACIÓN
 // ============================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
-});
-
 function initializeApp() {
     // Cargar tema guardado
     if (isDarkTheme) {
@@ -63,13 +59,16 @@ function initializeApp() {
 // ============================================
 
 function showPage(pageId) {
+    const selectedPage = document.getElementById(pageId);
+    if (!selectedPage) return;
+
     // Ocultar todas las páginas
     document.querySelectorAll('.page').forEach(page => {
         page.classList.remove('active');
     });
 
     // Mostrar página seleccionada
-    document.getElementById(pageId).classList.add('active');
+    selectedPage.classList.add('active');
 
     // Si es la app, mostrar la sección por defecto
     if (pageId === 'app-page' && !currentUser) {
@@ -91,9 +90,27 @@ function showRegister() {
     showPage('register-page');
 }
 
+function startPrototype() {
+    currentUser = {
+        email: 'adrian@example.com',
+        name: 'Adrian Maximiliano Chito Vargas'
+    };
+
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    showApp();
+}
+
 function showApp() {
     showPage('app-page');
+    updateDashboardGreeting();
     navigateTo('dashboard');
+}
+
+function updateDashboardGreeting() {
+    const dashboardTitle = document.querySelector('#dashboard .section-header h1');
+    if (dashboardTitle) {
+        dashboardTitle.textContent = 'Hola Adrian 👋';
+    }
 }
 
 // ============================================
@@ -187,6 +204,9 @@ function navigateTo(sectionId, evt) {
     const section = document.getElementById(sectionId);
     if (section) {
         section.classList.add('active');
+    } else {
+        navigateTo('dashboard');
+        return;
     }
 
     // Agregar clase active al nav item correspondiente
@@ -271,12 +291,15 @@ function toggleTask(checkbox) {
     }
 }
 
-function filterTasks(filter) {
+function filterTasks(filter, button) {
     // Actualizar botón activo
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+
+    if (button) {
+        button.classList.add('active');
+    }
 
     // Filtrar tareas
     const tasks = document.querySelectorAll('.task-item');

@@ -22,7 +22,7 @@
             <div class="hero-content">
                 <h1>Gestión Educativa Inteligente Personalizada</h1>
                 <p>Organiza tus estudios, potencia tu aprendizaje con IA y alcanza tus metas académicas</p>
-                <button class="btn-large" onclick="showRegister()">Empezar ahora →</button>
+                <button class="btn-large" onclick="startPrototype()">Empezar ahora</button>
             </div>
             <div class="hero-visual">
                 <div class="floating-card card-1">
@@ -220,7 +220,7 @@
             <!-- DASHBOARD SECTION -->
             <section id="dashboard" class="section active">
                 <div class="section-header">
-                    <h1>Hola Adrian Maximiliano 👋</h1>
+                    <h1>Hola Adrian 👋</h1>
                     <p class="subtitle">Bienvenido de vuelta. Aquí está tu resumen académico</p>
                 </div>
 
@@ -276,12 +276,36 @@
                     <div class="stat-card">
                         <div class="stat-header">
                             <span class="stat-icon">🎮</span>
-                            <span class="stat-label">Nivel y XP</span>
+                            <span class="stat-label">Nivel Actual</span>
                         </div>
                         <div class="stat-value">Nivel 7</div>
                         <div class="stat-subtext">2340 / 3000 XP</div>
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: 78%"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon">📚</span>
+                            <span class="stat-label">Materias Activas</span>
+                        </div>
+                        <div class="stat-value">4</div>
+                        <div class="stat-subtext">Matemática, Física, Programación e Inglés</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-blue"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon">⚡</span>
+                            <span class="stat-label">XP Acumulado</span>
+                        </div>
+                        <div class="stat-value">2340</div>
+                        <div class="stat-subtext">660 XP para subir de nivel</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-pink"></div>
                         </div>
                     </div>
 
@@ -337,6 +361,20 @@
                                 <p>Estás cerca de subir a Nivel 8. Solo te faltan 660 XP</p>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="card weekly-progress-card">
+                        <h3>📈 Progreso semanal</h3>
+                        <div class="weekly-chart" aria-label="Grafico semanal simulado">
+                            <span class="week-day h-42"></span>
+                            <span class="week-day h-58"></span>
+                            <span class="week-day h-68"></span>
+                            <span class="week-day h-76"></span>
+                            <span class="week-day h-92"></span>
+                            <span class="week-day h-64"></span>
+                            <span class="week-day h-84"></span>
+                        </div>
+                        <p class="chart-caption">78% de avance en tareas, repasos y notas esta semana.</p>
                     </div>
                 </div>
             </section>
@@ -465,9 +503,10 @@
 
                 <div class="tasks-container">
                     <div class="task-filter">
-                        <button class="filter-btn active" onclick="filterTasks('all')">Todas</button>
-                        <button class="filter-btn" onclick="filterTasks('pending')">Pendientes</button>
-                        <button class="filter-btn" onclick="filterTasks('completed')">Completadas</button>
+                        <button class="filter-btn active" onclick="filterTasks('all', this)">Todas</button>
+                        <button class="filter-btn" onclick="filterTasks('pending', this)">Pendientes</button>
+                        <button class="filter-btn" onclick="filterTasks('completed', this)">Completadas</button>
+                        <button class="filter-btn" onclick="filterTasks('upcoming', this)">Próximas</button>
                     </div>
 
                     <div class="tasks-list" id="tasks-list">
@@ -541,6 +580,18 @@
                                 <p class="task-date">Completada: 2 de Junio</p>
                             </div>
                             <div class="task-priority medium">Media</div>
+                        </div>
+
+                        <div class="task-item" data-status="upcoming">
+                            <div class="task-checkbox">
+                                <input type="checkbox" onclick="toggleTask(this)">
+                            </div>
+                            <div class="task-content">
+                                <h4>Preparar exposición del proyecto AC Study</h4>
+                                <p class="task-subject">🎓 Proyecto de grado</p>
+                                <p class="task-date">Próxima: 18 de Junio</p>
+                            </div>
+                            <div class="task-priority medium">Próxima</div>
                         </div>
                     </div>
                 </div>
@@ -759,6 +810,16 @@
 
                 <div class="ai-container">
                     <div class="ai-input-section">
+                        <div class="assistant-chat-preview">
+                            <div class="assistant-message bot">
+                                <strong>AC Assistant</strong>
+                                <p>Escribe un tema y puedo simular un resumen, preguntas o flashcards para estudiar.</p>
+                            </div>
+                            <div class="assistant-message user">
+                                <p>Necesito repasar para mi examen de Matemática.</p>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label>¿Sobre qué tema deseas aprender?</label>
                             <textarea id="ai-topic" placeholder="Ejemplo: Fotosíntesis, Ecuaciones Diferenciales, Variables en Python..." rows="4"></textarea>
