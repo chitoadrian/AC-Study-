@@ -41,8 +41,13 @@ function initializeApp() {
     // Verificar si hay usuario en localStorage
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        showApp();
+        try {
+            currentUser = JSON.parse(savedUser);
+            showApp();
+        } catch (error) {
+            localStorage.removeItem('currentUser');
+            showLanding();
+        }
     } else {
         showLanding();
     }
@@ -69,6 +74,7 @@ function showPage(pageId) {
 
     // Mostrar página seleccionada
     selectedPage.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Si es la app, mostrar la sección por defecto
     if (pageId === 'app-page' && !currentUser) {
@@ -523,9 +529,28 @@ function closeAIResult() {
 
 function copyToClipboard() {
     const content = document.getElementById('result-content').textContent;
-    navigator.clipboard.writeText(content).then(() => {
-        alert('✓ Contenido copiado al portapapeles');
-    });
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(content).then(() => {
+            alert('✓ Contenido copiado al portapapeles');
+        }).catch(() => {
+            fallbackCopy(content);
+        });
+        return;
+    }
+
+    fallbackCopy(content);
+}
+
+function fallbackCopy(content) {
+    const textarea = document.createElement('textarea');
+    textarea.value = content;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    alert('✓ Contenido copiado al portapapeles');
 }
 
 function downloadResult() {
