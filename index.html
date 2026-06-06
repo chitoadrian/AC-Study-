@@ -195,6 +195,10 @@
                     <span class="nav-icon">📊</span>
                     <span class="nav-label">Notas</span>
                 </a>
+                <a href="#" onclick="navigateTo('attendance')" class="nav-item" data-section="attendance">
+                    <span class="nav-icon">🗓️</span>
+                    <span class="nav-label">Asistencia</span>
+                </a>
                 <a href="#" onclick="navigateTo('ai-assistant')" class="nav-item" data-section="ai-assistant">
                     <span class="nav-icon">🤖</span>
                     <span class="nav-label">Asistente IA</span>
@@ -808,6 +812,19 @@
                 </div>
             </section>
 
+            <!-- ATTENDANCE SECTION -->
+            <section id="attendance" class="section">
+                <div class="section-header">
+                    <h1>Asistencia</h1>
+                    <p class="subtitle">Registra tus clases asistidas y faltas de forma simple</p>
+                    <button class="btn-primary btn-small" onclick="addAttendanceUI()">+ Registrar asistencia</button>
+                </div>
+
+                <div class="attendance-container" id="attendance-container">
+                    <!-- Generado por JavaScript -->
+                </div>
+            </section>
+
             <!-- AI ASSISTANT SECTION -->
             <section id="ai-assistant" class="section">
                 <div class="section-header">
@@ -836,6 +853,7 @@
                             <button class="btn-primary" onclick="generateSummary()">📝 Generar Resumen</button>
                             <button class="btn-primary" onclick="generateQuestions()">❓ Crear Preguntas</button>
                             <button class="btn-primary" onclick="generateFlashcards()">🎴 Crear Flashcards</button>
+                            <button class="btn-primary" onclick="generateSimpleExplanation()">💡 Explicación sencilla</button>
                         </div>
                     </div>
 
