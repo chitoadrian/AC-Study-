@@ -5891,6 +5891,10 @@ body.light-theme .resource-card {
     margin-top: 8px;
 }
 
+#backpack [data-resource-view] {
+    display: none !important;
+}
+
 #backpack .resource-actions button {
     width: 100%;
     min-width: 0;
@@ -5902,7 +5906,7 @@ body.light-theme .resource-card {
 
 @media (min-width: 1180px) {
     #backpack .resource-actions {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 

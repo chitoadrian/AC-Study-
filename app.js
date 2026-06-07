@@ -2759,6 +2759,134 @@ function renderProgress(workspace) {
     `;
 }
 
+function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        if (!file || !file.name) {
+            resolve('');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result || '');
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+    });
+}
+
+function openResourceForm(resourceId = null) {
+    const workspace = loadWorkspace();
+    const resource = workspace.resources.find(item => item.id === resourceId);
+    openQuickForm({
+        title: resource ? 'Editar PDF simulado' : 'Subir PDF simulado',
+        submitLabel: resource ? 'Actualizar recurso' : 'Guardar recurso',
+        fields: [
+            { name: 'title', label: 'Titulo del recurso', value: resource?.title || '', placeholder: 'Ej: Guia de cinematica' },
+            { name: 'subject', label: 'Materia', type: 'select', options: getSubjectOptions(workspace), value: resource?.subject || '' },
+            { name: 'file', label: 'Archivo PDF', type: 'file', accept: '.pdf,application/pdf', required: !resource },
+            { name: 'description', label: 'Descripcion del apunte', type: 'textarea', value: resource?.description || resource?.content || '', placeholder: 'Describe de que trata el PDF' }
+        ],
+        onSubmit: async values => {
+            const fresh = loadWorkspace();
+            const uploadedFile = values.file && values.file.name ? values.file : null;
+            const fileName = uploadedFile?.name || resource?.fileName || `${values.title.trim()}.pdf`;
+            let fileDataUrl = resource?.fileDataUrl || '';
+
+            try {
+                if (uploadedFile) fileDataUrl = await readFileAsDataUrl(uploadedFile);
+            } catch (error) {
+                notify('No se pudo leer el PDF. Intenta subirlo otra vez.', 'error');
+                return;
+            }
+
+            const payload = {
+                title: values.title.trim(),
+                subject: values.subject,
+                fileName,
+                fileDataUrl,
+                fileMime: uploadedFile?.type || resource?.fileMime || 'application/pdf',
+                description: values.description.trim(),
+                content: values.description.trim(),
+                type: 'PDF'
+            };
+
+            try {
+                if (resourceId) {
+                    const item = fresh.resources.find(entry => entry.id === resourceId);
+                    if (item) Object.assign(item, payload);
+                    addRecent(fresh, `Editaste el recurso ${payload.title}.`);
+                } else {
+                    fresh.resources.push({ id: createId(), usedAI: false, ...payload });
+                    addXP(fresh, 20);
+                    addRecent(fresh, `Subiste el PDF ${payload.title}.`);
+                }
+                saveWorkspace(fresh);
+            } catch (error) {
+                notify('El PDF es muy pesado para guardarlo en este prototipo. Prueba con un archivo mas pequeno.', 'error');
+                return;
+            }
+
+            refreshWorkspaceUI();
+            notify(resourceId ? 'Recurso actualizado.' : 'PDF guardado correctamente.', 'success');
+        }
+    });
+}
+
+function renderBackpack(workspace) {
+    const section = document.getElementById('backpack');
+    const container = document.querySelector('.backpack-container');
+    if (!section || !container) return;
+
+    const header = section.querySelector('.section-header');
+    if (header && !header.querySelector('[data-action="add-resource"]')) {
+        header.insertAdjacentHTML('beforeend', '<button class="btn-primary btn-small" data-action="add-resource" onclick="addResourceUI()">+ Subir PDF</button>');
+    }
+
+    container.innerHTML = workspace.resources.length ? workspace.resources.map(resource => {
+        const description = resource.description || resource.content || 'Sin descripcion';
+        const shortDescription = description.length > 130 ? `${description.slice(0, 130)}...` : description;
+        return `
+            <div class="resource-card">
+                <div class="resource-top">
+                    <div class="resource-icon resource-pdf-icon" aria-hidden="true"></div>
+                    <div class="resource-info">
+                        <h4>${escapeHTML(resource.title)}</h4>
+                        <p class="resource-type">${escapeHTML(resource.subject)} - ${escapeHTML(resource.fileName || 'PDF')}</p>
+                    </div>
+                </div>
+                <p class="resource-date">${escapeHTML(shortDescription)}</p>
+                <div class="resource-actions">
+                    <button class="btn-secondary btn-small" data-resource-ai="${escapeHTML(resource.id)}">Preguntar a la IA</button>
+                    <button class="btn-secondary btn-small" data-resource-practice="${escapeHTML(resource.id)}">Practicar con PDF</button>
+                    <button class="btn-secondary btn-small" data-resource-edit="${escapeHTML(resource.id)}">Editar</button>
+                    <button class="btn-danger btn-small" data-resource-delete="${escapeHTML(resource.id)}">Eliminar</button>
+                </div>
+            </div>
+        `;
+    }).join('') : emptyStateHTML('No has subido apuntes todavia.', 'Subir primer PDF', 'addResourceUI()');
+
+    container.querySelectorAll('[data-resource-ai]').forEach(button => button.addEventListener('click', () => askAIAboutResource(button.dataset.resourceAi)));
+    container.querySelectorAll('[data-resource-practice]').forEach(button => button.addEventListener('click', () => practiceWithResource(button.dataset.resourcePractice)));
+    container.querySelectorAll('[data-resource-edit]').forEach(button => button.addEventListener('click', () => openResourceForm(button.dataset.resourceEdit)));
+    container.querySelectorAll('[data-resource-delete]').forEach(button => button.addEventListener('click', () => deleteResource(button.dataset.resourceDelete)));
+}
+
+function practiceWithResource(resourceId) {
+    const resource = markResourceAIUsed(resourceId, 'Abriste un PDF desde Mochila Digital.');
+    if (!resource) return;
+
+    if (resource.fileDataUrl) {
+        const tab = window.open(resource.fileDataUrl, '_blank', 'noopener');
+        if (!tab) {
+            notify('El navegador bloqueo la pestaña nueva. Permite ventanas emergentes para abrir el PDF.', 'error');
+            return;
+        }
+        notify('PDF abierto en una nueva pestaña.', 'success');
+        return;
+    }
+
+    notify('Este recurso no tiene el archivo PDF guardado. Editalo y vuelve a subir el PDF.', 'error');
+}
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
