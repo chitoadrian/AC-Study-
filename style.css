@@ -5202,46 +5202,46 @@ body.light-theme #landing-page .benefits {
     background:
         radial-gradient(circle at 12% 18%, rgba(73, 204, 249, 0.14), transparent 30%),
         radial-gradient(circle at 88% 24%, rgba(253, 113, 175, 0.12), transparent 30%),
-        linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+        linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%) !important;
 }
 
 body.light-theme #landing-page .benefits h2 {
-    color: #182235;
+    color: #182235 !important;
 }
 
 body.light-theme #landing-page .section-eyebrow {
-    color: #0369a1;
-    border-color: rgba(14, 165, 233, 0.28);
-    background: rgba(224, 242, 254, 0.82);
+    color: #0369a1 !important;
+    border-color: rgba(14, 165, 233, 0.28) !important;
+    background: rgba(224, 242, 254, 0.82) !important;
 }
 
 body.light-theme #landing-page .benefit-card {
     background:
         linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(247, 250, 255, 0.88)),
-        #ffffff;
-    border-color: rgba(71, 85, 105, 0.16);
-    box-shadow: 0 20px 48px rgba(15, 23, 42, 0.10);
+        #ffffff !important;
+    border-color: rgba(71, 85, 105, 0.16) !important;
+    box-shadow: 0 20px 48px rgba(15, 23, 42, 0.10) !important;
 }
 
 body.light-theme #landing-page .benefit-card h3 {
-    color: #172033;
+    color: #172033 !important;
 }
 
 body.light-theme #landing-page .benefit-card p {
-    color: #475569;
+    color: #475569 !important;
 }
 
 body.light-theme #landing-page .benefit-icon {
     background:
         linear-gradient(145deg, rgba(123, 104, 238, 0.16), rgba(73, 204, 249, 0.16)),
-        #ffffff;
-    border-color: rgba(123, 104, 238, 0.16);
+        #ffffff !important;
+    border-color: rgba(123, 104, 238, 0.16) !important;
 }
 
 body.light-theme #landing-page .about-project {
     background:
         radial-gradient(circle at 88% 28%, rgba(73, 204, 249, 0.14), transparent 30%),
-        linear-gradient(135deg, #ffffff 0%, #f3f6ff 100%);
+        linear-gradient(135deg, #ffffff 0%, #f3f6ff 100%) !important;
 }
 
 body.light-theme #landing-page .about-text h2 {
@@ -5252,17 +5252,17 @@ body.light-theme #landing-page .about-text h2 {
 }
 
 body.light-theme #landing-page .about-description {
-    color: #334155;
+    color: #334155 !important;
 }
 
 body.light-theme #landing-page .about-feature {
     background:
         linear-gradient(135deg, rgba(123, 104, 238, 0.10), rgba(73, 204, 249, 0.08)),
-        #ffffff;
-    border-color: rgba(123, 104, 238, 0.22);
-    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        #ffffff !important;
+    border-color: rgba(123, 104, 238, 0.22) !important;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08) !important;
 }
 
 body.light-theme #landing-page .about-feature span:last-child {
-    color: #24324a;
+    color: #24324a !important;
 }
