@@ -1254,7 +1254,7 @@ function addSubjectUI() {
         submitLabel: 'Guardar materia',
         fields: [
             { name: 'name', label: 'Nombre de la materia', placeholder: 'Ej: Matematica' },
-            { name: 'color', label: 'Color identificador', type: 'select', options: ['Morado', 'Azul', 'Rosado', 'Cian'] }
+            { name: 'color', label: 'Color identificador', type: 'select', options: subjectColorOptions }
         ],
         onSubmit: values => {
             const workspace = loadWorkspace();
@@ -1383,7 +1383,7 @@ function addCalendarEventUI() {
         fields: [
             { name: 'title', label: 'Evento academico', placeholder: 'Ej: Examen de fisica' },
             { name: 'day', label: 'Fecha o dia', value: 'Por definir' },
-            { name: 'type', label: 'Tipo', type: 'select', options: ['Examen', 'Entrega', 'Exposicion', 'Clase'] },
+            { name: 'type', label: 'Tipo', type: 'select', options: eventTypeOptions },
             { name: 'time', label: 'Hora o detalle', value: 'Por definir' }
         ],
         onSubmit: values => {
@@ -1516,7 +1516,7 @@ function addAttendanceUI() {
         fields: [
             { name: 'subject', label: 'Materia', type: 'select', options: subjectOptions },
             { name: 'date', label: 'Fecha', value: new Date().toLocaleDateString('es-EC') },
-            { name: 'status', label: 'Estado', type: 'select', options: ['Asisti', 'Falta', 'Atraso'] }
+            { name: 'status', label: 'Estado', type: 'select', options: attendanceStatusOptions }
         ],
         onSubmit: values => {
             const fresh = loadWorkspace();
@@ -1743,6 +1743,40 @@ const subjectColorMap = {
     Amarillo: '#f59e0b'
 };
 
+const subjectColorOptions = [
+    { value: 'Morado', label: 'Morado creativo' },
+    { value: 'Azul', label: 'Azul concentracion' },
+    { value: 'Rosado', label: 'Rosado energia' },
+    { value: 'Cian', label: 'Cian tecnologia' },
+    { value: 'Verde', label: 'Verde avance' },
+    { value: 'Amarillo', label: 'Amarillo importante' }
+];
+
+const taskPriorityOptions = [
+    { value: 'alta', label: 'Importante' },
+    { value: 'media', label: 'Normal' },
+    { value: 'baja', label: 'Mas tarde' }
+];
+
+const taskStatusOptions = [
+    { value: 'pending', label: 'Pendiente ahora' },
+    { value: 'upcoming', label: 'Proxima / mas tarde' },
+    { value: 'completed', label: 'Completada' }
+];
+
+const eventTypeOptions = [
+    { value: 'examen', label: 'Examen' },
+    { value: 'tarea', label: 'Tarea' },
+    { value: 'exposicion', label: 'Exposicion' },
+    { value: 'recordatorio', label: 'Recordatorio' }
+];
+
+const attendanceStatusOptions = [
+    { value: 'Asisti', label: 'Asisti' },
+    { value: 'Falta', label: 'Falta' },
+    { value: 'Atraso', label: 'Atraso' }
+];
+
 function createId() {
     return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
@@ -1765,8 +1799,14 @@ function getGradeStatus(value) {
 
 function getTaskStatusLabel(status) {
     if (status === 'completed') return 'Completada';
-    if (status === 'upcoming') return 'Proxima';
-    return 'Pendiente';
+    if (status === 'upcoming') return 'Proxima / mas tarde';
+    return 'Pendiente ahora';
+}
+
+function getTaskPriorityLabel(priority) {
+    if (priority === 'alta') return 'Importante';
+    if (priority === 'baja') return 'Mas tarde';
+    return 'Normal';
 }
 
 function normalizeDate(value) {
@@ -1803,7 +1843,7 @@ function openSubjectForm(subjectId = null) {
         fields: [
             { name: 'name', label: 'Nombre de la materia', value: subject?.name || '', placeholder: 'Ej: Matematica' },
             { name: 'icon', label: 'Icono o etiqueta', value: subject?.icon || '📘', placeholder: 'Ej: 📐, FIS, PROG' },
-            { name: 'color', label: 'Color identificador', type: 'select', options: Object.keys(subjectColorMap), value: subject?.color || 'Morado' }
+            { name: 'color', label: 'Color identificador', type: 'select', options: subjectColorOptions, value: subject?.color || 'Morado' }
         ],
         onSubmit: values => {
             const fresh = loadWorkspace();
@@ -1908,8 +1948,8 @@ function openTaskForm(taskId = null) {
             { name: 'subject', label: 'Materia', type: 'select', options: getSubjectOptions(workspace), value: task?.subject || '' },
             { name: 'description', label: 'Descripcion', type: 'textarea', value: task?.description || '', placeholder: 'Detalles de la tarea' },
             { name: 'due', label: 'Fecha limite', type: 'date', value: normalizeDate(task?.due) },
-            { name: 'priority', label: 'Prioridad', type: 'select', options: ['baja', 'media', 'alta'], value: task?.priority || 'media' },
-            { name: 'status', label: 'Estado', type: 'select', options: ['pending', 'upcoming', 'completed'], value: task?.status || 'pending' }
+            { name: 'priority', label: 'Prioridad', type: 'select', options: taskPriorityOptions, value: task?.priority || 'media' },
+            { name: 'status', label: 'Estado', type: 'select', options: taskStatusOptions, value: task?.status || 'pending' }
         ],
         onSubmit: values => {
             const fresh = loadWorkspace();
@@ -1976,7 +2016,7 @@ function renderTasks(workspace) {
                             <p class="task-date">${escapeHTML(task.due || 'Sin fecha limite')}</p>
                             <p class="task-description">${escapeHTML(task.description || 'Sin descripcion')}</p>
                         </div>
-                        <div class="task-priority ${escapeHTML(task.priority || 'media')}">${escapeHTML(task.priority || 'media')}</div>
+                        <div class="task-priority ${escapeHTML(task.priority || 'media')}">${escapeHTML(getTaskPriorityLabel(task.priority || 'media'))}</div>
                         <div class="card-actions">
                             <button class="btn-secondary btn-small" data-task-edit="${escapeHTML(task.id)}">Editar</button>
                             <button class="btn-danger btn-small" data-task-delete="${escapeHTML(task.id)}">Eliminar</button>
@@ -2003,7 +2043,7 @@ function openEventForm(eventId = null) {
         submitLabel: event ? 'Actualizar evento' : 'Guardar evento',
         fields: [
             { name: 'title', label: 'Titulo del evento', value: event?.title || '', placeholder: 'Ej: Examen de fisica' },
-            { name: 'type', label: 'Tipo', type: 'select', options: ['examen', 'tarea', 'exposicion', 'recordatorio'], value: event?.type || 'recordatorio' },
+            { name: 'type', label: 'Tipo', type: 'select', options: eventTypeOptions, value: event?.type || 'recordatorio' },
             { name: 'date', label: 'Fecha', type: 'date', value: normalizeDate(event?.date) },
             { name: 'time', label: 'Hora', type: 'time', value: event?.time || '08:00' },
             { name: 'email', label: 'Correo del usuario', type: 'email', value: event?.email || currentUser?.email || '', placeholder: 'usuario@email.com' },

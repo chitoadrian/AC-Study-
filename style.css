@@ -2491,6 +2491,33 @@ body.light-theme .app-toast {
     font-family: inherit;
 }
 
+.quick-modal-form select,
+.form-group select,
+.grades-toolbar select {
+    color-scheme: dark;
+    appearance: auto;
+}
+
+.quick-modal-form select option,
+.form-group select option,
+.grades-toolbar select option {
+    background: #252a35;
+    color: #f8fafc;
+}
+
+body.light-theme .quick-modal-form select,
+body.light-theme .form-group select,
+body.light-theme .grades-toolbar select {
+    color-scheme: light;
+}
+
+body.light-theme .quick-modal-form select option,
+body.light-theme .form-group select option,
+body.light-theme .grades-toolbar select option {
+    background: #ffffff;
+    color: #111827;
+}
+
 .quick-modal-form input:focus,
 .quick-modal-form textarea:focus,
 .quick-modal-form select:focus {
