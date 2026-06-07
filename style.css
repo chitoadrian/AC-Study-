@@ -2413,18 +2413,23 @@ body.light-theme .app-toast {
     padding: 20px;
     background: rgba(3, 7, 18, 0.64);
     backdrop-filter: blur(10px);
+    overflow-y: auto;
 }
 
 .quick-modal-card {
-    width: min(440px, 100%);
+    width: min(560px, 100%);
+    max-height: min(88vh, 760px);
     position: relative;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 22px;
-    padding: 24px;
+    padding: 24px 24px 0;
     background:
         linear-gradient(145deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04)),
         var(--bg-secondary);
     box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .quick-modal-card h3 {
@@ -2449,6 +2454,8 @@ body.light-theme .app-toast {
 .quick-modal-form {
     display: grid;
     gap: 14px;
+    overflow-y: auto;
+    padding: 0 4px 0 0;
 }
 
 .quick-modal-form label {
@@ -2489,6 +2496,22 @@ body.light-theme .app-toast {
 .quick-modal-form select:focus {
     border-color: var(--color-cyan);
     box-shadow: 0 0 0 4px rgba(73, 204, 249, 0.14);
+}
+
+.quick-modal-actions {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+    margin: 4px -4px 0;
+    padding: 16px 4px 24px;
+    background:
+        linear-gradient(180deg, rgba(41, 45, 52, 0), var(--bg-secondary) 30%),
+        var(--bg-secondary);
+}
+
+.quick-modal-actions .btn-primary {
+    min-width: 180px;
 }
 
 body.light-theme .quick-modal {
@@ -3121,5 +3144,26 @@ body.light-theme .quick-modal {
         left: 12px;
         max-width: none;
         text-align: center;
+    }
+
+    .quick-modal {
+        padding: 10px;
+        align-items: stretch;
+    }
+
+    .quick-modal-card {
+        width: 100%;
+        max-height: calc(100vh - 20px);
+        border-radius: 18px;
+        padding: 20px 18px 0;
+    }
+
+    .quick-modal-actions {
+        justify-content: stretch;
+        padding-bottom: 18px;
+    }
+
+    .quick-modal-actions .btn-primary {
+        width: 100%;
     }
 }

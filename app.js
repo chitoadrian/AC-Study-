@@ -105,7 +105,9 @@ function openQuickForm(config) {
                         ${renderQuickField(field)}
                     </label>
                 `).join('')}
-                <button class="btn-primary btn-small" type="submit">${escapeHTML(config.submitLabel || 'Guardar')}</button>
+                <div class="quick-modal-actions">
+                    <button class="btn-primary btn-small" type="submit">${escapeHTML(config.submitLabel || 'Guardar')}</button>
+                </div>
             </form>
         </div>
     `;
@@ -1797,7 +1799,7 @@ function openSubjectForm(subjectId = null) {
 
     openQuickForm({
         title: subject ? 'Editar materia' : 'Crear materia',
-        submitLabel: subject ? 'Guardar cambios' : 'Guardar materia',
+        submitLabel: subject ? 'Actualizar materia' : 'Guardar materia',
         fields: [
             { name: 'name', label: 'Nombre de la materia', value: subject?.name || '', placeholder: 'Ej: Matematica' },
             { name: 'icon', label: 'Icono o etiqueta', value: subject?.icon || '📘', placeholder: 'Ej: 📐, FIS, PROG' },
@@ -1880,7 +1882,6 @@ function renderSubjects(workspace) {
                 <div class="progress-bar"><div class="progress-fill" style="width:${progress}%; background:linear-gradient(90deg, ${color}, #06b6d4)"></div></div>
                 <p class="last-activity">${taskCount ? `${completed} de ${taskCount} tareas completadas` : 'Sin tareas relacionadas todavia'}</p>
                 <div class="card-actions">
-                    <button class="btn-secondary btn-small" data-subject-open="${escapeHTML(subject.id)}">Acceder</button>
                     <button class="btn-secondary btn-small" data-subject-edit="${escapeHTML(subject.id)}">Editar</button>
                     <button class="btn-danger btn-small" data-subject-delete="${escapeHTML(subject.id)}">Eliminar</button>
                 </div>
@@ -1888,10 +1889,6 @@ function renderSubjects(workspace) {
         `;
     }).join('') : emptyStateHTML('No tienes materias registradas todavia.', 'Crear primera materia', 'addSubjectUI()');
 
-    grid.querySelectorAll('[data-subject-open]').forEach(button => button.addEventListener('click', () => {
-        const subject = workspace.subjects.find(item => item.id === button.dataset.subjectOpen);
-        if (subject) openSubject(subject.name);
-    }));
     grid.querySelectorAll('[data-subject-edit]').forEach(button => button.addEventListener('click', () => openSubjectForm(button.dataset.subjectEdit)));
     grid.querySelectorAll('[data-subject-delete]').forEach(button => button.addEventListener('click', () => deleteSubject(button.dataset.subjectDelete)));
 }
@@ -1905,7 +1902,7 @@ function openTaskForm(taskId = null) {
     const task = workspace.tasks.find(item => item.id === taskId);
     openQuickForm({
         title: task ? 'Editar tarea' : 'Crear tarea',
-        submitLabel: task ? 'Guardar cambios' : 'Guardar tarea',
+        submitLabel: task ? 'Actualizar tarea' : 'Guardar tarea',
         fields: [
             { name: 'title', label: 'Titulo', value: task?.title || '', placeholder: 'Ej: Resolver ejercicios' },
             { name: 'subject', label: 'Materia', type: 'select', options: getSubjectOptions(workspace), value: task?.subject || '' },
@@ -2003,7 +2000,7 @@ function openEventForm(eventId = null) {
     const event = workspace.events.find(item => item.id === eventId);
     openQuickForm({
         title: event ? 'Editar evento' : 'Crear evento',
-        submitLabel: event ? 'Guardar cambios' : 'Guardar evento',
+        submitLabel: event ? 'Actualizar evento' : 'Guardar evento',
         fields: [
             { name: 'title', label: 'Titulo del evento', value: event?.title || '', placeholder: 'Ej: Examen de fisica' },
             { name: 'type', label: 'Tipo', type: 'select', options: ['examen', 'tarea', 'exposicion', 'recordatorio'], value: event?.type || 'recordatorio' },
@@ -2101,7 +2098,7 @@ function openGradeForm(gradeId = null) {
     const grade = workspace.grades.find(item => item.id === gradeId);
     openQuickForm({
         title: grade ? 'Editar nota' : 'Registrar nota',
-        submitLabel: grade ? 'Guardar cambios' : 'Guardar nota',
+        submitLabel: grade ? 'Actualizar nota' : 'Guardar nota',
         fields: [
             { name: 'subject', label: 'Materia', type: 'select', options: getSubjectOptions(workspace), value: grade?.subject || '' },
             { name: 'evaluation', label: 'Actividad', value: grade?.evaluation || '', placeholder: 'Ej: Parcial 1' },
@@ -2225,7 +2222,7 @@ function openResourceForm(resourceId = null) {
     const resource = workspace.resources.find(item => item.id === resourceId);
     openQuickForm({
         title: resource ? 'Editar PDF simulado' : 'Subir PDF simulado',
-        submitLabel: resource ? 'Guardar cambios' : 'Guardar recurso',
+        submitLabel: resource ? 'Actualizar recurso' : 'Guardar recurso',
         fields: [
             { name: 'title', label: 'Titulo del recurso', value: resource?.title || '', placeholder: 'Ej: Guia de cinematica' },
             { name: 'subject', label: 'Materia', type: 'select', options: getSubjectOptions(workspace), value: resource?.subject || '' },
