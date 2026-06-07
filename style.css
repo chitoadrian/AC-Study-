@@ -902,6 +902,875 @@ body.light-theme .quick-modal-card {
     }
 }
 
+/* ============================================
+   LANDING FINAL OVERRIDE - PRIMERA HOJA ORDENADA
+   ============================================ */
+
+#landing-page .hero {
+    align-items: center;
+    min-height: auto;
+    padding: clamp(42px, 7vw, 92px) 0 clamp(56px, 8vw, 104px);
+}
+
+#landing-page .hero-visual {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    overflow: visible;
+    isolation: isolate;
+}
+
+#landing-page .hero-visual::before {
+    content: "";
+    position: absolute;
+    inset: 4% -8% 18% 8%;
+    z-index: -1;
+    border-radius: 40px;
+    background:
+        radial-gradient(circle at 22% 20%, rgba(123, 104, 238, 0.35), transparent 34%),
+        radial-gradient(circle at 82% 22%, rgba(253, 113, 175, 0.25), transparent 32%),
+        radial-gradient(circle at 48% 88%, rgba(73, 204, 249, 0.28), transparent 38%);
+    filter: blur(24px);
+}
+
+#landing-page .dashboard-mockup {
+    grid-column: 1 / -1;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    max-width: 620px;
+    min-height: 390px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 30px;
+}
+
+#landing-page .card-1,
+#landing-page .card-2,
+#landing-page .card-3,
+#landing-page .card-4,
+#landing-page .floating-card {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+}
+
+#landing-page .hero-visual .floating-card {
+    max-width: none;
+    min-height: 112px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    border-radius: 22px;
+    animation: landingCardRise 560ms ease both;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.045)),
+        rgba(38, 41, 54, 0.78);
+}
+
+#landing-page .floating-card .icon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    font-size: 24px;
+    background: linear-gradient(135deg, rgba(123, 104, 238, 0.95), rgba(73, 204, 249, 0.9));
+    box-shadow: 0 12px 26px rgba(73, 204, 249, 0.22);
+}
+
+#landing-page .floating-card p {
+    margin: 0;
+    color: #ffffff;
+    font-size: 15px;
+    line-height: 1.25;
+}
+
+#landing-page .card-4 .icon {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--color-pink), var(--color-purple));
+}
+
+#landing-page .benefits {
+    padding: clamp(70px, 8vw, 112px) clamp(22px, 4vw, 48px);
+    background:
+        radial-gradient(circle at 16% 20%, rgba(73, 204, 249, 0.12), transparent 28%),
+        radial-gradient(circle at 86% 28%, rgba(253, 113, 175, 0.12), transparent 30%),
+        linear-gradient(180deg, rgba(30, 31, 37, 0.98), rgba(25, 27, 35, 0.98));
+}
+
+#landing-page .benefits .section-eyebrow {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#landing-page .benefits h2 {
+    width: min(960px, 100%);
+    margin: 0 auto clamp(28px, 4vw, 48px);
+    color: #ffffff;
+    font-size: clamp(34px, 4.8vw, 58px);
+    line-height: 1.05;
+    text-align: center;
+}
+
+#landing-page .benefits-grid {
+    width: min(1260px, 100%);
+    margin: 0 auto;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+}
+
+#landing-page .benefit-card {
+    position: relative;
+    min-height: 286px;
+    padding: 28px;
+    overflow: hidden;
+    border-radius: 26px;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)),
+        rgba(38, 41, 54, 0.86);
+}
+
+#landing-page .benefit-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 5px;
+    background: linear-gradient(90deg, var(--color-purple), var(--color-cyan), var(--color-pink));
+}
+
+#landing-page .benefit-card::after {
+    content: "";
+    position: absolute;
+    right: -56px;
+    bottom: -64px;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(73, 204, 249, 0.22), transparent 66%);
+    transition: transform 260ms ease;
+}
+
+#landing-page .benefit-card:nth-child(2)::after {
+    background: radial-gradient(circle, rgba(253, 113, 175, 0.22), transparent 66%);
+}
+
+#landing-page .benefit-card:nth-child(3)::after {
+    background: radial-gradient(circle, rgba(0, 200, 117, 0.20), transparent 66%);
+}
+
+#landing-page .benefit-card:nth-child(4)::after {
+    background: radial-gradient(circle, rgba(255, 200, 0, 0.20), transparent 66%);
+}
+
+#landing-page .benefit-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(73, 204, 249, 0.18);
+}
+
+#landing-page .benefit-icon {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 28px;
+    border-radius: 20px;
+    font-size: 34px;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06)),
+        rgba(123, 104, 238, 0.20);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+#landing-page .benefit-card h3 {
+    color: #ffffff;
+    font-size: 24px;
+}
+
+#landing-page .benefit-card p {
+    color: #c4ccdc;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+#landing-page .about-project {
+    padding: clamp(72px, 8vw, 116px) clamp(22px, 4vw, 48px);
+    background:
+        linear-gradient(135deg, rgba(123, 104, 238, 0.08), transparent 34%),
+        radial-gradient(circle at 82% 52%, rgba(73, 204, 249, 0.14), transparent 26%),
+        #20232d;
+}
+
+#landing-page .about-container {
+    width: min(1220px, 100%);
+    gap: clamp(34px, 6vw, 76px);
+}
+
+#landing-page .about-text h2 {
+    max-width: 680px;
+    font-size: clamp(38px, 5vw, 60px);
+    line-height: 1.05;
+}
+
+#landing-page .about-description {
+    max-width: 760px;
+    color: #c8d0e0;
+    font-size: 17px;
+    line-height: 1.85;
+}
+
+#landing-page .about-feature {
+    min-height: 64px;
+    padding: 16px 18px;
+    border: 1px solid rgba(123, 104, 238, 0.28);
+    border-left: 4px solid var(--color-purple);
+    border-radius: 18px;
+    background:
+        linear-gradient(135deg, rgba(123, 104, 238, 0.18), rgba(73, 204, 249, 0.06)),
+        rgba(255, 255, 255, 0.035);
+}
+
+#landing-page .feature-icon {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 34px;
+    border-radius: 12px;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--color-purple), var(--color-cyan));
+}
+
+#landing-page .about-feature span:last-child {
+    color: #dce4f4;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+#landing-page .about-stat {
+    min-height: 184px;
+    display: grid;
+    align-content: center;
+    gap: 8px;
+    border-radius: 28px;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.06)),
+        linear-gradient(135deg, var(--color-purple), var(--color-cyan));
+}
+
+#landing-page .about-stat:nth-child(2) {
+    transform: translateY(24px);
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.06)),
+        linear-gradient(135deg, var(--color-pink), var(--color-purple));
+}
+
+#landing-page .about-stat:nth-child(3) {
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.06)),
+        linear-gradient(135deg, var(--color-green), var(--color-cyan));
+}
+
+#landing-page .stat-num {
+    color: #ffffff;
+    font-size: clamp(36px, 4.8vw, 54px);
+}
+
+#landing-page .stat-label {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+@media (max-width: 1100px) {
+    #landing-page .benefits-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    #landing-page .hero-visual {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #landing-page .dashboard-mockup {
+        min-height: 0;
+    }
+
+    #landing-page .mockup-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #landing-page .mockup-card.wide {
+        grid-column: auto;
+    }
+
+    #landing-page .hero-visual .floating-card {
+        min-height: 94px;
+        grid-template-columns: 40px minmax(0, 1fr);
+    }
+
+    #landing-page .floating-card .icon {
+        width: 40px;
+        height: 40px;
+        font-size: 21px;
+    }
+
+    #landing-page .benefits-grid,
+    #landing-page .about-container,
+    #landing-page .about-visual {
+        grid-template-columns: 1fr;
+    }
+
+    #landing-page .benefit-card,
+    #landing-page .about-stat,
+    #landing-page .about-stat:nth-child(2) {
+        min-height: auto;
+        transform: none;
+    }
+}
+
+@media (max-width: 520px) {
+    #landing-page .hero-visual {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   LANDING POLISH - ORDEN VISUAL Y PRESENTACION
+   ============================================ */
+
+#landing-page {
+    overflow-x: hidden;
+}
+
+#landing-page .hero {
+    align-items: center;
+    min-height: auto;
+    padding-top: clamp(42px, 7vw, 92px);
+    padding-bottom: clamp(56px, 8vw, 104px);
+}
+
+#landing-page .hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+#landing-page .hero-content h1 {
+    max-width: 720px;
+    text-wrap: balance;
+}
+
+#landing-page .hero-content p {
+    max-width: 640px;
+}
+
+.hero-visual {
+    isolation: isolate;
+}
+
+#landing-page .hero-visual {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    align-items: stretch;
+    overflow: visible;
+}
+
+#landing-page .hero-visual::before {
+    content: "";
+    position: absolute;
+    inset: 6% -8% 18% 8%;
+    z-index: -1;
+    border-radius: 40px;
+    background:
+        radial-gradient(circle at 24% 20%, rgba(123, 104, 238, 0.34), transparent 34%),
+        radial-gradient(circle at 82% 22%, rgba(253, 113, 175, 0.24), transparent 32%),
+        radial-gradient(circle at 48% 88%, rgba(73, 204, 249, 0.26), transparent 38%);
+    filter: blur(24px);
+    opacity: 0.82;
+}
+
+#landing-page .dashboard-mockup {
+    grid-column: 1 / -1;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    max-width: 620px;
+    min-height: 390px;
+    margin: 0 auto;
+    padding: clamp(16px, 2vw, 22px);
+    overflow: hidden;
+    border-radius: 30px;
+}
+
+#landing-page .dashboard-mockup::after {
+    content: "";
+    position: absolute;
+    inset: auto -12% -22% 34%;
+    height: 210px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(123, 104, 238, 0.32), rgba(73, 204, 249, 0.22));
+    filter: blur(32px);
+    pointer-events: none;
+}
+
+#landing-page .mockup-top,
+#landing-page .mockup-grid {
+    position: relative;
+    z-index: 1;
+}
+
+#landing-page .mockup-card {
+    min-height: 112px;
+}
+
+#landing-page .mockup-card.wide:first-child {
+    min-height: 138px;
+}
+
+#landing-page .floating-card,
+#landing-page .card-1,
+#landing-page .card-2,
+#landing-page .card-3,
+#landing-page .card-4 {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+}
+
+#landing-page .hero-visual .floating-card {
+    max-width: none;
+    min-height: 112px;
+    padding: 16px;
+    border-radius: 22px;
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    animation: landingCardRise 560ms ease both;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.045)),
+        rgba(38, 41, 54, 0.78);
+}
+
+#landing-page .hero-visual .floating-card:nth-of-type(2) { animation-delay: 80ms; }
+#landing-page .hero-visual .floating-card:nth-of-type(3) { animation-delay: 150ms; }
+#landing-page .hero-visual .floating-card:nth-of-type(4) { animation-delay: 220ms; }
+#landing-page .hero-visual .floating-card:nth-of-type(5) { animation-delay: 290ms; }
+
+#landing-page .floating-card .icon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    font-size: 24px;
+    background: linear-gradient(135deg, rgba(123, 104, 238, 0.95), rgba(73, 204, 249, 0.9));
+    box-shadow: 0 12px 26px rgba(73, 204, 249, 0.22);
+}
+
+#landing-page .card-4 .icon {
+    font-size: 18px;
+    font-weight: 900;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--color-pink), var(--color-purple));
+}
+
+#landing-page .floating-card p {
+    margin: 0;
+    color: #ffffff;
+    font-size: 15px;
+    line-height: 1.25;
+}
+
+@keyframes landingCardRise {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.benefits {
+    position: relative;
+    padding: clamp(70px, 8vw, 112px) clamp(22px, 4vw, 48px);
+    background:
+        radial-gradient(circle at 16% 20%, rgba(73, 204, 249, 0.12), transparent 28%),
+        radial-gradient(circle at 86% 28%, rgba(253, 113, 175, 0.12), transparent 30%),
+        linear-gradient(180deg, rgba(30, 31, 37, 0.98), rgba(25, 27, 35, 0.98));
+}
+
+.benefits .section-eyebrow {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.benefits h2 {
+    width: min(960px, 100%);
+    margin: 0 auto clamp(28px, 4vw, 48px);
+    color: #ffffff;
+    font-size: clamp(34px, 4.8vw, 58px);
+    line-height: 1.05;
+    text-align: center;
+    text-wrap: balance;
+}
+
+.benefits-grid {
+    width: min(1260px, 100%);
+    margin: 0 auto;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.benefit-card {
+    position: relative;
+    min-height: 286px;
+    padding: 28px;
+    overflow: hidden;
+    border-radius: 26px;
+}
+
+.benefit-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 5px;
+    background: linear-gradient(90deg, var(--color-purple), var(--color-cyan), var(--color-pink));
+}
+
+.benefit-card::after {
+    content: "";
+    position: absolute;
+    right: -56px;
+    bottom: -64px;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(73, 204, 249, 0.22), transparent 66%);
+    transition: transform 260ms ease, opacity 260ms ease;
+}
+
+.benefit-card:nth-child(2)::after {
+    background: radial-gradient(circle, rgba(253, 113, 175, 0.22), transparent 66%);
+}
+
+.benefit-card:nth-child(3)::after {
+    background: radial-gradient(circle, rgba(0, 200, 117, 0.20), transparent 66%);
+}
+
+.benefit-card:nth-child(4)::after {
+    background: radial-gradient(circle, rgba(255, 200, 0, 0.20), transparent 66%);
+}
+
+.benefit-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(73, 204, 249, 0.18);
+}
+
+.benefit-card:hover::after {
+    transform: scale(1.16);
+    opacity: 0.95;
+}
+
+.benefit-icon {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 28px;
+    border-radius: 20px;
+    font-size: 34px;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06)),
+        rgba(123, 104, 238, 0.20);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.benefit-card h3 {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 12px;
+    color: #ffffff;
+    font-size: 24px;
+}
+
+.benefit-card p {
+    position: relative;
+    z-index: 1;
+    color: #c4ccdc;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.about-project {
+    position: relative;
+    padding: clamp(72px, 8vw, 116px) clamp(22px, 4vw, 48px);
+    background:
+        linear-gradient(135deg, rgba(123, 104, 238, 0.08), transparent 34%),
+        radial-gradient(circle at 82% 52%, rgba(73, 204, 249, 0.14), transparent 26%),
+        #20232d;
+    overflow: hidden;
+}
+
+.about-project::before {
+    content: "";
+    position: absolute;
+    inset: 42px clamp(18px, 4vw, 58px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 34px;
+    pointer-events: none;
+}
+
+.about-container {
+    position: relative;
+    z-index: 1;
+    width: min(1220px, 100%);
+    gap: clamp(34px, 6vw, 76px);
+}
+
+.about-text h2 {
+    max-width: 680px;
+    font-size: clamp(38px, 5vw, 60px);
+    line-height: 1.05;
+    text-wrap: balance;
+}
+
+.about-description {
+    max-width: 760px;
+    color: #c8d0e0;
+    font-size: 17px;
+    line-height: 1.85;
+}
+
+.about-features {
+    display: grid;
+    gap: 14px;
+}
+
+.about-feature {
+    min-height: 64px;
+    padding: 16px 18px;
+    border: 1px solid rgba(123, 104, 238, 0.28);
+    border-left: 4px solid var(--color-purple);
+    border-radius: 18px;
+    background:
+        linear-gradient(135deg, rgba(123, 104, 238, 0.18), rgba(73, 204, 249, 0.06)),
+        rgba(255, 255, 255, 0.035);
+}
+
+.feature-icon {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 34px;
+    border-radius: 12px;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--color-purple), var(--color-cyan));
+}
+
+.about-feature span:last-child {
+    color: #dce4f4;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.about-visual {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-self: stretch;
+}
+
+.about-stat {
+    min-height: 184px;
+    display: grid;
+    align-content: center;
+    gap: 8px;
+    padding: 28px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 28px;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.06)),
+        linear-gradient(135deg, var(--color-purple), var(--color-cyan));
+    box-shadow: 0 24px 60px rgba(73, 204, 249, 0.18);
+    transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.about-stat:nth-child(2) {
+    transform: translateY(24px);
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.06)),
+        linear-gradient(135deg, var(--color-pink), var(--color-purple));
+}
+
+.about-stat:nth-child(3) {
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.06)),
+        linear-gradient(135deg, var(--color-green), var(--color-cyan));
+}
+
+.about-stat:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 30px 80px rgba(123, 104, 238, 0.24);
+}
+
+.about-stat:nth-child(2):hover {
+    transform: translateY(12px);
+}
+
+.stat-num {
+    color: #ffffff;
+    font-size: clamp(36px, 4.8vw, 54px);
+    line-height: 1;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+body.light-theme .benefits {
+    background:
+        radial-gradient(circle at 16% 20%, rgba(73, 204, 249, 0.14), transparent 30%),
+        radial-gradient(circle at 86% 28%, rgba(253, 113, 175, 0.12), transparent 30%),
+        linear-gradient(180deg, #f7f9ff, #eef3ff);
+}
+
+body.light-theme .benefits h2,
+body.light-theme .benefit-card h3 {
+    color: #172033;
+}
+
+body.light-theme .benefit-card p,
+body.light-theme .about-description {
+    color: #536176;
+}
+
+body.light-theme .about-project {
+    background:
+        linear-gradient(135deg, rgba(123, 104, 238, 0.10), transparent 36%),
+        radial-gradient(circle at 82% 52%, rgba(73, 204, 249, 0.16), transparent 28%),
+        #f4f7ff;
+}
+
+body.light-theme .about-feature span:last-child {
+    color: #273244;
+}
+
+@media (max-width: 1100px) {
+    .benefits-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #landing-page .dashboard-mockup {
+        max-width: 760px;
+    }
+}
+
+@media (max-width: 768px) {
+    #landing-page .hero {
+        padding-top: 32px;
+    }
+
+    #landing-page .hero-visual {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #landing-page .dashboard-mockup {
+        min-height: 0;
+        border-radius: 24px;
+    }
+
+    #landing-page .mockup-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #landing-page .mockup-card.wide {
+        grid-column: auto;
+    }
+
+    #landing-page .hero-visual .floating-card {
+        min-height: 94px;
+        grid-template-columns: 40px minmax(0, 1fr);
+        padding: 13px;
+    }
+
+    #landing-page .floating-card .icon {
+        width: 40px;
+        height: 40px;
+        font-size: 21px;
+    }
+
+    .benefits-grid,
+    .about-container,
+    .about-visual {
+        grid-template-columns: 1fr;
+    }
+
+    .benefit-card {
+        min-height: auto;
+    }
+
+    .about-project::before {
+        inset: 20px 12px;
+        border-radius: 24px;
+    }
+
+    .about-stat,
+    .about-stat:nth-child(2) {
+        min-height: 132px;
+        transform: none;
+    }
+
+    .about-stat:nth-child(2):hover {
+        transform: translateY(-8px);
+    }
+}
+
+@media (max-width: 520px) {
+    #landing-page .hero-visual {
+        grid-template-columns: 1fr;
+    }
+
+    #landing-page .hero-visual .floating-card {
+        min-height: 76px;
+    }
+
+    .benefits,
+    .about-project {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
 @media (max-width: 768px) {
     .hero {
         padding-top: 42px;
@@ -3887,5 +4756,234 @@ body {
         position: relative;
         inset: auto;
         width: 100%;
+    }
+}
+
+/* FINAL: landing ordenada sobre reglas antiguas duplicadas */
+#landing-page .hero {
+    align-items: center;
+    min-height: auto;
+    padding: clamp(42px, 7vw, 92px) 0 clamp(56px, 8vw, 104px);
+}
+
+#landing-page .hero-visual {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    overflow: visible;
+    isolation: isolate;
+}
+
+#landing-page .dashboard-mockup {
+    grid-column: 1 / -1;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    max-width: 620px;
+    min-height: 390px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+#landing-page .floating-card,
+#landing-page .card-1,
+#landing-page .card-2,
+#landing-page .card-3,
+#landing-page .card-4 {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+}
+
+#landing-page .hero-visual .floating-card {
+    max-width: none;
+    min-height: 112px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    border-radius: 22px;
+    animation: landingCardRise 560ms ease both;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.045)),
+        rgba(38, 41, 54, 0.78);
+}
+
+#landing-page .floating-card .icon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    font-size: 24px;
+    background: linear-gradient(135deg, rgba(123, 104, 238, 0.95), rgba(73, 204, 249, 0.9));
+}
+
+#landing-page .floating-card p {
+    margin: 0;
+    color: #ffffff;
+    font-size: 15px;
+}
+
+#landing-page .benefits {
+    padding: clamp(70px, 8vw, 112px) clamp(22px, 4vw, 48px);
+    background:
+        radial-gradient(circle at 16% 20%, rgba(73, 204, 249, 0.12), transparent 28%),
+        radial-gradient(circle at 86% 28%, rgba(253, 113, 175, 0.12), transparent 30%),
+        linear-gradient(180deg, rgba(30, 31, 37, 0.98), rgba(25, 27, 35, 0.98));
+}
+
+#landing-page .benefits .section-eyebrow {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#landing-page .benefits h2 {
+    width: min(960px, 100%);
+    margin: 0 auto clamp(28px, 4vw, 48px);
+    color: #ffffff;
+    font-size: clamp(34px, 4.8vw, 58px);
+    line-height: 1.05;
+    text-align: center;
+}
+
+#landing-page .benefits-grid {
+    width: min(1260px, 100%);
+    margin: 0 auto;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+}
+
+#landing-page .benefit-card {
+    position: relative;
+    min-height: 286px;
+    padding: 28px;
+    overflow: hidden;
+    border-radius: 26px;
+}
+
+#landing-page .benefit-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 5px;
+    background: linear-gradient(90deg, var(--color-purple), var(--color-cyan), var(--color-pink));
+}
+
+#landing-page .benefit-card h3 {
+    color: #ffffff;
+    font-size: 24px;
+}
+
+#landing-page .benefit-card p {
+    color: #c4ccdc;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+#landing-page .benefit-icon {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 28px;
+    border-radius: 20px;
+    font-size: 34px;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06)),
+        rgba(123, 104, 238, 0.20);
+}
+
+#landing-page .about-project {
+    padding: clamp(72px, 8vw, 116px) clamp(22px, 4vw, 48px);
+    background:
+        linear-gradient(135deg, rgba(123, 104, 238, 0.08), transparent 34%),
+        radial-gradient(circle at 82% 52%, rgba(73, 204, 249, 0.14), transparent 26%),
+        #20232d;
+}
+
+#landing-page .about-container {
+    width: min(1220px, 100%);
+    gap: clamp(34px, 6vw, 76px);
+}
+
+#landing-page .about-text h2 {
+    max-width: 680px;
+    font-size: clamp(38px, 5vw, 60px);
+    line-height: 1.05;
+}
+
+#landing-page .about-description {
+    max-width: 760px;
+    color: #c8d0e0;
+    font-size: 17px;
+    line-height: 1.85;
+}
+
+#landing-page .about-feature {
+    min-height: 64px;
+    border: 1px solid rgba(123, 104, 238, 0.28);
+    border-left: 4px solid var(--color-purple);
+    border-radius: 18px;
+    background:
+        linear-gradient(135deg, rgba(123, 104, 238, 0.18), rgba(73, 204, 249, 0.06)),
+        rgba(255, 255, 255, 0.035);
+}
+
+#landing-page .about-stat {
+    min-height: 184px;
+    display: grid;
+    align-content: center;
+    border-radius: 28px;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.06)),
+        linear-gradient(135deg, var(--color-purple), var(--color-cyan));
+}
+
+#landing-page .stat-num {
+    color: #ffffff;
+    font-size: clamp(36px, 4.8vw, 54px);
+}
+
+#landing-page .stat-label {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+@media (max-width: 1100px) {
+    #landing-page .benefits-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    #landing-page .hero-visual,
+    #landing-page .benefits-grid,
+    #landing-page .about-container,
+    #landing-page .about-visual {
+        grid-template-columns: 1fr;
+    }
+
+    #landing-page .dashboard-mockup {
+        min-height: 0;
+    }
+
+    #landing-page .mockup-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #landing-page .mockup-card.wide {
+        grid-column: auto;
     }
 }
