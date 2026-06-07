@@ -2608,6 +2608,208 @@ body.light-theme .quick-modal {
     color: #ffffff;
 }
 
+.btn-danger {
+    border: 1px solid rgba(253, 113, 175, 0.32);
+    background: rgba(253, 113, 175, 0.12);
+    color: #ff8fbd;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-danger:hover {
+    background: rgba(253, 113, 175, 0.22);
+    transform: translateY(-1px);
+}
+
+.card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.ac-colored-card {
+    border-color: color-mix(in srgb, var(--subject-color), transparent 58%);
+}
+
+.ac-colored-card::before {
+    background: linear-gradient(90deg, var(--subject-color), var(--color-cyan));
+}
+
+.subject-chip,
+.grade-status,
+.event-alert,
+.email-simulation {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.subject-chip {
+    background: color-mix(in srgb, var(--subject-color), transparent 82%);
+    color: var(--text-primary);
+}
+
+.task-board {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.task-column {
+    min-width: 0;
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.task-column h3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 16px;
+}
+
+.task-column h3 span {
+    display: grid;
+    place-items: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.task-board .task-item {
+    flex-wrap: wrap;
+}
+
+.task-description {
+    margin-top: 6px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.muted-panel {
+    padding: 16px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.event-soon {
+    border-color: rgba(253, 113, 175, 0.45);
+    box-shadow: 0 14px 34px rgba(253, 113, 175, 0.12);
+}
+
+.event-alert {
+    margin-top: 8px;
+    background: rgba(253, 113, 175, 0.14);
+    color: #ff8fbd;
+}
+
+.email-simulation {
+    margin-top: 8px;
+    background: rgba(73, 204, 249, 0.12);
+    color: var(--color-cyan);
+    line-height: 1.35;
+}
+
+.grades-toolbar,
+.subject-average-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.grades-toolbar {
+    justify-content: space-between;
+    padding: 16px;
+    border-radius: 18px;
+    background: var(--bg-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.grades-toolbar select {
+    border: 1px solid var(--bg-tertiary);
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.subject-average-strip span {
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: rgba(124, 58, 237, 0.13);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.grade-status {
+    background: rgba(245, 158, 11, 0.14);
+    color: #fbbf24;
+}
+
+.grade-status.excelente {
+    background: rgba(34, 197, 94, 0.14);
+    color: #4ade80;
+}
+
+.grade-status.aprobado {
+    background: rgba(73, 204, 249, 0.14);
+    color: var(--color-cyan);
+}
+
+.grade-status.necesita-mejorar {
+    background: rgba(253, 113, 175, 0.14);
+    color: #ff8fbd;
+}
+
+.grade-note {
+    margin-top: 12px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.quick-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    text-transform: none;
+}
+
+.quick-check input {
+    width: auto;
+}
+
+@media (max-width: 980px) {
+    .task-board {
+        grid-template-columns: 1fr;
+    }
+}
+
 #app-page.page.active {
     display: block;
     min-height: 100vh;

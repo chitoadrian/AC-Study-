@@ -146,10 +146,31 @@ function renderQuickField(field) {
         const options = (field.options || []).map(option => {
             const value = typeof option === 'string' ? option : option.value;
             const label = typeof option === 'string' ? option : option.label;
-            return `<option value="${escapeHTML(value)}">${escapeHTML(label)}</option>`;
+            const selected = String(field.value || '') === String(value) ? 'selected' : '';
+            return `<option value="${escapeHTML(value)}" ${selected}>${escapeHTML(label)}</option>`;
         }).join('');
 
         return `<select name="${escapeHTML(field.name)}" ${field.required === false ? '' : 'required'}>${options}</select>`;
+    }
+
+    if (field.type === 'checkbox') {
+        return `
+            <span class="quick-check">
+                <input type="checkbox" name="${escapeHTML(field.name)}" value="yes" ${field.checked ? 'checked' : ''}>
+                <span>${escapeHTML(field.help || 'Activar')}</span>
+            </span>
+        `;
+    }
+
+    if (field.type === 'file') {
+        return `
+            <input
+                type="file"
+                name="${escapeHTML(field.name)}"
+                accept="${escapeHTML(field.accept || '')}"
+                ${field.required === false ? '' : 'required'}
+            >
+        `;
     }
 
     return `
@@ -1703,6 +1724,712 @@ function generateSimpleExplanation() {
         return;
     }
     showAIResult('Explicacion sencilla', buildAIResponse('simple', topic));
+}
+
+// ============================================
+// GESTION ACADEMICA AVANZADA
+// ============================================
+
+let gradeSortMode = 'subject';
+
+const subjectColorMap = {
+    Morado: '#7c3aed',
+    Azul: '#2563eb',
+    Rosado: '#ec4899',
+    Cian: '#06b6d4',
+    Verde: '#22c55e',
+    Amarillo: '#f59e0b'
+};
+
+function createId() {
+    return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function getSubjectOptions(workspace) {
+    return workspace.subjects.length ? workspace.subjects.map(subject => subject.name) : ['General'];
+}
+
+function getSubjectAverage(workspace, subjectName) {
+    const grades = workspace.grades.filter(grade => grade.subject === subjectName);
+    if (!grades.length) return 0;
+    return grades.reduce((sum, grade) => sum + Number(grade.value || 0), 0) / grades.length;
+}
+
+function getGradeStatus(value) {
+    if (value >= 9) return 'excelente';
+    if (value >= 7) return 'aprobado';
+    return 'necesita mejorar';
+}
+
+function getTaskStatusLabel(status) {
+    if (status === 'completed') return 'Completada';
+    if (status === 'upcoming') return 'Proxima';
+    return 'Pendiente';
+}
+
+function normalizeDate(value) {
+    if (!value) return '';
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? value : parsed.toISOString().slice(0, 10);
+}
+
+function isEventSoon(event) {
+    const dateValue = `${event.date || event.day || ''}T${event.time || '00:00'}`;
+    const eventDate = new Date(dateValue);
+    if (Number.isNaN(eventDate.getTime())) return false;
+    const now = new Date();
+    const diff = eventDate.getTime() - now.getTime();
+    return diff >= 0 && diff <= 1000 * 60 * 60 * 48;
+}
+
+function getReminderMessage(event) {
+    if (!event.emailReminder || !event.email) return '';
+    return `Se enviaria un correo a ${event.email} recordando el evento.`;
+}
+
+function addSubjectUI() {
+    openSubjectForm();
+}
+
+function openSubjectForm(subjectId = null) {
+    const workspace = loadWorkspace();
+    const subject = workspace.subjects.find(item => item.id === subjectId);
+
+    openQuickForm({
+        title: subject ? 'Editar materia' : 'Crear materia',
+        submitLabel: subject ? 'Guardar cambios' : 'Guardar materia',
+        fields: [
+            { name: 'name', label: 'Nombre de la materia', value: subject?.name || '', placeholder: 'Ej: Matematica' },
+            { name: 'icon', label: 'Icono o etiqueta', value: subject?.icon || '📘', placeholder: 'Ej: 📐, FIS, PROG' },
+            { name: 'color', label: 'Color identificador', type: 'select', options: Object.keys(subjectColorMap), value: subject?.color || 'Morado' }
+        ],
+        onSubmit: values => {
+            const fresh = loadWorkspace();
+            if (subjectId) {
+                const item = fresh.subjects.find(entry => entry.id === subjectId);
+                if (item) {
+                    const oldName = item.name;
+                    item.name = values.name.trim();
+                    item.icon = values.icon.trim() || '📘';
+                    item.color = values.color || 'Morado';
+                    fresh.tasks.forEach(task => {
+                        if (task.subject === oldName) task.subject = item.name;
+                    });
+                    fresh.grades.forEach(grade => {
+                        if (grade.subject === oldName) grade.subject = item.name;
+                    });
+                    fresh.resources.forEach(resource => {
+                        if (resource.subject === oldName) resource.subject = item.name;
+                    });
+                    addRecent(fresh, `Editaste la materia ${item.name}.`);
+                }
+            } else {
+                fresh.subjects.push({
+                    id: createId(),
+                    name: values.name.trim(),
+                    icon: values.icon.trim() || '📘',
+                    color: values.color || 'Morado',
+                    createdAt: new Date().toISOString()
+                });
+                addXP(fresh, 30);
+                addRecent(fresh, `Creaste la materia ${values.name.trim()}.`);
+            }
+            saveWorkspace(fresh);
+            refreshWorkspaceUI();
+            notify(subjectId ? 'Materia actualizada.' : 'Materia creada correctamente.', 'success');
+        }
+    });
+}
+
+function deleteSubject(subjectId) {
+    const workspace = loadWorkspace();
+    const subject = workspace.subjects.find(item => item.id === subjectId);
+    if (!subject) return;
+
+    workspace.subjects = workspace.subjects.filter(item => item.id !== subjectId);
+    workspace.tasks = workspace.tasks.filter(task => task.subject !== subject.name);
+    workspace.grades = workspace.grades.filter(grade => grade.subject !== subject.name);
+    workspace.resources = workspace.resources.filter(resource => resource.subject !== subject.name);
+    addRecent(workspace, `Eliminaste la materia ${subject.name}.`);
+    saveWorkspace(workspace);
+    refreshWorkspaceUI();
+    notify('Materia eliminada junto con sus datos relacionados.', 'info');
+}
+
+function renderSubjects(workspace) {
+    const grid = document.querySelector('.subjects-grid');
+    if (!grid) return;
+
+    grid.innerHTML = workspace.subjects.length ? workspace.subjects.map(subject => {
+        const taskCount = workspace.tasks.filter(task => task.subject === subject.name).length;
+        const completed = workspace.tasks.filter(task => task.subject === subject.name && task.status === 'completed').length;
+        const progress = taskCount ? Math.round((completed / taskCount) * 100) : 0;
+        const average = getSubjectAverage(workspace, subject.name);
+        const color = subjectColorMap[subject.color] || subjectColorMap.Morado;
+        return `
+            <div class="subject-card subject-custom ac-colored-card" style="--subject-color:${color}">
+                <div class="subject-header">
+                    <h3><span class="subject-icon">${escapeHTML(subject.icon || '📘')}</span> ${escapeHTML(subject.name)}</h3>
+                    <span class="subject-chip">${escapeHTML(subject.color || 'Morado')}</span>
+                </div>
+                <div class="subject-stats">
+                    <div class="stat"><span class="stat-name">Progreso</span><span class="stat-num">${progress}%</span></div>
+                    <div class="stat"><span class="stat-name">Tareas</span><span class="stat-num">${taskCount}</span></div>
+                    <div class="stat"><span class="stat-name">Promedio</span><span class="stat-num">${average ? average.toFixed(2) : '--'}</span></div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${progress}%; background:linear-gradient(90deg, ${color}, #06b6d4)"></div></div>
+                <p class="last-activity">${taskCount ? `${completed} de ${taskCount} tareas completadas` : 'Sin tareas relacionadas todavia'}</p>
+                <div class="card-actions">
+                    <button class="btn-secondary btn-small" data-subject-open="${escapeHTML(subject.id)}">Acceder</button>
+                    <button class="btn-secondary btn-small" data-subject-edit="${escapeHTML(subject.id)}">Editar</button>
+                    <button class="btn-danger btn-small" data-subject-delete="${escapeHTML(subject.id)}">Eliminar</button>
+                </div>
+            </div>
+        `;
+    }).join('') : emptyStateHTML('No tienes materias registradas todavia.', 'Crear primera materia', 'addSubjectUI()');
+
+    grid.querySelectorAll('[data-subject-open]').forEach(button => button.addEventListener('click', () => {
+        const subject = workspace.subjects.find(item => item.id === button.dataset.subjectOpen);
+        if (subject) openSubject(subject.name);
+    }));
+    grid.querySelectorAll('[data-subject-edit]').forEach(button => button.addEventListener('click', () => openSubjectForm(button.dataset.subjectEdit)));
+    grid.querySelectorAll('[data-subject-delete]').forEach(button => button.addEventListener('click', () => deleteSubject(button.dataset.subjectDelete)));
+}
+
+function addTaskUI() {
+    openTaskForm();
+}
+
+function openTaskForm(taskId = null) {
+    const workspace = loadWorkspace();
+    const task = workspace.tasks.find(item => item.id === taskId);
+    openQuickForm({
+        title: task ? 'Editar tarea' : 'Crear tarea',
+        submitLabel: task ? 'Guardar cambios' : 'Guardar tarea',
+        fields: [
+            { name: 'title', label: 'Titulo', value: task?.title || '', placeholder: 'Ej: Resolver ejercicios' },
+            { name: 'subject', label: 'Materia', type: 'select', options: getSubjectOptions(workspace), value: task?.subject || '' },
+            { name: 'description', label: 'Descripcion', type: 'textarea', value: task?.description || '', placeholder: 'Detalles de la tarea' },
+            { name: 'due', label: 'Fecha limite', type: 'date', value: normalizeDate(task?.due) },
+            { name: 'priority', label: 'Prioridad', type: 'select', options: ['baja', 'media', 'alta'], value: task?.priority || 'media' },
+            { name: 'status', label: 'Estado', type: 'select', options: ['pending', 'upcoming', 'completed'], value: task?.status || 'pending' }
+        ],
+        onSubmit: values => {
+            const fresh = loadWorkspace();
+            if (taskId) {
+                const item = fresh.tasks.find(entry => entry.id === taskId);
+                if (item) Object.assign(item, values, { title: values.title.trim(), description: values.description.trim(), due: values.due });
+                addRecent(fresh, `Editaste la tarea ${values.title.trim()}.`);
+            } else {
+                fresh.tasks.push({
+                    id: createId(),
+                    title: values.title.trim(),
+                    subject: values.subject,
+                    description: values.description.trim(),
+                    due: values.due,
+                    priority: values.priority || 'media',
+                    status: values.status || 'pending'
+                });
+                addXP(fresh, 15);
+                addRecent(fresh, `Agregaste la tarea ${values.title.trim()}.`);
+            }
+            saveWorkspace(fresh);
+            refreshWorkspaceUI();
+            notify(taskId ? 'Tarea actualizada.' : 'Tarea creada correctamente.', 'success');
+        }
+    });
+}
+
+function deleteTask(taskId) {
+    const workspace = loadWorkspace();
+    const task = workspace.tasks.find(item => item.id === taskId);
+    workspace.tasks = workspace.tasks.filter(item => item.id !== taskId);
+    if (task) addRecent(workspace, `Eliminaste la tarea ${task.title}.`);
+    saveWorkspace(workspace);
+    refreshWorkspaceUI();
+    notify('Tarea eliminada.', 'info');
+}
+
+function renderTasks(workspace) {
+    const list = document.getElementById('tasks-list');
+    if (!list) return;
+
+    if (!workspace.tasks.length) {
+        list.innerHTML = emptyStateHTML('No tienes tareas pendientes.', 'Agregar tarea', 'addTaskUI()');
+        return;
+    }
+
+    const groups = [
+        ['pending', 'Pendientes'],
+        ['upcoming', 'Proximas'],
+        ['completed', 'Completadas']
+    ];
+
+    list.innerHTML = `<div class="task-board">${groups.map(([status, title]) => {
+        const tasks = workspace.tasks.filter(task => task.status === status);
+        return `
+            <div class="task-column" data-task-column="${status}">
+                <h3>${title} <span>${tasks.length}</span></h3>
+                ${tasks.length ? tasks.map(task => `
+                    <div class="task-item" data-status="${escapeHTML(task.status)}" data-id="${escapeHTML(task.id)}">
+                        <div class="task-checkbox"><input type="checkbox" onclick="toggleTask(this)" ${task.status === 'completed' ? 'checked' : ''}></div>
+                        <div class="task-content">
+                            <h4>${escapeHTML(task.title)}</h4>
+                            <p class="task-subject">${escapeHTML(task.subject)}</p>
+                            <p class="task-date">${escapeHTML(task.due || 'Sin fecha limite')}</p>
+                            <p class="task-description">${escapeHTML(task.description || 'Sin descripcion')}</p>
+                        </div>
+                        <div class="task-priority ${escapeHTML(task.priority || 'media')}">${escapeHTML(task.priority || 'media')}</div>
+                        <div class="card-actions">
+                            <button class="btn-secondary btn-small" data-task-edit="${escapeHTML(task.id)}">Editar</button>
+                            <button class="btn-danger btn-small" data-task-delete="${escapeHTML(task.id)}">Eliminar</button>
+                        </div>
+                    </div>
+                `).join('') : '<p class="muted-panel">Sin tareas en esta seccion.</p>'}
+            </div>
+        `;
+    }).join('')}</div>`;
+
+    list.querySelectorAll('[data-task-edit]').forEach(button => button.addEventListener('click', () => openTaskForm(button.dataset.taskEdit)));
+    list.querySelectorAll('[data-task-delete]').forEach(button => button.addEventListener('click', () => deleteTask(button.dataset.taskDelete)));
+}
+
+function addCalendarEventUI() {
+    openEventForm();
+}
+
+function openEventForm(eventId = null) {
+    const workspace = loadWorkspace();
+    const event = workspace.events.find(item => item.id === eventId);
+    openQuickForm({
+        title: event ? 'Editar evento' : 'Crear evento',
+        submitLabel: event ? 'Guardar cambios' : 'Guardar evento',
+        fields: [
+            { name: 'title', label: 'Titulo del evento', value: event?.title || '', placeholder: 'Ej: Examen de fisica' },
+            { name: 'type', label: 'Tipo', type: 'select', options: ['examen', 'tarea', 'exposicion', 'recordatorio'], value: event?.type || 'recordatorio' },
+            { name: 'date', label: 'Fecha', type: 'date', value: normalizeDate(event?.date) },
+            { name: 'time', label: 'Hora', type: 'time', value: event?.time || '08:00' },
+            { name: 'email', label: 'Correo del usuario', type: 'email', value: event?.email || currentUser?.email || '', placeholder: 'usuario@email.com' },
+            { name: 'emailReminder', label: 'Recordatorio por correo', type: 'checkbox', checked: Boolean(event?.emailReminder), help: 'Activar recordatorio por correo' }
+        ],
+        onSubmit: values => {
+            const fresh = loadWorkspace();
+            const payload = {
+                title: values.title.trim(),
+                type: values.type,
+                date: values.date,
+                day: values.date,
+                time: values.time,
+                email: values.email.trim(),
+                emailReminder: values.emailReminder === 'yes'
+            };
+
+            if (eventId) {
+                const item = fresh.events.find(entry => entry.id === eventId);
+                if (item) Object.assign(item, payload);
+                addRecent(fresh, `Editaste el evento ${payload.title}.`);
+            } else {
+                fresh.events.push({ id: createId(), ...payload });
+                addXP(fresh, 20);
+                addRecent(fresh, `Agendaste ${payload.title}.`);
+            }
+
+            fresh.events.sort((a, b) => `${a.date || ''} ${a.time || ''}`.localeCompare(`${b.date || ''} ${b.time || ''}`));
+            saveWorkspace(fresh);
+            refreshWorkspaceUI();
+            notify(payload.emailReminder ? getReminderMessage(payload) : 'Evento guardado correctamente.', 'success');
+
+            // Futuro real: aqui se podria conectar EmailJS, un backend propio,
+            // funciones de Supabase o servicios desplegados en Hostinger para enviar correos reales.
+        }
+    });
+}
+
+function deleteEvent(eventId) {
+    const workspace = loadWorkspace();
+    const event = workspace.events.find(item => item.id === eventId);
+    workspace.events = workspace.events.filter(item => item.id !== eventId);
+    if (event) addRecent(workspace, `Eliminaste el evento ${event.title}.`);
+    saveWorkspace(workspace);
+    refreshWorkspaceUI();
+    notify('Evento eliminado.', 'info');
+}
+
+function renderCalendarSection(workspace) {
+    const container = document.querySelector('.calendar-container');
+    if (!container) return;
+
+    const events = [...workspace.events].sort((a, b) => `${a.date || ''} ${a.time || ''}`.localeCompare(`${b.date || ''} ${b.time || ''}`));
+    container.innerHTML = `
+        <div class="calendar-mini" id="mini-calendar"></div>
+        <div class="events-list">
+            <h3>Agenda academica</h3>
+            <div id="custom-events-list">
+                ${events.length ? events.map(event => {
+                    const reminder = getReminderMessage(event);
+                    return `
+                        <div class="event-item event-custom ${isEventSoon(event) ? 'event-soon' : ''}">
+                            <div class="event-date"><span class="day">${escapeHTML((event.date || event.day || '--').slice(-2))}</span><span class="month">${escapeHTML((event.date || '').slice(5, 7) || 'AC')}</span></div>
+                            <div class="event-content">
+                                <h4>${escapeHTML(event.title)}</h4>
+                                <p>${escapeHTML(event.date || 'Sin fecha')} • ${escapeHTML(event.time || 'Sin hora')}</p>
+                                <span class="event-badge">${escapeHTML(event.type)}</span>
+                                ${isEventSoon(event) ? '<p class="event-alert">Evento cercano</p>' : ''}
+                                ${reminder ? `<p class="email-simulation">${escapeHTML(reminder)}</p>` : ''}
+                                <div class="card-actions">
+                                    <button class="btn-secondary btn-small" data-event-edit="${escapeHTML(event.id)}">Editar</button>
+                                    <button class="btn-danger btn-small" data-event-delete="${escapeHTML(event.id)}">Eliminar</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('') : emptyStateHTML('No tienes eventos programados.', 'Agendar evento', 'addCalendarEventUI()')}
+            </div>
+        </div>
+    `;
+    generateCalendar();
+    container.querySelectorAll('[data-event-edit]').forEach(button => button.addEventListener('click', () => openEventForm(button.dataset.eventEdit)));
+    container.querySelectorAll('[data-event-delete]').forEach(button => button.addEventListener('click', () => deleteEvent(button.dataset.eventDelete)));
+}
+
+function showAddGradeForm() {
+    openGradeForm();
+}
+
+function openGradeForm(gradeId = null) {
+    const workspace = loadWorkspace();
+    const grade = workspace.grades.find(item => item.id === gradeId);
+    openQuickForm({
+        title: grade ? 'Editar nota' : 'Registrar nota',
+        submitLabel: grade ? 'Guardar cambios' : 'Guardar nota',
+        fields: [
+            { name: 'subject', label: 'Materia', type: 'select', options: getSubjectOptions(workspace), value: grade?.subject || '' },
+            { name: 'evaluation', label: 'Actividad', value: grade?.evaluation || '', placeholder: 'Ej: Parcial 1' },
+            { name: 'value', label: 'Calificacion (0-10)', type: 'number', value: grade?.value || '', placeholder: '8.5' },
+            { name: 'date', label: 'Fecha', type: 'date', value: normalizeDate(grade?.date) },
+            { name: 'observation', label: 'Observacion', type: 'textarea', required: false, value: grade?.observation || '', placeholder: 'Comentario opcional' }
+        ],
+        onSubmit: values => {
+            const value = Number(values.value);
+            if (Number.isNaN(value) || value < 0 || value > 10) {
+                notify('La nota debe estar entre 0 y 10.', 'error');
+                return;
+            }
+
+            const fresh = loadWorkspace();
+            const payload = {
+                subject: values.subject,
+                evaluation: values.evaluation.trim(),
+                value,
+                date: values.date,
+                observation: values.observation.trim()
+            };
+            if (gradeId) {
+                const item = fresh.grades.find(entry => entry.id === gradeId);
+                if (item) Object.assign(item, payload);
+                addRecent(fresh, `Editaste una nota de ${payload.subject}.`);
+            } else {
+                fresh.grades.push({ id: createId(), ...payload });
+                addXP(fresh, 20);
+                addRecent(fresh, `Registraste una nota en ${payload.subject}.`);
+            }
+            saveWorkspace(fresh);
+            refreshWorkspaceUI();
+            notify(gradeId ? 'Nota actualizada.' : 'Nota registrada.', 'success');
+        }
+    });
+}
+
+function deleteGrade(gradeId) {
+    const workspace = loadWorkspace();
+    const grade = workspace.grades.find(item => item.id === gradeId);
+    workspace.grades = workspace.grades.filter(item => item.id !== gradeId);
+    if (grade) addRecent(workspace, `Eliminaste una nota de ${grade.subject}.`);
+    saveWorkspace(workspace);
+    refreshWorkspaceUI();
+    notify('Nota eliminada.', 'info');
+}
+
+function setGradeSort(mode) {
+    gradeSortMode = mode;
+    renderGrades(loadWorkspace());
+}
+
+function renderGrades(workspace) {
+    const container = document.querySelector('.grades-container');
+    if (!container) return;
+
+    if (!workspace.grades.length) {
+        container.innerHTML = emptyStateHTML('No has registrado notas.', 'Agregar nota', 'showAddGradeForm()');
+        return;
+    }
+
+    const average = getAverageGrade(workspace);
+    const sorted = [...workspace.grades].sort((a, b) => {
+        if (gradeSortMode === 'date') return (b.date || '').localeCompare(a.date || '');
+        if (gradeSortMode === 'high') return Number(b.value) - Number(a.value);
+        if (gradeSortMode === 'low') return Number(a.value) - Number(b.value);
+        return a.subject.localeCompare(b.subject);
+    });
+
+    const subjectAverages = workspace.subjects.map(subject => ({
+        name: subject.name,
+        average: getSubjectAverage(workspace, subject.name)
+    })).filter(item => item.average);
+
+    container.innerHTML = `
+        <div class="grades-toolbar">
+            <div class="grade-summary">
+                <strong>Promedio general: ${average.toFixed(2)}</strong>
+                <span class="grade-status ${getGradeStatus(average).replace(' ', '-')}">${getGradeStatus(average)}</span>
+            </div>
+            <select onchange="setGradeSort(this.value)">
+                <option value="subject" ${gradeSortMode === 'subject' ? 'selected' : ''}>Ordenar por materia</option>
+                <option value="date" ${gradeSortMode === 'date' ? 'selected' : ''}>Ordenar por fecha</option>
+                <option value="high" ${gradeSortMode === 'high' ? 'selected' : ''}>Nota mayor</option>
+                <option value="low" ${gradeSortMode === 'low' ? 'selected' : ''}>Nota menor</option>
+            </select>
+        </div>
+        <div class="subject-average-strip">
+            ${subjectAverages.map(item => `<span>${escapeHTML(item.name)}: ${item.average.toFixed(2)}</span>`).join('')}
+        </div>
+        <div class="grades-grid">
+            ${sorted.map(grade => `
+                <div class="grade-card">
+                    <h3>${escapeHTML(grade.subject)}</h3>
+                    <div class="grades-list">
+                        <div class="grade-item"><span class="grade-name">${escapeHTML(grade.evaluation)}</span><span class="grade-value">${Number(grade.value).toFixed(1)}</span></div>
+                        <div class="grade-item"><span class="grade-name">Fecha</span><span>${escapeHTML(grade.date || 'Sin fecha')}</span></div>
+                        <div class="grade-item"><span class="grade-name">Estado</span><span class="grade-status ${getGradeStatus(grade.value).replace(' ', '-')}">${getGradeStatus(grade.value)}</span></div>
+                    </div>
+                    ${grade.observation ? `<p class="grade-note">${escapeHTML(grade.observation)}</p>` : ''}
+                    <div class="card-actions">
+                        <button class="btn-secondary btn-small" data-grade-edit="${escapeHTML(grade.id)}">Editar</button>
+                        <button class="btn-danger btn-small" data-grade-delete="${escapeHTML(grade.id)}">Eliminar</button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    container.querySelectorAll('[data-grade-edit]').forEach(button => button.addEventListener('click', () => openGradeForm(button.dataset.gradeEdit)));
+    container.querySelectorAll('[data-grade-delete]').forEach(button => button.addEventListener('click', () => deleteGrade(button.dataset.gradeDelete)));
+}
+
+function addResourceUI() {
+    openResourceForm();
+}
+
+function openResourceForm(resourceId = null) {
+    const workspace = loadWorkspace();
+    const resource = workspace.resources.find(item => item.id === resourceId);
+    openQuickForm({
+        title: resource ? 'Editar PDF simulado' : 'Subir PDF simulado',
+        submitLabel: resource ? 'Guardar cambios' : 'Guardar recurso',
+        fields: [
+            { name: 'title', label: 'Titulo del recurso', value: resource?.title || '', placeholder: 'Ej: Guia de cinematica' },
+            { name: 'subject', label: 'Materia', type: 'select', options: getSubjectOptions(workspace), value: resource?.subject || '' },
+            { name: 'file', label: 'Archivo PDF simulado', type: 'file', accept: '.pdf', required: !resource },
+            { name: 'description', label: 'Descripcion del apunte', type: 'textarea', value: resource?.description || resource?.content || '', placeholder: 'Describe de que trata el PDF' }
+        ],
+        onSubmit: values => {
+            const fresh = loadWorkspace();
+            const fileName = values.file?.name || resource?.fileName || `${values.title.trim()}.pdf`;
+            const payload = {
+                title: values.title.trim(),
+                subject: values.subject,
+                fileName,
+                description: values.description.trim(),
+                content: values.description.trim(),
+                type: 'PDF simulado'
+            };
+
+            if (resourceId) {
+                const item = fresh.resources.find(entry => entry.id === resourceId);
+                if (item) Object.assign(item, payload);
+                addRecent(fresh, `Editaste el recurso ${payload.title}.`);
+            } else {
+                fresh.resources.push({ id: createId(), usedAI: false, ...payload });
+                addXP(fresh, 20);
+                addRecent(fresh, `Subiste el PDF simulado ${payload.title}.`);
+            }
+            saveWorkspace(fresh);
+            refreshWorkspaceUI();
+            notify(resourceId ? 'Recurso actualizado.' : 'PDF simulado guardado.', 'success');
+        }
+    });
+}
+
+function deleteResource(resourceId) {
+    const workspace = loadWorkspace();
+    const resource = workspace.resources.find(item => item.id === resourceId);
+    workspace.resources = workspace.resources.filter(item => item.id !== resourceId);
+    if (resource) addRecent(workspace, `Eliminaste el recurso ${resource.title}.`);
+    saveWorkspace(workspace);
+    refreshWorkspaceUI();
+    notify('Recurso eliminado.', 'info');
+}
+
+function renderBackpack(workspace) {
+    const section = document.getElementById('backpack');
+    const container = document.querySelector('.backpack-container');
+    if (!section || !container) return;
+
+    const header = section.querySelector('.section-header');
+    if (header && !header.querySelector('[data-action="add-resource"]')) {
+        header.insertAdjacentHTML('beforeend', '<button class="btn-primary btn-small" data-action="add-resource" onclick="addResourceUI()">+ Subir PDF simulado</button>');
+    }
+
+    container.innerHTML = workspace.resources.length ? workspace.resources.map(resource => `
+        <div class="resource-card">
+            <div class="resource-icon">📄</div>
+            <h4>${escapeHTML(resource.title)}</h4>
+            <p class="resource-type">${escapeHTML(resource.subject)} • ${escapeHTML(resource.fileName || 'PDF simulado')}</p>
+            <p class="resource-date">${escapeHTML(resource.description || resource.content || 'Sin descripcion').slice(0, 130)}${(resource.description || resource.content || '').length > 130 ? '...' : ''}</p>
+            <div class="resource-actions">
+                <button class="btn-secondary btn-small" data-resource-view="${escapeHTML(resource.id)}">Ver</button>
+                <button class="btn-secondary btn-small" data-resource-ai="${escapeHTML(resource.id)}">Preguntar a la IA</button>
+                <button class="btn-secondary btn-small" data-resource-practice="${escapeHTML(resource.id)}">Practicar con PDF</button>
+                <button class="btn-secondary btn-small" data-resource-edit="${escapeHTML(resource.id)}">Editar</button>
+                <button class="btn-danger btn-small" data-resource-delete="${escapeHTML(resource.id)}">Eliminar</button>
+            </div>
+        </div>
+    `).join('') : emptyStateHTML('No has subido apuntes todavia.', 'Subir primer PDF', 'addResourceUI()');
+
+    container.querySelectorAll('[data-resource-view]').forEach(button => button.addEventListener('click', () => viewResource(button.dataset.resourceView)));
+    container.querySelectorAll('[data-resource-ai]').forEach(button => button.addEventListener('click', () => askAIAboutResource(button.dataset.resourceAi)));
+    container.querySelectorAll('[data-resource-practice]').forEach(button => button.addEventListener('click', () => practiceWithResource(button.dataset.resourcePractice)));
+    container.querySelectorAll('[data-resource-edit]').forEach(button => button.addEventListener('click', () => openResourceForm(button.dataset.resourceEdit)));
+    container.querySelectorAll('[data-resource-delete]').forEach(button => button.addEventListener('click', () => deleteResource(button.dataset.resourceDelete)));
+}
+
+function viewResource(resourceId) {
+    const resource = loadWorkspace().resources.find(item => item.id === resourceId);
+    if (!resource) return;
+    showAIResult(`Vista simulada: ${resource.title}`, `Archivo: ${resource.fileName}\nMateria: ${resource.subject}\n\nDescripcion:\n${resource.description || resource.content || 'Sin descripcion'}\n\nNota: en una version real aqui se abriria el PDF desde almacenamiento en Supabase, Hostinger o un backend propio.`);
+    navigateTo('ai-assistant');
+}
+
+function markResourceAIUsed(resourceId, actionText) {
+    const workspace = loadWorkspace();
+    const resource = workspace.resources.find(item => item.id === resourceId);
+    if (!resource) return null;
+    resource.usedAI = true;
+    addXP(workspace, 30);
+    addRecent(workspace, actionText);
+    saveWorkspace(workspace);
+    refreshWorkspaceUI();
+    return resource;
+}
+
+function askAIAboutResource(resourceId) {
+    const resource = markResourceAIUsed(resourceId, 'Preguntaste a la IA sobre un PDF.');
+    if (!resource) return;
+    navigateTo('ai-assistant');
+    setAIContextFromResource(resource);
+    showAIResult('Respuesta simulada de AC Assistant', buildResourceAIResponse(resource, 'summary'));
+}
+
+function practiceWithResource(resourceId) {
+    const resource = markResourceAIUsed(resourceId, 'Iniciaste practica con un PDF.');
+    if (!resource) return;
+    navigateTo('ai-assistant');
+    setAIContextFromResource(resource);
+    showAIResult('Zona de practica con PDF', buildResourceAIResponse(resource, 'quiz'));
+    notify('PDF cargado en la zona de estudio IA.', 'success');
+}
+
+function setAIContextFromResource(resource) {
+    const topic = document.getElementById('ai-topic');
+    if (topic) {
+        topic.value = `PDF simulado: ${resource.title}\nMateria: ${resource.subject}\nArchivo: ${resource.fileName}\nDescripcion: ${resource.description || resource.content}`;
+    }
+}
+
+function buildResourceAIResponse(resource, type) {
+    const base = `Basado en tu PDF de ${resource.subject}, "${resource.title}" (${resource.fileName}), `;
+    const description = resource.description || resource.content || 'sin descripcion detallada';
+
+    if (type === 'quiz') {
+        return `${base}aqui tienes 5 preguntas de practica:\n\n1. Cual es la idea principal del PDF?\n2. Que concepto se repite mas en el apunte?\n3. Como explicarias este tema a un companero?\n4. Que ejemplo practico puedes crear?\n5. Que pregunta podria aparecer en un examen?\n\nReferencia simulada: ${description}`;
+    }
+    if (type === 'open') {
+        return `${base}aqui tienes preguntas abiertas:\n\n1. Explica con tus palabras el tema central.\n2. Relaciona el contenido con una clase anterior.\n3. Escribe una conclusion corta.\n\nReferencia simulada: ${description}`;
+    }
+    if (type === 'truefalse') {
+        return `${base}practica verdadero/falso:\n\n1. El apunte tiene una idea principal identificable. (V)\n2. No es necesario repasar ejemplos. (F)\n3. Las definiciones ayudan a organizar el estudio. (V)\n4. El contenido no se puede convertir en preguntas. (F)\n\nReferencia simulada: ${description}`;
+    }
+    if (type === 'flashcards') {
+        return `${base}flashcards sugeridas:\n\nTarjeta 1: Tema central / ${resource.title}\nTarjeta 2: Materia / ${resource.subject}\nTarjeta 3: Punto clave / ${description.slice(0, 100)}...`;
+    }
+    if (type === 'simple') {
+        return `${base}explicacion sencilla:\n\nEste PDF puede estudiarse separando primero el tema, luego las ideas importantes y finalmente practicando con preguntas cortas.\n\nReferencia simulada: ${description}`;
+    }
+    return `${base}resumen simulado:\n\nEl recurso contiene informacion util para estudiar ${resource.subject}. Conviene convertirlo en preguntas, flashcards y ejemplos para reforzar el aprendizaje.\n\nReferencia simulada: ${description}`;
+}
+
+function getResourceFromAIInput() {
+    const text = getAIInput();
+    const title = (text.match(/PDF simulado: (.*)/) || [])[1]?.split('\n')[0];
+    if (!title) return null;
+    return loadWorkspace().resources.find(resource => resource.title === title) || null;
+}
+
+function buildAIResponse(type, topic) {
+    const resource = getResourceFromAIInput();
+    if (resource) {
+        if (type === 'questions') return buildResourceAIResponse(resource, 'quiz');
+        if (type === 'flashcards') return buildResourceAIResponse(resource, 'flashcards');
+        if (type === 'simple') return buildResourceAIResponse(resource, 'simple');
+        if (type === 'open') return buildResourceAIResponse(resource, 'open');
+        if (type === 'truefalse') return buildResourceAIResponse(resource, 'truefalse');
+        return buildResourceAIResponse(resource, 'summary');
+    }
+
+    const reference = topic.length > 380 ? `${topic.slice(0, 380)}...` : topic;
+    if (type === 'quiz') {
+        return `Cuestionario simulado sobre ${reference}:\n\n1. Cual es la definicion principal?\n2. Que ejemplo puedes resolver?\n3. Cual es el error mas comun?\n4. Como lo explicarias en clase?\n5. Que debes repasar antes del examen?`;
+    }
+    if (type === 'open') {
+        return `Preguntas abiertas:\n\n1. Explica ${reference} con tus palabras.\n2. Crea un ejemplo propio.\n3. Relaciona el tema con una situacion real.`;
+    }
+    if (type === 'truefalse') {
+        return `Verdadero/Falso:\n\n1. El tema tiene conceptos clave que se pueden resumir. (V)\n2. No hace falta practicar. (F)\n3. Crear preguntas ayuda a estudiar. (V)\n4. Las flashcards sirven para repasar rapido. (V)`;
+    }
+    if (type === 'flashcards') {
+        return `Flashcards:\n\nTarjeta 1\nPregunta: Que es ${reference}?\nRespuesta: Escribe una definicion corta.\n\nTarjeta 2\nPregunta: Cual es un ejemplo?\nRespuesta: Crea un caso practico.\n\nTarjeta 3\nPregunta: Que debo recordar?\nRespuesta: La idea central y sus aplicaciones.`;
+    }
+    if (type === 'simple') {
+        return `Explicacion sencilla:\n\nPiensa en este tema como una idea principal con varias piezas alrededor. Primero entiende la definicion, luego mira ejemplos y finalmente practica respondiendo preguntas.`;
+    }
+    return `Resumen:\n\nEl contenido sobre ${reference} puede organizarse en definiciones, ideas clave, ejemplos y preguntas de practica. Para estudiar mejor, conviertelo en una lista corta y repasala con flashcards.`;
+}
+
+function generateQuiz() {
+    const topic = getAIInput();
+    if (!topic) {
+        notify('Ingresa un tema o carga un PDF desde la mochila digital.', 'error');
+        return;
+    }
+    showAIResult('Cuestionario generado', buildAIResponse('quiz', topic));
+}
+
+function generateOpenQuestions() {
+    const topic = getAIInput();
+    if (!topic) {
+        notify('Ingresa un tema o carga un PDF desde la mochila digital.', 'error');
+        return;
+    }
+    showAIResult('Preguntas abiertas', buildAIResponse('open', topic));
+}
+
+function generateTrueFalse() {
+    const topic = getAIInput();
+    if (!topic) {
+        notify('Ingresa un tema o carga un PDF desde la mochila digital.', 'error');
+        return;
+    }
+    showAIResult('Verdadero/Falso', buildAIResponse('truefalse', topic));
 }
 
 // ============================================
