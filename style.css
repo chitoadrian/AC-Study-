@@ -5617,3 +5617,50 @@ body.light-theme .benefits-path span {
     border-bottom: 4px solid #00c875;
     transform: rotate(-45deg);
 }
+
+/* Marca AC Study */
+.nav-logo,
+.sidebar-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-logo .brand-logo,
+.sidebar-logo .brand-logo {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    border-radius: 50%;
+    filter: drop-shadow(0 10px 18px rgba(73, 204, 249, 0.16));
+}
+
+.nav-logo span,
+.sidebar-logo span {
+    background: linear-gradient(135deg, var(--color-purple), var(--color-cyan), var(--color-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.sidebar-logo {
+    min-width: 0;
+}
+
+.sidebar-logo .brand-logo {
+    width: 50px;
+    height: 50px;
+    flex-basis: 50px;
+}
+
+@media (max-width: 520px) {
+    .nav-logo .brand-logo {
+        width: 40px;
+        height: 40px;
+        flex-basis: 40px;
+    }
+
+    .nav-logo span {
+        font-size: 20px;
+    }
+}
