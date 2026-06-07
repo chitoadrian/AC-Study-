@@ -6982,3 +6982,151 @@ body {
         height: 72px !important;
     }
 }
+
+/* Ajuste final: iconos del menu principal bien encajados */
+#landing-page .hero-visual {
+    align-items: start !important;
+}
+
+#landing-page .hero-visual .floating-card {
+    display: grid !important;
+    place-items: center !important;
+    min-height: 112px !important;
+    aspect-ratio: 1 / 0.82 !important;
+    padding: 12px !important;
+    overflow: hidden !important;
+}
+
+#landing-page .floating-card .icon {
+    position: relative !important;
+    margin: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 18px !important;
+    transform: none !important;
+}
+
+#landing-page .floating-card .icon::before,
+#landing-page .floating-card .icon::after {
+    left: 50% !important;
+    top: 50% !important;
+    transform-origin: center !important;
+}
+
+#landing-page .card-1 .icon::before {
+    transform: translate(-56%, -54%) scale(0.76) !important;
+}
+
+#landing-page .card-1 .icon::after {
+    transform: translate(-20%, -18%) scale(0.76) !important;
+}
+
+#landing-page .card-2 .icon::before {
+    transform: translate(-50%, -50%) scale(0.78) !important;
+}
+
+#landing-page .card-3 .icon::before {
+    transform: translate(-50%, -50%) scale(0.78) !important;
+}
+
+#landing-page .card-4 .icon::before {
+    transform: translate(-50%, -50%) scale(0.80) !important;
+}
+
+#landing-page .benefits-grid,
+#landing-page .use-benefits-grid {
+    align-items: stretch !important;
+}
+
+#landing-page .benefit-card,
+#landing-page .use-benefit-card,
+.use-benefit-card {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    min-height: 250px !important;
+    padding: 24px !important;
+    overflow: hidden !important;
+}
+
+#landing-page .benefit-icon,
+#landing-page .use-benefit-icon,
+.use-benefit-icon {
+    flex: 0 0 56px !important;
+    width: 56px !important;
+    height: 56px !important;
+    margin: 0 0 20px !important;
+    display: grid !important;
+    place-items: center !important;
+    align-self: flex-start !important;
+}
+
+#landing-page .benefit-icon {
+    font-size: 25px !important;
+    line-height: 1 !important;
+}
+
+.use-benefit-icon::before,
+.use-benefit-icon::after {
+    transform-origin: center !important;
+}
+
+.plan-icon::before {
+    width: 28px !important;
+    height: 32px !important;
+    left: 14px !important;
+    top: 12px !important;
+}
+
+.focus-icon::before {
+    width: 28px !important;
+    height: 28px !important;
+    left: 14px !important;
+    top: 14px !important;
+    border-width: 4px !important;
+}
+
+.ai-icon::before {
+    width: 30px !important;
+    height: 24px !important;
+    left: 13px !important;
+    top: 17px !important;
+}
+
+.growth-icon::before {
+    width: 34px !important;
+    height: 28px !important;
+    left: 11px !important;
+    top: 14px !important;
+}
+
+#landing-page .benefit-card h3,
+#landing-page .use-benefit-card h3,
+.use-benefit-card h3 {
+    margin: 0 0 10px !important;
+    font-size: 20px !important;
+    line-height: 1.18 !important;
+}
+
+#landing-page .benefit-card p,
+#landing-page .use-benefit-card p,
+.use-benefit-card p {
+    margin: 0 !important;
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+}
+
+@media (max-width: 768px) {
+    #landing-page .hero-visual .floating-card {
+        min-height: 92px !important;
+        aspect-ratio: auto !important;
+    }
+
+    #landing-page .benefit-card,
+    #landing-page .use-benefit-card,
+    .use-benefit-card {
+        min-height: auto !important;
+    }
+}
