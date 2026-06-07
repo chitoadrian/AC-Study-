@@ -2675,6 +2675,47 @@ function renderSubjects(workspace) {
     grid.querySelectorAll('[data-subject-delete]').forEach(button => button.addEventListener('click', () => deleteSubject(button.dataset.subjectDelete)));
 }
 
+function renderBackpack(workspace) {
+    const section = document.getElementById('backpack');
+    const container = document.querySelector('.backpack-container');
+    if (!section || !container) return;
+
+    const header = section.querySelector('.section-header');
+    if (header && !header.querySelector('[data-action="add-resource"]')) {
+        header.insertAdjacentHTML('beforeend', '<button class="btn-primary btn-small" data-action="add-resource" onclick="addResourceUI()">+ Subir PDF simulado</button>');
+    }
+
+    container.innerHTML = workspace.resources.length ? workspace.resources.map(resource => {
+        const description = resource.description || resource.content || 'Sin descripcion';
+        const shortDescription = description.length > 130 ? `${description.slice(0, 130)}...` : description;
+        return `
+            <div class="resource-card">
+                <div class="resource-top">
+                    <div class="resource-icon resource-pdf-icon" aria-hidden="true"></div>
+                    <div class="resource-info">
+                        <h4>${escapeHTML(resource.title)}</h4>
+                        <p class="resource-type">${escapeHTML(resource.subject)} - ${escapeHTML(resource.fileName || 'PDF simulado')}</p>
+                    </div>
+                </div>
+                <p class="resource-date">${escapeHTML(shortDescription)}</p>
+                <div class="resource-actions">
+                    <button class="btn-secondary btn-small" data-resource-view="${escapeHTML(resource.id)}">Ver</button>
+                    <button class="btn-secondary btn-small" data-resource-ai="${escapeHTML(resource.id)}">Preguntar a la IA</button>
+                    <button class="btn-secondary btn-small" data-resource-practice="${escapeHTML(resource.id)}">Practicar con PDF</button>
+                    <button class="btn-secondary btn-small" data-resource-edit="${escapeHTML(resource.id)}">Editar</button>
+                    <button class="btn-danger btn-small" data-resource-delete="${escapeHTML(resource.id)}">Eliminar</button>
+                </div>
+            </div>
+        `;
+    }).join('') : emptyStateHTML('No has subido apuntes todavia.', 'Subir primer PDF', 'addResourceUI()');
+
+    container.querySelectorAll('[data-resource-view]').forEach(button => button.addEventListener('click', () => viewResource(button.dataset.resourceView)));
+    container.querySelectorAll('[data-resource-ai]').forEach(button => button.addEventListener('click', () => askAIAboutResource(button.dataset.resourceAi)));
+    container.querySelectorAll('[data-resource-practice]').forEach(button => button.addEventListener('click', () => practiceWithResource(button.dataset.resourcePractice)));
+    container.querySelectorAll('[data-resource-edit]').forEach(button => button.addEventListener('click', () => openResourceForm(button.dataset.resourceEdit)));
+    container.querySelectorAll('[data-resource-delete]').forEach(button => button.addEventListener('click', () => deleteResource(button.dataset.resourceDelete)));
+}
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
