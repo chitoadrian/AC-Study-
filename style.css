@@ -3739,7 +3739,6 @@ body.light-theme .auth-card {
     height: 104px;
     border-radius: 58% 58% 50% 50% / 48% 48% 58% 58%;
     background:
-        radial-gradient(circle at 36% 34%, #fff7d6 0 24px, transparent 25px),
         radial-gradient(circle at 72% 78%, rgba(73, 204, 249, 0.65) 0 20px, transparent 21px),
         linear-gradient(150deg, #6bf36f 0%, #00c875 42%, #12a85f 100%);
     box-shadow:
