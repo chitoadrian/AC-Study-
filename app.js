@@ -1,5 +1,5 @@
 /* ============================================
-   AC STUDY - LÓGICA PRINCIPAL
+   AC STUDY - LÃ“GICA PRINCIPAL
    JavaScript puro - Funcionalidades SPA
    ============================================ */
 
@@ -187,17 +187,17 @@ function renderQuickField(field) {
 }
 
 // ============================================
-// INICIALIZACIÓN
+// INICIALIZACIÃ“N
 // ============================================
 
 function initializeApp() {
     // Cargar tema guardado
     if (isDarkTheme) {
         document.body.classList.remove('light-theme');
-        updateThemeIcon('🌙');
+        updateThemeIcon('ðŸŒ™');
     } else {
         document.body.classList.add('light-theme');
-        updateThemeIcon('☀️');
+        updateThemeIcon('â˜€ï¸');
     }
 
     // Verificar si hay usuario en localStorage
@@ -224,23 +224,23 @@ function initializeApp() {
 }
 
 // ============================================
-// NAVEGACIÓN DE PÁGINAS
+// NAVEGACIÃ“N DE PÃGINAS
 // ============================================
 
 function showPage(pageId) {
     const selectedPage = document.getElementById(pageId);
     if (!selectedPage) return;
 
-    // Ocultar todas las páginas
+    // Ocultar todas las pÃ¡ginas
     document.querySelectorAll('.page').forEach(page => {
         page.classList.remove('active');
     });
 
-    // Mostrar página seleccionada
+    // Mostrar pÃ¡gina seleccionada
     selectedPage.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Si es la app, mostrar la sección por defecto
+    // Si es la app, mostrar la secciÃ³n por defecto
     if (pageId === 'app-page' && !currentUser) {
         showLanding();
     }
@@ -276,7 +276,7 @@ function updateDashboardGreeting() {
     const dashboardTitle = document.querySelector('#dashboard .section-header h1');
     if (dashboardTitle) {
         const firstName = currentUser?.name ? currentUser.name.split(' ')[0] : 'Adrian';
-        dashboardTitle.textContent = `Hola ${firstName} 👋`;
+        dashboardTitle.textContent = `Hola ${firstName} ðŸ‘‹`;
     }
 
     updateProfileInfo();
@@ -302,7 +302,7 @@ function updateProfileInfo() {
 }
 
 // ============================================
-// AUTENTICACIÓN
+// AUTENTICACIÃ“N
 // ============================================
 
 function handleLogin(event) {
@@ -380,7 +380,7 @@ function handleLogout() {
 }
 
 // ============================================
-// NAVEGACIÓN SPA
+// NAVEGACIÃ“N SPA
 // ============================================
 
 function navigateTo(sectionId, evt) {
@@ -396,7 +396,7 @@ function navigateTo(sectionId, evt) {
         item.classList.remove('active');
     });
 
-    // Agregar clase active a la sección seleccionada
+    // Agregar clase active a la secciÃ³n seleccionada
     const section = document.getElementById(sectionId);
     if (section) {
         section.classList.add('active');
@@ -430,11 +430,11 @@ function toggleTheme() {
     if (isDarkTheme) {
         document.body.classList.remove('light-theme');
         localStorage.setItem('theme', 'dark');
-        updateThemeIcon('🌙');
+        updateThemeIcon('ðŸŒ™');
     } else {
         document.body.classList.add('light-theme');
         localStorage.setItem('theme', 'light');
-        updateThemeIcon('☀️');
+        updateThemeIcon('â˜€ï¸');
     }
 }
 
@@ -488,7 +488,7 @@ function toggleTask(checkbox) {
 }
 
 function filterTasks(filter, button) {
-    // Actualizar botón activo
+    // Actualizar botÃ³n activo
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -541,7 +541,7 @@ function createTask(topic, subject) {
         <div class="task-content">
             <h4>${escapeHTML(topic)}</h4>
             <p class="task-subject">Materia: ${escapeHTML(subject)}</p>
-            <p class="task-date">Vence: Próximamente</p>
+            <p class="task-date">Vence: PrÃ³ximamente</p>
         </div>
         <div class="task-priority medium">Media</div>
     `;
@@ -607,7 +607,7 @@ function renderSubjectCard(subject) {
     card.innerHTML = `
         <div class="subject-header">
             <h3>${escapeHTML(subject.name)}</h3>
-            <span class="subject-icon">📘</span>
+            <span class="subject-icon">ðŸ“˜</span>
         </div>
         <div class="subject-stats">
             <div class="stat">
@@ -626,7 +626,7 @@ function renderSubjectCard(subject) {
         <div class="progress-bar">
             <div class="progress-fill" style="width: ${subject.progress}%; background: linear-gradient(90deg, #7c3aed, #06b6d4)"></div>
         </div>
-        <p class="last-activity">Última actividad: creada por el estudiante</p>
+        <p class="last-activity">Ãšltima actividad: creada por el estudiante</p>
         <button class="btn-secondary btn-small" type="button">Acceder</button>
     `;
 
@@ -697,10 +697,10 @@ function addGrade(event) {
 
     // Encontrar la tarjeta de la materia y agregar la nota
     const subjectEmojis = {
-        'Matemática': '📐',
-        'Física': '⚛️',
-        'Programación': '💻',
-        'Inglés': '🌐'
+        'MatemÃ¡tica': 'ðŸ“',
+        'FÃ­sica': 'âš›ï¸',
+        'ProgramaciÃ³n': 'ðŸ’»',
+        'InglÃ©s': 'ðŸŒ'
     };
 
     const gradeCard = Array.from(document.querySelectorAll('.grade-card')).find(card => {
@@ -757,21 +757,21 @@ function generateSummary() {
     }
 
     const summaries = {
-        default: `📚 Resumen de: ${topic}\n\n` +
+        default: `ðŸ“š Resumen de: ${topic}\n\n` +
             `Este es un resumen generado simuladamente sobre "${topic}".\n\n` +
             `Puntos principales:\n` +
-            `• Definición: Explicación detallada del concepto\n` +
-            `• Características: Propiedades principales del tema\n` +
-            `• Aplicaciones: Usos prácticos en la vida real\n` +
-            `• Ejemplos: Casos de estudio relevantes\n` +
-            `• Importancia: Por qué es importante aprender esto\n\n` +
+            `â€¢ DefiniciÃ³n: ExplicaciÃ³n detallada del concepto\n` +
+            `â€¢ CaracterÃ­sticas: Propiedades principales del tema\n` +
+            `â€¢ Aplicaciones: Usos prÃ¡cticos en la vida real\n` +
+            `â€¢ Ejemplos: Casos de estudio relevantes\n` +
+            `â€¢ Importancia: Por quÃ© es importante aprender esto\n\n` +
             `Este resumen fue generado para ayudarte a estudiar de manera eficiente. ` +
             `Utiliza este contenido como base para tu aprendizaje.`
     };
 
     const summary = summaries.default;
 
-    showAIResult('📝 Resumen Generado', summary);
+    showAIResult('ðŸ“ Resumen Generado', summary);
 }
 
 function generateQuestions() {
@@ -782,19 +782,19 @@ function generateQuestions() {
         return;
     }
 
-    const questions = `❓ Preguntas de Práctica: ${topic}\n\n` +
-        `1. ¿Cuáles son los conceptos principales de ${topic}?\n` +
-        `   Respuesta: [Tu respuesta aquí]\n\n` +
-        `2. ¿Cómo se aplica ${topic} en la práctica?\n` +
-        `   Respuesta: [Tu respuesta aquí]\n\n` +
-        `3. ¿Cuáles son los errores comunes al estudiar ${topic}?\n` +
-        `   Respuesta: [Tu respuesta aquí]\n\n` +
-        `4. Explica la relación entre ${topic} y otros temas relacionados.\n` +
-        `   Respuesta: [Tu respuesta aquí]\n\n` +
-        `5. ¿Por qué es importante dominar ${topic}?\n` +
-        `   Respuesta: [Tu respuesta aquí]`;
+    const questions = `â“ Preguntas de PrÃ¡ctica: ${topic}\n\n` +
+        `1. Â¿CuÃ¡les son los conceptos principales de ${topic}?\n` +
+        `   Respuesta: [Tu respuesta aquÃ­]\n\n` +
+        `2. Â¿CÃ³mo se aplica ${topic} en la prÃ¡ctica?\n` +
+        `   Respuesta: [Tu respuesta aquÃ­]\n\n` +
+        `3. Â¿CuÃ¡les son los errores comunes al estudiar ${topic}?\n` +
+        `   Respuesta: [Tu respuesta aquÃ­]\n\n` +
+        `4. Explica la relaciÃ³n entre ${topic} y otros temas relacionados.\n` +
+        `   Respuesta: [Tu respuesta aquÃ­]\n\n` +
+        `5. Â¿Por quÃ© es importante dominar ${topic}?\n` +
+        `   Respuesta: [Tu respuesta aquÃ­]`;
 
-    showAIResult('❓ Preguntas Generadas', questions);
+    showAIResult('â“ Preguntas Generadas', questions);
 }
 
 function generateFlashcards() {
@@ -805,36 +805,36 @@ function generateFlashcards() {
         return;
     }
 
-    const flashcards = `🎴 Flashcards para ${topic}\n\n` +
-        `┌─────────────────────────────────┐\n` +
-        `│ TARJETA 1                       │\n` +
-        `├─────────────────────────────────┤\n` +
-        `│ PREGUNTA:                       │\n` +
-        `│ ¿Qué es ${topic}?               │\n` +
-        `│                                 │\n` +
-        `│ RESPUESTA (Voltea):             │\n` +
-        `│ Definición detallada...         │\n` +
-        `└─────────────────────────────────┘\n\n` +
-        `┌─────────────────────────────────┐\n` +
-        `│ TARJETA 2                       │\n` +
-        `├─────────────────────────────────┤\n` +
-        `│ PREGUNTA:                       │\n` +
-        `│ Características de ${topic}      │\n` +
-        `│                                 │\n` +
-        `│ RESPUESTA (Voltea):             │\n` +
-        `│ Listar características clave... │\n` +
-        `└─────────────────────────────────┘\n\n` +
-        `┌─────────────────────────────────┐\n` +
-        `│ TARJETA 3                       │\n` +
-        `├─────────────────────────────────┤\n` +
-        `│ PREGUNTA:                       │\n` +
-        `│ Aplicaciones prácticas          │\n` +
-        `│                                 │\n` +
-        `│ RESPUESTA (Voltea):             │\n` +
-        `│ Ejemplos de uso...              │\n` +
-        `└─────────────────────────────────┘`;
+    const flashcards = `ðŸŽ´ Flashcards para ${topic}\n\n` +
+        `â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n` +
+        `â”‚ TARJETA 1                       â”‚\n` +
+        `â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤\n` +
+        `â”‚ PREGUNTA:                       â”‚\n` +
+        `â”‚ Â¿QuÃ© es ${topic}?               â”‚\n` +
+        `â”‚                                 â”‚\n` +
+        `â”‚ RESPUESTA (Voltea):             â”‚\n` +
+        `â”‚ DefiniciÃ³n detallada...         â”‚\n` +
+        `â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n\n` +
+        `â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n` +
+        `â”‚ TARJETA 2                       â”‚\n` +
+        `â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤\n` +
+        `â”‚ PREGUNTA:                       â”‚\n` +
+        `â”‚ CaracterÃ­sticas de ${topic}      â”‚\n` +
+        `â”‚                                 â”‚\n` +
+        `â”‚ RESPUESTA (Voltea):             â”‚\n` +
+        `â”‚ Listar caracterÃ­sticas clave... â”‚\n` +
+        `â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n\n` +
+        `â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n` +
+        `â”‚ TARJETA 3                       â”‚\n` +
+        `â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤\n` +
+        `â”‚ PREGUNTA:                       â”‚\n` +
+        `â”‚ Aplicaciones prÃ¡cticas          â”‚\n` +
+        `â”‚                                 â”‚\n` +
+        `â”‚ RESPUESTA (Voltea):             â”‚\n` +
+        `â”‚ Ejemplos de uso...              â”‚\n` +
+        `â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜`;
 
-    showAIResult('🎴 Flashcards Generadas', flashcards);
+    showAIResult('ðŸŽ´ Flashcards Generadas', flashcards);
 }
 
 function showAIResult(title, content) {
@@ -971,22 +971,22 @@ function generateCalendar() {
             <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;">
     `;
 
-    // Días de la semana
-    const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    // DÃ­as de la semana
+    const days = ['Dom', 'Lun', 'Mar', 'MiÃ©', 'Jue', 'Vie', 'SÃ¡b'];
     days.forEach(day => {
         html += `<div style="text-align: center; font-size: 11px; font-weight: 600; color: var(--text-secondary); padding: 8px 0;">${day}</div>`;
     });
 
-    // Días del mes
+    // DÃ­as del mes
     const firstDay = new Date(2026, 5, 1).getDay();
     const daysInMonth = 30;
 
-    // Espacios vacíos antes del primer día
+    // Espacios vacÃ­os antes del primer dÃ­a
     for (let i = 0; i < firstDay; i++) {
         html += `<div style="padding: 8px; text-align: center; font-size: 12px; color: var(--text-tertiary);">-</div>`;
     }
 
-    // Días del mes
+    // DÃ­as del mes
     for (let day = 1; day <= daysInMonth; day++) {
         const isToday = day === 5;
         const hasEvent = [8, 10, 12, 15, 20].includes(day);
@@ -1182,22 +1182,23 @@ function renderDashboard(workspace) {
 
     section.innerHTML = `
         <div class="section-header">
-            <h1>Hola ${escapeHTML(firstName)} 👋</h1>
+            <h1>Hola ${escapeHTML(firstName)} ðŸ‘‹</h1>
             <p class="subtitle">${isEmpty ? 'Bienvenido a AC Study. Empieza creando tu primera materia.' : 'Este es el resumen actualizado de tu espacio academico.'}</p>
         </div>
 
         <div class="dashboard-grid">
-            ${dashboardCard('📚', 'Materias Activas', workspace.subjects.length, workspace.subjects.length ? 'Materias creadas por ti' : 'Sin materias todavia', workspace.subjects.length ? 100 : 0)}
-            ${dashboardCard('✓', 'Tareas Pendientes', pending, `${completed} completadas`, workspace.tasks.length ? Math.round((completed / workspace.tasks.length) * 100) : 0)}
-            ${dashboardCard('📅', 'Proximo Evento', nextEvent ? nextEvent.title : 'Sin eventos', nextEvent ? `${nextEvent.day} - ${nextEvent.type}` : 'Agenda tu primer examen o entrega', nextEvent ? 70 : 0)}
-            ${dashboardCard('📊', 'Promedio Actual', average ? average.toFixed(2) : '--', workspace.grades.length ? `${workspace.grades.length} notas registradas` : 'Aun no hay notas', average ? average * 10 : 0)}
-            ${dashboardCard('⚡', 'XP Acumulado', workspace.xp || 0, `Nivel ${level}`, Math.min(100, ((workspace.xp || 0) % 250) / 2.5))}
-            ${dashboardCard('🔥', 'Racha de Estudio', workspace.streak || 0, 'dias activos', workspace.streak ? 100 : 0)}
+            ${dashboardCard('ðŸ“š', 'Materias Activas', workspace.subjects.length, workspace.subjects.length ? 'Materias creadas por ti' : 'Sin materias todavia', workspace.subjects.length ? 100 : 0)}
+            ${dashboardCard('âœ“', 'Tareas Pendientes', pending, `${completed} completadas`, workspace.tasks.length ? Math.round((completed / workspace.tasks.length) * 100) : 0)}
+            ${dashboardCard('ðŸ“…', 'Proximo Evento', nextEvent ? nextEvent.title : 'Sin eventos', nextEvent ? `${nextEvent.day} - ${nextEvent.type}` : 'Agenda tu primer examen o entrega', nextEvent ? 70 : 0)}
+            ${dashboardCard('ðŸ“Š', 'Promedio Actual', average ? average.toFixed(2) : '--', workspace.grades.length ? `${workspace.grades.length} notas registradas` : 'Aun no hay notas', average ? average * 10 : 0)}
+            ${dashboardCard('âš¡', 'XP Acumulado', workspace.xp || 0, `Nivel ${level}`, Math.min(100, ((workspace.xp || 0) % 250) / 2.5))}
+            ${dashboardCard('ðŸ”¥', 'Racha de Estudio', workspace.streak || 0, 'dias activos', workspace.streak ? 100 : 0)}
+            ${dashboardCard('AI', 'Recomendacion IA', workspace.resources.length ? 'Repasa un PDF' : 'Sube un apunte', workspace.resources.length ? 'AC Assistant puede crear cuestionarios' : 'Sube tus apuntes y estudia con ayuda de AC Assistant', workspace.resources.length ? 85 : 25)}
         </div>
 
         <div class="dashboard-row">
             <div class="card starter-card">
-                <h3>Guia de primeros pasos</h3>
+                <h3>Centro del estudiante</h3>
                 <ol class="starter-list">
                     <li class="${workspace.subjects.length ? 'done' : ''}">Crea una materia</li>
                     <li class="${workspace.tasks.length ? 'done' : ''}">Agrega una tarea</li>
@@ -1215,6 +1216,8 @@ function renderDashboard(workspace) {
                     `).join('')}</ul>
                 ` : emptyStateHTML('Tu actividad aparecera cuando empieces a usar la plataforma.', 'Crear primera materia', 'addSubjectUI()')}
             </div>
+
+
 
             <div class="card weekly-progress-card">
                 <h3>Progreso semanal</h3>
@@ -1241,7 +1244,7 @@ function dashboardCard(icon, label, value, subtext, progress) {
 function emptyStateHTML(message, buttonText, action) {
     return `
         <div class="empty-state">
-            <div class="empty-icon">＋</div>
+            <div class="empty-icon">ï¼‹</div>
             <h3>${escapeHTML(message)}</h3>
             <button class="btn-primary btn-small" onclick="${action}">${escapeHTML(buttonText)}</button>
         </div>
@@ -1284,7 +1287,7 @@ function renderSubjects(workspace) {
         const progress = taskCount ? Math.round((completed / taskCount) * 100) : 0;
         return `
             <div class="subject-card subject-custom">
-                <div class="subject-header"><h3>${escapeHTML(subject.name)}</h3><span class="subject-icon">📘</span></div>
+                <div class="subject-header"><h3>${escapeHTML(subject.name)}</h3><span class="subject-icon">ðŸ“˜</span></div>
                 <div class="subject-stats">
                     <div class="stat"><span class="stat-name">Progreso</span><span class="stat-num">${progress}%</span></div>
                     <div class="stat"><span class="stat-name">Tareas</span><span class="stat-num">${taskCount}</span></div>
@@ -1579,7 +1582,7 @@ function renderProgress(workspace) {
         <div class="achievements-section">
             <h3>Logros</h3>
             <div class="achievements-grid">
-                ${achievements.map(item => `<div class="achievement ${item.unlocked ? 'unlocked' : 'locked'}"><div class="achievement-icon">${item.unlocked ? '✓' : '•'}</div><p>${escapeHTML(item.name)}</p></div>`).join('')}
+                ${achievements.map(item => `<div class="achievement ${item.unlocked ? 'unlocked' : 'locked'}"><div class="achievement-icon">${item.unlocked ? 'âœ“' : 'â€¢'}</div><p>${escapeHTML(item.name)}</p></div>`).join('')}
             </div>
         </div>
     `;
@@ -1626,9 +1629,9 @@ function renderBackpack(workspace) {
 
     container.innerHTML = workspace.resources.length ? workspace.resources.map(resource => `
         <div class="resource-card">
-            <div class="resource-icon">📄</div>
+            <div class="resource-icon">ðŸ“„</div>
             <h4>${escapeHTML(resource.title)}</h4>
-            <p class="resource-type">${escapeHTML(resource.subject)} • Apunte simulado</p>
+            <p class="resource-type">${escapeHTML(resource.subject)} â€¢ Apunte simulado</p>
             <p class="resource-date">${escapeHTML(resource.content).slice(0, 120)}${resource.content.length > 120 ? '...' : ''}</p>
             <div class="resource-actions">
                 <button class="btn-secondary btn-small" data-resource-view="${escapeHTML(resource.id)}">Ver</button>
@@ -1842,7 +1845,7 @@ function openSubjectForm(subjectId = null) {
         submitLabel: subject ? 'Actualizar materia' : 'Guardar materia',
         fields: [
             { name: 'name', label: 'Nombre de la materia', value: subject?.name || '', placeholder: 'Ej: Matematica' },
-            { name: 'icon', label: 'Icono o etiqueta', value: subject?.icon || '📘', placeholder: 'Ej: 📐, FIS, PROG' },
+            { name: 'icon', label: 'Icono o etiqueta', value: subject?.icon || 'ðŸ“˜', placeholder: 'Ej: ðŸ“, FIS, PROG' },
             { name: 'color', label: 'Color identificador', type: 'select', options: subjectColorOptions, value: subject?.color || 'Morado' }
         ],
         onSubmit: values => {
@@ -1852,7 +1855,7 @@ function openSubjectForm(subjectId = null) {
                 if (item) {
                     const oldName = item.name;
                     item.name = values.name.trim();
-                    item.icon = values.icon.trim() || '📘';
+                    item.icon = values.icon.trim() || 'ðŸ“˜';
                     item.color = values.color || 'Morado';
                     fresh.tasks.forEach(task => {
                         if (task.subject === oldName) task.subject = item.name;
@@ -1869,7 +1872,7 @@ function openSubjectForm(subjectId = null) {
                 fresh.subjects.push({
                     id: createId(),
                     name: values.name.trim(),
-                    icon: values.icon.trim() || '📘',
+                    icon: values.icon.trim() || 'ðŸ“˜',
                     color: values.color || 'Morado',
                     createdAt: new Date().toISOString()
                 });
@@ -1911,7 +1914,7 @@ function renderSubjects(workspace) {
         return `
             <div class="subject-card subject-custom ac-colored-card" style="--subject-color:${color}">
                 <div class="subject-header">
-                    <h3><span class="subject-icon">${escapeHTML(subject.icon || '📘')}</span> ${escapeHTML(subject.name)}</h3>
+                    <h3><span class="subject-icon">${escapeHTML(subject.icon || 'ðŸ“˜')}</span> ${escapeHTML(subject.name)}</h3>
                     <span class="subject-chip">${escapeHTML(subject.color || 'Morado')}</span>
                 </div>
                 <div class="subject-stats">
@@ -2109,7 +2112,7 @@ function renderCalendarSection(workspace) {
                             <div class="event-date"><span class="day">${escapeHTML((event.date || event.day || '--').slice(-2))}</span><span class="month">${escapeHTML((event.date || '').slice(5, 7) || 'AC')}</span></div>
                             <div class="event-content">
                                 <h4>${escapeHTML(event.title)}</h4>
-                                <p>${escapeHTML(event.date || 'Sin fecha')} • ${escapeHTML(event.time || 'Sin hora')}</p>
+                                <p>${escapeHTML(event.date || 'Sin fecha')} â€¢ ${escapeHTML(event.time || 'Sin hora')}</p>
                                 <span class="event-badge">${escapeHTML(event.type)}</span>
                                 ${isEventSoon(event) ? '<p class="event-alert">Evento cercano</p>' : ''}
                                 ${reminder ? `<p class="email-simulation">${escapeHTML(reminder)}</p>` : ''}
@@ -2319,9 +2322,9 @@ function renderBackpack(workspace) {
 
     container.innerHTML = workspace.resources.length ? workspace.resources.map(resource => `
         <div class="resource-card">
-            <div class="resource-icon">📄</div>
+            <div class="resource-icon">ðŸ“„</div>
             <h4>${escapeHTML(resource.title)}</h4>
-            <p class="resource-type">${escapeHTML(resource.subject)} • ${escapeHTML(resource.fileName || 'PDF simulado')}</p>
+            <p class="resource-type">${escapeHTML(resource.subject)} â€¢ ${escapeHTML(resource.fileName || 'PDF simulado')}</p>
             <p class="resource-date">${escapeHTML(resource.description || resource.content || 'Sin descripcion').slice(0, 130)}${(resource.description || resource.content || '').length > 130 ? '...' : ''}</p>
             <div class="resource-actions">
                 <button class="btn-secondary btn-small" data-resource-view="${escapeHTML(resource.id)}">Ver</button>
@@ -2473,15 +2476,15 @@ function generateTrueFalse() {
 // UTILIDADES
 // ============================================
 
-// Prevenir envío de formularios con Enter en ciertos contextos
+// Prevenir envÃ­o de formularios con Enter en ciertos contextos
 document.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && e.target.closest('.form-group textarea')) {
-        // Permitir saltos de línea en textareas
+        // Permitir saltos de lÃ­nea en textareas
         return;
     }
 });
 
-// Inicializar la aplicación cuando se carga la página
+// Inicializar la aplicaciÃ³n cuando se carga la pÃ¡gina
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
