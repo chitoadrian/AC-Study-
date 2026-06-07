@@ -1757,6 +1757,15 @@ const subjectColorOptions = [
     { value: 'Amarillo', label: 'Amarillo importante' }
 ];
 
+const subjectBookOptions = [
+    { value: 'book-blue', label: 'Libro azul' },
+    { value: 'book-orange', label: 'Libro naranja' },
+    { value: 'book-yellow', label: 'Libro amarillo' },
+    { value: 'book-green', label: 'Libro verde' },
+    { value: 'book-purple', label: 'Libro morado' },
+    { value: 'book-pink', label: 'Libro rosado' }
+];
+
 const taskPriorityOptions = [
     { value: 'alta', label: 'Importante' },
     { value: 'media', label: 'Normal' },
@@ -2570,6 +2579,100 @@ function emptyStateHTML(message, buttonText, action) {
             <button class="btn-primary btn-small" onclick="${action}">${escapeHTML(buttonText)}</button>
         </div>
     `;
+}
+
+function normalizeSubjectIcon(icon) {
+    return subjectBookOptions.some(option => option.value === icon) ? icon : 'book-blue';
+}
+
+function addSubjectUI() {
+    openSubjectForm();
+}
+
+function openSubjectForm(subjectId = null) {
+    const workspace = loadWorkspace();
+    const subject = workspace.subjects.find(item => item.id === subjectId);
+
+    openQuickForm({
+        title: subject ? 'Editar materia' : 'Crear materia',
+        submitLabel: subject ? 'Actualizar materia' : 'Guardar materia',
+        fields: [
+            { name: 'name', label: 'Nombre de la materia', value: subject?.name || '', placeholder: 'Ej: Matematica' },
+            { name: 'icon', label: 'Libro de la materia', type: 'select', options: subjectBookOptions, value: normalizeSubjectIcon(subject?.icon) },
+            { name: 'color', label: 'Color identificador', type: 'select', options: subjectColorOptions, value: subject?.color || 'Morado' }
+        ],
+        onSubmit: values => {
+            const fresh = loadWorkspace();
+            if (subjectId) {
+                const item = fresh.subjects.find(entry => entry.id === subjectId);
+                if (item) {
+                    const oldName = item.name;
+                    item.name = values.name.trim();
+                    item.icon = normalizeSubjectIcon(values.icon);
+                    item.color = values.color || 'Morado';
+                    fresh.tasks.forEach(task => {
+                        if (task.subject === oldName) task.subject = item.name;
+                    });
+                    fresh.grades.forEach(grade => {
+                        if (grade.subject === oldName) grade.subject = item.name;
+                    });
+                    fresh.resources.forEach(resource => {
+                        if (resource.subject === oldName) resource.subject = item.name;
+                    });
+                    addRecent(fresh, `Editaste la materia ${item.name}.`);
+                }
+            } else {
+                fresh.subjects.push({
+                    id: createId(),
+                    name: values.name.trim(),
+                    icon: normalizeSubjectIcon(values.icon),
+                    color: values.color || 'Morado',
+                    createdAt: new Date().toISOString()
+                });
+                addXP(fresh, 30);
+                addRecent(fresh, `Creaste la materia ${values.name.trim()}.`);
+            }
+            saveWorkspace(fresh);
+            refreshWorkspaceUI();
+            notify(subjectId ? 'Materia actualizada.' : 'Materia creada correctamente.', 'success');
+        }
+    });
+}
+
+function renderSubjects(workspace) {
+    const grid = document.querySelector('.subjects-grid');
+    if (!grid) return;
+
+    grid.innerHTML = workspace.subjects.length ? workspace.subjects.map(subject => {
+        const taskCount = workspace.tasks.filter(task => task.subject === subject.name).length;
+        const completed = workspace.tasks.filter(task => task.subject === subject.name && task.status === 'completed').length;
+        const progress = taskCount ? Math.round((completed / taskCount) * 100) : 0;
+        const average = getSubjectAverage(workspace, subject.name);
+        const color = subjectColorMap[subject.color] || subjectColorMap.Morado;
+        const bookIcon = normalizeSubjectIcon(subject.icon);
+        return `
+            <div class="subject-card subject-custom ac-colored-card" style="--subject-color:${color}">
+                <div class="subject-header">
+                    <h3><span class="subject-icon subject-book ${escapeHTML(bookIcon)}" aria-hidden="true"></span> ${escapeHTML(subject.name)}</h3>
+                    <span class="subject-chip">${escapeHTML(subject.color || 'Morado')}</span>
+                </div>
+                <div class="subject-stats">
+                    <div class="stat"><span class="stat-name">Progreso</span><span class="stat-num">${progress}%</span></div>
+                    <div class="stat"><span class="stat-name">Tareas</span><span class="stat-num">${taskCount}</span></div>
+                    <div class="stat"><span class="stat-name">Promedio</span><span class="stat-num">${average ? average.toFixed(2) : '--'}</span></div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${progress}%; background:linear-gradient(90deg, ${color}, #06b6d4)"></div></div>
+                <p class="last-activity">${taskCount ? `${completed} de ${taskCount} tareas completadas` : 'Sin tareas relacionadas todavia'}</p>
+                <div class="card-actions">
+                    <button class="btn-secondary btn-small" data-subject-edit="${escapeHTML(subject.id)}">Editar</button>
+                    <button class="btn-danger btn-small" data-subject-delete="${escapeHTML(subject.id)}">Eliminar</button>
+                </div>
+            </div>
+        `;
+    }).join('') : emptyStateHTML('No tienes materias registradas todavia.', 'Crear primera materia', 'addSubjectUI()');
+
+    grid.querySelectorAll('[data-subject-edit]').forEach(button => button.addEventListener('click', () => openSubjectForm(button.dataset.subjectEdit)));
+    grid.querySelectorAll('[data-subject-delete]').forEach(button => button.addEventListener('click', () => deleteSubject(button.dataset.subjectDelete)));
 }
 
 if (document.readyState === 'loading') {
