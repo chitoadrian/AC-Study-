@@ -3739,13 +3739,13 @@ body.light-theme .auth-card {
     height: 104px;
     border-radius: 58% 58% 50% 50% / 48% 48% 58% 58%;
     background:
-        radial-gradient(circle at 58% 28%, #ffffff 0 13px, transparent 14px),
-        radial-gradient(circle at 37% 38%, #fff7d6 0 23px, transparent 24px),
-        linear-gradient(150deg, #28df8f 0%, #15c47e 38%, #49ccf9 82%);
+        radial-gradient(circle at 36% 34%, #fff7d6 0 24px, transparent 25px),
+        radial-gradient(circle at 72% 78%, rgba(73, 204, 249, 0.65) 0 20px, transparent 21px),
+        linear-gradient(150deg, #6bf36f 0%, #00c875 42%, #12a85f 100%);
     box-shadow:
-        inset -13px -18px 0 rgba(12, 28, 48, 0.16),
-        inset 8px 10px 0 rgba(255, 255, 255, 0.14),
-        0 20px 42px rgba(73, 204, 249, 0.22);
+        inset -14px -18px 0 rgba(0, 97, 72, 0.22),
+        inset 10px 12px 0 rgba(255, 255, 255, 0.22),
+        0 20px 42px rgba(0, 200, 117, 0.24);
     transform-origin: 50% 88%;
     animation: petWiggle 2.8s ease-in-out infinite;
 }
@@ -3772,7 +3772,7 @@ body.light-theme .auth-card {
     width: 38px;
     height: 24px;
     border-radius: 50% 50% 8px 8px;
-    background: linear-gradient(135deg, #ffc800, #fd71af);
+    background: linear-gradient(135deg, #b7ff45, #00c875 48%, #49ccf9);
     transform: rotate(-7deg);
     z-index: -1;
 }
@@ -3786,23 +3786,38 @@ body.light-theme .auth-card {
     border-radius: 56% 22% 58% 42%;
     background:
         radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.22), transparent 26px),
-        linear-gradient(135deg, #7b68ee, #49ccf9 76%);
+        linear-gradient(135deg, #00a8ff, #7b68ee 72%);
     transform: rotate(-15deg);
     animation: wingFlap 2.8s ease-in-out infinite;
 }
 
 .pet-eye {
     position: absolute;
-    left: 48px;
-    top: 28px;
-    width: 9px;
-    height: 9px;
+    left: 45px;
+    top: 25px;
+    width: 21px;
+    height: 21px;
     border-radius: 50%;
-    background: #1e1f25;
+    background: #ffffff;
     box-shadow:
-        2px -2px 0 1px #ffffff,
-        -23px 14px 0 7px rgba(253, 113, 175, 0.35);
+        inset 0 -2px 0 rgba(30, 31, 37, 0.10),
+        -25px 18px 0 7px rgba(253, 113, 175, 0.34);
     animation: petBlink 5s ease-in-out infinite;
+    overflow: hidden;
+}
+
+.pet-eye::after {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 7px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #101827;
+    box-shadow: 2px -2px 0 -1px #ffffff;
+    transform: translate(var(--pet-eye-x, 0px), var(--pet-eye-y, 0px));
+    transition: transform 0.08s ease-out;
 }
 
 .pet-beak {
@@ -3872,7 +3887,7 @@ body.light-theme .pet-bubble::after {
         transform: scaleY(1);
     }
     95% {
-        transform: scaleY(0.15);
+        transform: scaleY(0.28);
     }
 }
 
@@ -3909,8 +3924,15 @@ body.light-theme .pet-bubble::after {
     }
 
     .pet-eye {
-        left: 38px;
-        top: 23px;
+        left: 36px;
+        top: 20px;
+        width: 17px;
+        height: 17px;
+    }
+
+    .pet-eye::after {
+        left: 5px;
+        top: 5px;
     }
 
     .pet-beak {

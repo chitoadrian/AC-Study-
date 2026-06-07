@@ -3027,6 +3027,29 @@ function initStudyPet() {
     let startY = 0;
 
     const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+    const updateEyeDirection = event => {
+        const parrot = pet.querySelector('.pet-parrot');
+        if (!parrot) return;
+
+        const rect = parrot.getBoundingClientRect();
+        const centerX = rect.left + rect.width * 0.56;
+        const centerY = rect.top + rect.height * 0.32;
+        const deltaX = event.clientX - centerX;
+        const deltaY = event.clientY - centerY;
+        const distance = Math.max(Math.hypot(deltaX, deltaY), 1);
+        const maxMove = window.innerWidth < 720 ? 3 : 4;
+
+        pet.style.setProperty('--pet-eye-x', `${(deltaX / distance) * maxMove}px`);
+        pet.style.setProperty('--pet-eye-y', `${(deltaY / distance) * maxMove}px`);
+    };
+
+    const resetEyeDirection = () => {
+        pet.style.setProperty('--pet-eye-x', '0px');
+        pet.style.setProperty('--pet-eye-y', '0px');
+    };
+
+    document.addEventListener('pointermove', updateEyeDirection);
+    document.addEventListener('pointerleave', resetEyeDirection);
 
     pet.addEventListener('pointerdown', event => {
         if (event.button !== undefined && event.button !== 0) return;
