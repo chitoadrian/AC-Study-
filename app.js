@@ -3015,8 +3015,12 @@ function refreshWorkspaceUI() {
     updateGradeSubjectOptions(workspace);
 }
 
-const languageFlags = { es: '🇪🇸', en: '🇺🇸', pt: '🇧🇷', de: '🇩🇪' };
-let currentLanguage = localStorage.getItem('acStudyLanguage') || 'es';
+const supportedLanguages = ['es', 'en', 'pt'];
+const languageFlags = { es: '🇪🇸', en: '🇺🇸', pt: '🇧🇷' };
+let currentLanguage = supportedLanguages.includes(localStorage.getItem('acStudyLanguage')) ? localStorage.getItem('acStudyLanguage') : 'es';
+if (localStorage.getItem('acStudyLanguage') && !supportedLanguages.includes(localStorage.getItem('acStudyLanguage'))) {
+    localStorage.setItem('acStudyLanguage', 'es');
+}
 let translatingPage = false;
 const originalTextNodes = new WeakMap();
 const translatedAttributes = ['placeholder', 'title', 'aria-label'];
@@ -3052,14 +3056,29 @@ const translations = {
         'Acerca de AC Study': 'About AC Study',
         'Beneficios de usar AC Study': 'Benefits of using AC Study',
         'AC Study ayuda a que cada estudiante construya su propio espacio academico, organice sus pendientes y aprenda con apoyo inteligente sin perder el control de su rutina.': 'AC Study helps each student build their own academic space, organize pending work and learn with smart support without losing control of their routine.',
+        'AC Study es una plataforma educativa inteligente que ayuda a los estudiantes a organizar materias, tareas, calendario, notas y mejorar el aprendizaje mediante herramientas digitales e inteligencia artificial simulada.': 'AC Study is an intelligent educational platform that helps students organize subjects, tasks, calendar, grades and improve learning through digital tools and simulated artificial intelligence.',
+        'Nuestro objetivo es proporcionar a cada estudiante una experiencia de aprendizaje personalizada, permitiendo una mejor gestión del tiempo académico y potenciando el desarrollo de habilidades de estudio con soporte de tecnología inteligente.': 'Our goal is to provide each student with a personalized learning experience, improving academic time management and strengthening study skills with intelligent technology support.',
+        'Organización completa de estudios': 'Complete study organization',
+        'Asistente IA para generación de contenido': 'AI assistant for content generation',
+        'Gamificación y seguimiento de progreso': 'Gamification and progress tracking',
+        'Interfaz intuitiva y moderna': 'Intuitive and modern interface',
+        'Secciones': 'Sections',
+        'Características': 'Features',
+        'Responsive': 'Responsive',
         'Menos desorden': 'Less clutter',
         'Centraliza materias, tareas, notas, calendario y apuntes en una sola plataforma facil de revisar.': 'Centralize subjects, tasks, grades, calendar and notes in one easy-to-review platform.',
         'Mas enfoque': 'More focus',
         'Recibe una guia clara de primeros pasos para empezar sin sentir que la pagina esta vacia.': 'Get a clear first-steps guide to start without feeling the page is empty.',
+        'Prioriza actividades importantes, revisa pendientes y evita olvidar entregas, examenes o practicas.': 'Prioritize important activities, review pending work and avoid forgetting assignments, exams or practice.',
         'Aprendizaje guiado': 'Guided learning',
         'Usa AC Assistant para resumir apuntes, generar preguntas, crear flashcards y entender temas complejos.': 'Use AC Assistant to summarize notes, generate questions, create flashcards and understand complex topics.',
         'Progreso visible': 'Visible progress',
         'Visualiza tu avance con XP, racha, logros y estadisticas que motivan a seguir estudiando.': 'See your progress with XP, streaks, achievements and stats that motivate you to keep studying.',
+        '1. Crea tus materias': '1. Create your subjects',
+        '2. Agenda tus pendientes': '2. Schedule your tasks',
+        '3. Sube apuntes': '3. Upload notes',
+        '4. Pregunta a la IA': '4. Ask AI',
+        '5. Mide tu progreso': '5. Measure your progress',
         'Empieza': 'Start',
         'Organiza': 'Organize',
         'Estudia': 'Study',
@@ -3163,10 +3182,30 @@ const translations = {
         'Mochila': 'Mochila',
         'Acerca de AC Study': 'Sobre o AC Study',
         'Beneficios de usar AC Study': 'Benefícios de usar AC Study',
+        'AC Study ayuda a que cada estudiante construya su propio espacio academico, organice sus pendientes y aprenda con apoyo inteligente sin perder el control de su rutina.': 'AC Study ajuda cada estudante a construir seu próprio espaço acadêmico, organizar pendências e aprender com apoio inteligente sem perder o controle da rotina.',
+        'AC Study es una plataforma educativa inteligente que ayuda a los estudiantes a organizar materias, tareas, calendario, notas y mejorar el aprendizaje mediante herramientas digitales e inteligencia artificial simulada.': 'AC Study é uma plataforma educacional inteligente que ajuda os estudantes a organizar matérias, tarefas, calendário, notas e melhorar a aprendizagem com ferramentas digitais e inteligência artificial simulada.',
+        'Nuestro objetivo es proporcionar a cada estudiante una experiencia de aprendizaje personalizada, permitiendo una mejor gestión del tiempo académico y potenciando el desarrollo de habilidades de estudio con soporte de tecnología inteligente.': 'Nosso objetivo é oferecer a cada estudante uma experiência de aprendizagem personalizada, permitindo uma melhor gestão do tempo acadêmico e fortalecendo habilidades de estudo com suporte de tecnologia inteligente.',
+        'Organización completa de estudios': 'Organização completa dos estudos',
+        'Asistente IA para generación de contenido': 'Assistente IA para geração de conteúdo',
+        'Gamificación y seguimiento de progreso': 'Gamificação e acompanhamento do progresso',
+        'Interfaz intuitiva y moderna': 'Interface intuitiva e moderna',
+        'Secciones': 'Seções',
+        'Características': 'Características',
+        'Responsive': 'Responsivo',
         'Menos desorden': 'Menos desordem',
+        'Centraliza materias, tareas, notas, calendario y apuntes en una sola plataforma facil de revisar.': 'Centralize matérias, tarefas, notas, calendário e anotações em uma única plataforma fácil de revisar.',
         'Mas enfoque': 'Mais foco',
+        'Recibe una guia clara de primeros pasos para empezar sin sentir que la pagina esta vacia.': 'Receba um guia claro de primeiros passos para começar sem sentir que a página está vazia.',
+        'Prioriza actividades importantes, revisa pendientes y evita olvidar entregas, examenes o practicas.': 'Priorize atividades importantes, revise pendências e evite esquecer entregas, exames ou práticas.',
         'Aprendizaje guiado': 'Aprendizagem guiada',
+        'Usa AC Assistant para resumir apuntes, generar preguntas, crear flashcards y entender temas complejos.': 'Use o AC Assistant para resumir anotações, gerar perguntas, criar flashcards e entender temas complexos.',
         'Progreso visible': 'Progresso visível',
+        'Visualiza tu avance con XP, racha, logros y estadisticas que motivan a seguir estudiando.': 'Visualize seu avanço com XP, sequência, conquistas e estatísticas que motivam você a continuar estudando.',
+        '1. Crea tus materias': '1. Crie suas matérias',
+        '2. Agenda tus pendientes': '2. Agende suas pendências',
+        '3. Sube apuntes': '3. Envie anotações',
+        '4. Pregunta a la IA': '4. Pergunte à IA',
+        '5. Mide tu progreso': '5. Meça seu progresso',
         'Empieza': 'Comece',
         'Organiza': 'Organize',
         'Estudia': 'Estude',
@@ -3322,8 +3361,23 @@ function cleanI18nText(text) {
 
 function translateText(original) {
     const clean = cleanI18nText(original);
-    if (!clean || currentLanguage === 'es') return original;
-    return translations[currentLanguage]?.[clean] || original;
+    if (!clean) return original;
+
+    let spanishSource = clean;
+    const isKnownSpanishSource = translations.en?.[spanishSource] || translations.pt?.[spanishSource];
+    if (!isKnownSpanishSource) {
+        Object.values(translations).some(languageMap => {
+            const match = Object.entries(languageMap).find(([, translated]) => cleanI18nText(translated) === clean);
+            if (match) {
+                spanishSource = match[0];
+                return true;
+            }
+            return false;
+        });
+    }
+
+    if (currentLanguage === 'es') return spanishSource;
+    return translations[currentLanguage]?.[spanishSource] || original;
 }
 
 function translateTextNode(node) {
@@ -3376,6 +3430,7 @@ function toggleLanguageMenu() {
 }
 
 function setLanguage(language) {
+    if (!supportedLanguages.includes(language)) language = 'es';
     currentLanguage = language;
     localStorage.setItem('acStudyLanguage', language);
     document.getElementById('language-selector')?.classList.remove('open');
