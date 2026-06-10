@@ -2458,6 +2458,77 @@ function deleteGrade(gradeId) {
     notify('Calificacion eliminada.', 'info');
 }
 
+function openGradeBucket(subject, period, category) {
+    const workspace = loadWorkspace();
+    const grades = workspace.grades.filter(grade => (
+        (grade.subject || 'General') === subject &&
+        getGradePeriod(grade) === period &&
+        getGradeCategory(grade) === category
+    ));
+
+    if (!grades.length) {
+        openGradeForm(null, { subject, period, category });
+        return;
+    }
+
+    const existingModal = document.querySelector('.quick-modal');
+    if (existingModal) existingModal.remove();
+
+    const modal = document.createElement('div');
+    modal.className = 'quick-modal';
+    modal.innerHTML = `
+        <div class="quick-modal-card grade-bucket-card" role="dialog" aria-modal="true" aria-label="Calificaciones registradas">
+            <button class="quick-modal-close" type="button" aria-label="Cerrar">x</button>
+            <div class="grade-bucket-header">
+                <div>
+                    <h3>${escapeHTML(getGradeCategoryLabel(category))}</h3>
+                    <p>${escapeHTML(subject)} - ${escapeHTML(getGradePeriodLabel(period))}</p>
+                </div>
+                <button class="btn-primary btn-small" type="button" data-grade-bucket-add>+ Agregar nota</button>
+            </div>
+            <div class="grade-bucket-list">
+                ${grades.map(grade => {
+                    const items = getGradeItems(grade);
+                    const value = getGradeFinalValue(grade);
+                    return `
+                        <div class="grade-bucket-item">
+                            <div>
+                                <strong>${escapeHTML(grade.evaluation || 'Calificacion')}</strong>
+                                <span>${items.length} ${items.length === 1 ? 'casillero' : 'casilleros'} - Promedio ${formatGradeValue(value)}</span>
+                            </div>
+                            <div class="grade-bucket-actions">
+                                <button class="btn-secondary btn-small" type="button" data-grade-bucket-edit="${escapeHTML(grade.id)}">Editar</button>
+                                <button class="btn-danger btn-small" type="button" data-grade-bucket-delete="${escapeHTML(grade.id)}">Eliminar</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+
+    const closeModal = () => modal.remove();
+    modal.addEventListener('click', event => {
+        if (event.target === modal || event.target.classList.contains('quick-modal-close')) closeModal();
+        if (event.target.closest('[data-grade-bucket-add]')) {
+            closeModal();
+            openGradeForm(null, { subject, period, category });
+        }
+        const editButton = event.target.closest('[data-grade-bucket-edit]');
+        if (editButton) {
+            closeModal();
+            openGradeForm(editButton.dataset.gradeBucketEdit);
+        }
+        const deleteButton = event.target.closest('[data-grade-bucket-delete]');
+        if (deleteButton) {
+            closeModal();
+            deleteGrade(deleteButton.dataset.gradeBucketDelete);
+        }
+    });
+
+    document.body.appendChild(modal);
+}
+
 function setGradeSort(mode) {
     gradeSortMode = mode;
     renderGrades(loadWorkspace());
@@ -2546,11 +2617,11 @@ function renderGrades(workspace) {
     `;
 
     container.querySelectorAll('[data-grade-add]').forEach(button => {
-        button.addEventListener('click', () => openGradeForm(null, {
-            subject: button.dataset.subject,
-            period: button.dataset.period,
-            category: button.dataset.category
-        }));
+        button.addEventListener('click', () => openGradeBucket(
+            button.dataset.subject,
+            button.dataset.period,
+            button.dataset.category
+        ));
     });
 }
 function addResourceUI() {

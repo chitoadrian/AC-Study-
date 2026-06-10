@@ -8169,6 +8169,66 @@ body.light-theme #dashboard .progress-bar {
     gap: 12px;
 }
 
+.grade-bucket-card {
+    width: min(680px, calc(100vw - 28px));
+}
+
+.grade-bucket-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.grade-bucket-header h3 {
+    margin: 0;
+}
+
+.grade-bucket-header p {
+    margin: 6px 0 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 750;
+}
+
+.grade-bucket-list {
+    display: grid;
+    gap: 12px;
+}
+
+.grade-bucket-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px;
+    border: 1px solid rgba(73, 204, 249, 0.18);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.055);
+}
+
+.grade-bucket-item strong {
+    display: block;
+    color: var(--text-primary);
+    font-size: 15px;
+}
+
+.grade-bucket-item span {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-tertiary);
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.grade-bucket-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
 body.light-theme .grade-formula-note {
     background: #eef6ff;
     border-color: rgba(14, 165, 233, 0.22);
@@ -8211,8 +8271,25 @@ body.light-theme .period-grade-cell:hover {
     background: #eef6ff;
 }
 
+body.light-theme .grade-bucket-item {
+    background: #f8fafc;
+    border-color: rgba(15, 23, 42, 0.10);
+}
+
 @media (max-width: 700px) {
     .grade-period-row {
         grid-template-columns: 1fr;
+    }
+
+    .grade-bucket-header,
+    .grade-bucket-item {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .grade-bucket-actions,
+    .grade-bucket-actions button,
+    .grade-bucket-header button {
+        width: 100%;
     }
 }
