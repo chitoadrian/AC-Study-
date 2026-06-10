@@ -7130,3 +7130,42 @@ body {
         min-height: auto !important;
     }
 }
+
+/* Ajuste final: tarjetas de iconos separadas en el menu principal */
+#landing-page .hero-visual {
+    column-gap: clamp(18px, 2.6vw, 34px) !important;
+    row-gap: 18px !important;
+    grid-template-columns: repeat(4, minmax(112px, 1fr)) !important;
+}
+
+#landing-page .hero-visual .floating-card {
+    width: 100% !important;
+    max-width: 178px !important;
+    justify-self: center !important;
+    min-height: 112px !important;
+    aspect-ratio: 1.42 / 1 !important;
+    border-radius: 20px !important;
+}
+
+#landing-page .floating-card .icon {
+    width: 54px !important;
+    height: 54px !important;
+    border-radius: 17px !important;
+}
+
+@media (max-width: 768px) {
+    #landing-page .hero-visual {
+        grid-template-columns: repeat(2, minmax(120px, 1fr)) !important;
+    }
+
+    #landing-page .hero-visual .floating-card {
+        max-width: 190px !important;
+    }
+}
+
+@media (max-width: 430px) {
+    #landing-page .hero-visual {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        column-gap: 12px !important;
+    }
+}
