@@ -1083,7 +1083,7 @@ function getLevel(xp) {
 
 function getAverageGrade(workspace) {
     if (!workspace.grades.length) return 0;
-    const total = workspace.grades.reduce((sum, grade) => sum + Number(grade.value || 0), 0);
+    const total = workspace.grades.reduce((sum, grade) => sum + getGradeFinalValue(grade), 0);
     return total / workspace.grades.length;
 }
 
@@ -1478,46 +1478,110 @@ function renderGrades(workspace) {
     const container = document.querySelector('.grades-container');
     if (!container) return;
 
-    const bySubject = workspace.grades.reduce((acc, grade) => {
-        acc[grade.subject] = acc[grade.subject] || [];
-        acc[grade.subject].push(grade);
+    if (!workspace.grades.length) {
+        container.innerHTML = emptyStateHTML('No has registrado calificaciones.', 'Agregar calificacion', 'showAddGradeForm()');
+        return;
+    }
+
+    const average = getAverageGrade(workspace);
+    const grouped = workspace.grades.reduce((acc, grade) => {
+        const subject = grade.subject || 'General';
+        acc[subject] = acc[subject] || [];
+        acc[subject].push(grade);
         return acc;
     }, {});
 
-    container.innerHTML = workspace.grades.length ? `
-        <div class="grades-grid">
-            ${Object.entries(bySubject).map(([subject, grades]) => {
-                const average = grades.reduce((sum, grade) => sum + Number(grade.value), 0) / grades.length;
-                return `
-                    <div class="grade-card">
-                        <h3>${escapeHTML(subject)}</h3>
-                        <div class="grades-list">
-                            ${grades.map(grade => `<div class="grade-item"><span class="grade-name">${escapeHTML(grade.evaluation)}</span><span class="grade-value">${Number(grade.value).toFixed(1)}</span></div>`).join('')}
-                            <div class="grade-item"><span class="grade-name">Promedio</span><span class="grade-value grade-average">${average.toFixed(2)}</span></div>
+    const subjectRows = Object.entries(grouped).map(([subject, grades]) => {
+        const sortedGrades = [...grades].sort((a, b) => {
+            if (gradeSortMode === 'date') return (b.date || '').localeCompare(a.date || '');
+            if (gradeSortMode === 'high') return getGradeFinalValue(b) - getGradeFinalValue(a);
+            if (gradeSortMode === 'low') return getGradeFinalValue(a) - getGradeFinalValue(b);
+            return (a.evaluation || '').localeCompare(b.evaluation || '');
+        });
+        const subjectAverage = sortedGrades.reduce((sum, grade) => sum + getGradeFinalValue(grade), 0) / sortedGrades.length;
+        return { subject, grades: sortedGrades, average: subjectAverage };
+    }).sort((a, b) => a.subject.localeCompare(b.subject));
+
+    if (gradeSortMode === 'high') subjectRows.sort((a, b) => b.average - a.average);
+    if (gradeSortMode === 'low') subjectRows.sort((a, b) => a.average - b.average);
+
+    container.innerHTML = `
+        <div class="grades-toolbar">
+            <div class="grade-summary">
+                <strong>Promedio general: ${average.toFixed(2)}</strong>
+                <span class="grade-status ${getGradeStatus(average).replace(' ', '-')}">${getGradeStatus(average)}</span>
+            </div>
+            <select onchange="setGradeSort(this.value)">
+                <option value="subject" ${gradeSortMode === 'subject' ? 'selected' : ''}>Ordenar por materia</option>
+                <option value="date" ${gradeSortMode === 'date' ? 'selected' : ''}>Ordenar por fecha</option>
+                <option value="high" ${gradeSortMode === 'high' ? 'selected' : ''}>Nota mayor</option>
+                <option value="low" ${gradeSortMode === 'low' ? 'selected' : ''}>Nota menor</option>
+            </select>
+        </div>
+        <div class="gradebook-panel">
+            <div class="gradebook-header">
+                <span>Materia</span>
+                <span>Calificaciones registradas</span>
+                <span>Promedio</span>
+            </div>
+            <div class="gradebook-body">
+                ${subjectRows.map(row => `
+                    <div class="gradebook-row">
+                        <div class="gradebook-subject">
+                            <strong>${escapeHTML(row.subject)}</strong>
+                            <small>${row.grades.length} ${row.grades.length === 1 ? 'calificacion' : 'calificaciones'}</small>
+                        </div>
+                        <div class="gradebook-scores">
+                            ${row.grades.map(grade => {
+                                const items = getGradeItems(grade);
+                                const value = getGradeFinalValue(grade);
+                                const status = getGradeStatus(value).replace(' ', '-');
+                                const itemLabel = items.length === 1 ? '1 actividad' : `${items.length} actividades`;
+                                return `
+                                    <div class="gradebook-score ${status} ${items.length > 1 ? 'has-items' : ''}" title="${escapeHTML(grade.evaluation || 'Calificacion')} - ${escapeHTML(itemLabel)}">
+                                        <button class="score-action score-edit" data-grade-edit="${escapeHTML(grade.id)}" aria-label="Editar calificacion">Editar</button>
+                                        <span class="score-value">${formatGradeValue(value)}</span>
+                                        <span class="score-label">${escapeHTML(grade.evaluation || 'Nota')}</span>
+                                        <span class="score-count">${escapeHTML(itemLabel)}</span>
+                                        <button class="score-action score-delete" data-grade-delete="${escapeHTML(grade.id)}" aria-label="Eliminar calificacion">Eliminar</button>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        <div class="gradebook-average">
+                            <strong>${row.average.toFixed(2)}</strong>
+                            <span class="grade-status ${getGradeStatus(row.average).replace(' ', '-')}">${getGradeStatus(row.average)}</span>
                         </div>
                     </div>
-                `;
-            }).join('')}
+                `).join('')}
+            </div>
         </div>
-    ` : emptyStateHTML('No has registrado notas.', 'Agregar nota', 'showAddGradeForm()');
+    `;
+
+    container.querySelectorAll('[data-grade-edit]').forEach(button => button.addEventListener('click', () => openGradeForm(button.dataset.gradeEdit)));
+    container.querySelectorAll('[data-grade-delete]').forEach(button => button.addEventListener('click', () => deleteGrade(button.dataset.gradeDelete)));
 }
 
 function updateGradeSubjectOptions() {}
 
 function addAttendanceUI() {
     const workspace = loadWorkspace();
-    const subjectOptions = workspace.subjects.length ? workspace.subjects.map(subject => subject.name) : ['General'];
     openQuickForm({
         title: 'Registrar asistencia',
         submitLabel: 'Guardar asistencia',
         fields: [
-            { name: 'subject', label: 'Materia', type: 'select', options: subjectOptions },
-            { name: 'date', label: 'Fecha', value: new Date().toLocaleDateString('es-EC') },
+            { name: 'subject', label: 'Materia', type: 'select', options: getSubjectOptions(workspace) },
+            { name: 'date', label: 'Fecha', type: 'date', value: normalizeDate(new Date().toISOString()) },
             { name: 'status', label: 'Estado', type: 'select', options: attendanceStatusOptions }
         ],
         onSubmit: values => {
             const fresh = loadWorkspace();
-            fresh.attendance.push({ id: String(Date.now()), subject: values.subject, date: values.date, status: values.status });
+            fresh.attendance.push({
+                id: createId(),
+                subject: values.subject,
+                date: values.date,
+                status: values.status
+            });
             addXP(fresh, values.status === 'Asisti' ? 10 : 0);
             addRecent(fresh, `Registraste asistencia en ${values.subject}.`);
             saveWorkspace(fresh);
@@ -1536,50 +1600,12 @@ function renderAttendance(workspace) {
             ${workspace.attendance.map(item => `
                 <div class="attendance-card">
                     <h3>${escapeHTML(item.subject)}</h3>
-                    <p>${escapeHTML(item.date)}</p>
-                    <span class="event-badge">${escapeHTML(item.status)}</span>
+                    <p>${escapeHTML(item.date || 'Sin fecha')}</p>
+                    <span class="event-badge">${escapeHTML(item.status || 'Pendiente')}</span>
                 </div>
             `).join('')}
         </div>
     ` : emptyStateHTML('No hay registros de asistencia.', 'Registrar asistencia', 'addAttendanceUI()');
-}
-
-function renderProgress(workspace) {
-    const container = document.querySelector('.progress-container');
-    if (!container) return;
-
-    const level = getLevel(workspace.xp);
-    const xpProgress = Math.min(100, ((workspace.xp || 0) % 250) / 2.5);
-    const achievements = [
-        { name: 'Primer materia', unlocked: workspace.subjects.length > 0 },
-        { name: 'Primera tarea', unlocked: workspace.tasks.length > 0 },
-        { name: 'Tarea completada', unlocked: workspace.tasks.some(task => task.status === 'completed') },
-        { name: 'Primer apunte', unlocked: workspace.resources.length > 0 },
-        { name: 'Uso de IA', unlocked: workspace.resources.some(resource => resource.usedAI) }
-    ];
-
-    container.innerHTML = `
-        <div class="level-display">
-            <div class="level-card">
-                <div class="level-number">${level}</div>
-                <p>NIVEL ACTUAL</p>
-                <div class="xp-bar"><div class="xp-fill" style="width:${xpProgress}%"></div></div>
-                <p class="xp-text">${workspace.xp || 0} XP acumulado</p>
-            </div>
-            <div class="stats-row">
-                <div class="progress-stat"><span class="stat-label">Racha Actual</span><span class="stat-value">${workspace.streak || 0} dias</span></div>
-                <div class="progress-stat"><span class="stat-label">Logros</span><span class="stat-value">${achievements.filter(item => item.unlocked).length}/${achievements.length}</span></div>
-                <div class="progress-stat"><span class="stat-label">Estado</span><span class="stat-value">${workspace.xp ? 'En progreso' : 'Inicial'}</span></div>
-            </div>
-        </div>
-        ${workspace.xp ? '' : `<div class="card">${emptyStateHTML('Tu progreso aparecera cuando empieces a usar la plataforma.', 'Crear primera materia', 'addSubjectUI()')}</div>`}
-        <div class="achievements-section">
-            <h3>Logros</h3>
-            <div class="achievements-grid">
-                ${achievements.map(item => `<div class="achievement ${item.unlocked ? 'unlocked' : 'locked'}"><div class="achievement-icon">${item.unlocked ? 'âœ“' : 'â€¢'}</div><p>${escapeHTML(item.name)}</p></div>`).join('')}
-            </div>
-        </div>
-    `;
 }
 
 function addResourceUI() {
@@ -2139,48 +2165,181 @@ function showAddGradeForm() {
     openGradeForm();
 }
 
+function getGradeItems(grade) {
+    if (Array.isArray(grade?.items) && grade.items.length) {
+        return grade.items
+            .map(item => ({
+                activity: item.activity || item.name || '',
+                date: item.date || '',
+                value: Number(item.value)
+            }))
+            .filter(item => !Number.isNaN(item.value));
+    }
+
+    if (grade && grade.value !== undefined && grade.value !== '') {
+        return [{
+            activity: grade.evaluation || 'Calificacion',
+            date: grade.date || '',
+            value: Number(grade.value)
+        }].filter(item => !Number.isNaN(item.value));
+    }
+
+    return [];
+}
+
+function getGradeFinalValue(grade) {
+    const items = getGradeItems(grade);
+    if (!items.length) return Number(grade?.value || 0);
+    return items.reduce((sum, item) => sum + Number(item.value || 0), 0) / items.length;
+}
+
+function formatGradeValue(value) {
+    const numeric = Number(value || 0);
+    return numeric.toFixed(numeric % 1 === 0 ? 0 : 2).replace(/\.00$/, '');
+}
+
 function openGradeForm(gradeId = null) {
     const workspace = loadWorkspace();
     const grade = workspace.grades.find(item => item.id === gradeId);
-    openQuickForm({
-        title: grade ? 'Editar calificacion' : 'Registrar calificacion',
-        submitLabel: grade ? 'Actualizar calificacion' : 'Guardar calificacion',
-        fields: [
-            { name: 'subject', label: 'Materia', type: 'select', options: getSubjectOptions(workspace), value: grade?.subject || '' },
-            { name: 'evaluation', label: 'Actividad', value: grade?.evaluation || '', placeholder: 'Ej: Parcial 1' },
-            { name: 'value', label: 'Calificacion (0-10)', type: 'number', value: grade?.value || '', placeholder: '8.5' },
-            { name: 'date', label: 'Fecha', type: 'date', value: normalizeDate(grade?.date) },
-            { name: 'observation', label: 'Observacion', type: 'textarea', required: false, value: grade?.observation || '', placeholder: 'Comentario opcional' }
-        ],
-        onSubmit: values => {
-            const value = Number(values.value);
-            if (Number.isNaN(value) || value < 0 || value > 10) {
-                notify('La calificacion debe estar entre 0 y 10.', 'error');
-                return;
-            }
+    const subjectOptions = getSubjectOptions(workspace).map(option => {
+        const value = typeof option === 'string' ? option : option.value;
+        const label = typeof option === 'string' ? option : option.label;
+        return `<option value="${escapeHTML(value)}" ${String(grade?.subject || '') === String(value) ? 'selected' : ''}>${escapeHTML(label)}</option>`;
+    }).join('');
+    const items = getGradeItems(grade);
+    const initialItems = items.length ? items : [{ activity: '', date: '', value: '' }];
 
-            const fresh = loadWorkspace();
-            const payload = {
-                subject: values.subject,
-                evaluation: values.evaluation.trim(),
-                value,
-                date: values.date,
-                observation: values.observation.trim()
-            };
-            if (gradeId) {
-                const item = fresh.grades.find(entry => entry.id === gradeId);
-                if (item) Object.assign(item, payload);
-                addRecent(fresh, `Editaste una calificacion de ${payload.subject}.`);
-            } else {
-                fresh.grades.push({ id: createId(), ...payload });
-                addXP(fresh, 20);
-                addRecent(fresh, `Registraste una calificacion en ${payload.subject}.`);
-            }
-            saveWorkspace(fresh);
-            refreshWorkspaceUI();
-            notify(gradeId ? 'Calificacion actualizada.' : 'Calificacion registrada.', 'success');
+    const existingModal = document.querySelector('.quick-modal');
+    if (existingModal) existingModal.remove();
+
+    const modal = document.createElement('div');
+    modal.className = 'quick-modal';
+    modal.innerHTML = `
+        <div class="quick-modal-card grade-modal-card" role="dialog" aria-modal="true" aria-label="${grade ? 'Editar calificacion' : 'Registrar calificacion'}">
+            <button class="quick-modal-close" type="button" aria-label="Cerrar">x</button>
+            <h3>${grade ? 'Editar calificacion' : 'Registrar calificacion'}</h3>
+            <form class="quick-modal-form grade-modal-form">
+                <label>
+                    <span>Materia</span>
+                    <select name="subject" required>${subjectOptions}</select>
+                </label>
+                <label>
+                    <span>Grupo de calificacion</span>
+                    <input name="evaluation" value="${escapeHTML(grade?.evaluation || '')}" placeholder="Ej: Tarea 100% del Parcial 1" required>
+                </label>
+                <div class="grade-items-builder">
+                    <div class="grade-items-head">
+                        <strong>Casilleros de actividades</strong>
+                        <button type="button" class="btn-secondary btn-small" id="add-grade-item">+ Agregar casillero</button>
+                    </div>
+                    <div class="grade-items-list">
+                        ${initialItems.map(item => `
+                            <div class="grade-item-row">
+                                <input name="itemActivity" value="${escapeHTML(item.activity || '')}" placeholder="Actividad: divisiones, suma, lectura..." required>
+                                <input name="itemDate" type="date" value="${escapeHTML(normalizeDate(item.date))}">
+                                <input name="itemValue" type="number" min="0" max="10" step="0.01" value="${item.value !== '' ? escapeHTML(String(item.value)) : ''}" placeholder="Nota" required>
+                                <button type="button" class="remove-grade-item" aria-label="Quitar casillero">x</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="grade-calculated-average">Promedio: <strong>--</strong></div>
+                </div>
+                <label>
+                    <span>Observacion</span>
+                    <textarea name="observation" rows="3" placeholder="Comentario opcional">${escapeHTML(grade?.observation || '')}</textarea>
+                </label>
+                <div class="quick-modal-actions">
+                    <button class="btn-primary btn-small" type="submit">${grade ? 'Actualizar calificacion' : 'Guardar calificacion'}</button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    const closeModal = () => modal.remove();
+    const list = modal.querySelector('.grade-items-list');
+    const averageOutput = modal.querySelector('.grade-calculated-average strong');
+    const rowTemplate = () => {
+        const row = document.createElement('div');
+        row.className = 'grade-item-row';
+        row.innerHTML = `
+            <input name="itemActivity" placeholder="Actividad: divisiones, suma, lectura..." required>
+            <input name="itemDate" type="date">
+            <input name="itemValue" type="number" min="0" max="10" step="0.01" placeholder="Nota" required>
+            <button type="button" class="remove-grade-item" aria-label="Quitar casillero">x</button>
+        `;
+        return row;
+    };
+
+    const updateAveragePreview = () => {
+        const values = Array.from(list.querySelectorAll('[name="itemValue"]'))
+            .map(input => Number(input.value))
+            .filter(value => !Number.isNaN(value));
+        averageOutput.textContent = values.length ? (values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(2) : '--';
+    };
+
+    modal.addEventListener('click', event => {
+        if (event.target === modal || event.target.classList.contains('quick-modal-close')) closeModal();
+        if (event.target.id === 'add-grade-item') {
+            list.appendChild(rowTemplate());
+            updateAveragePreview();
+        }
+        if (event.target.classList.contains('remove-grade-item')) {
+            if (list.children.length > 1) event.target.closest('.grade-item-row').remove();
+            updateAveragePreview();
         }
     });
+
+    modal.addEventListener('input', event => {
+        if (event.target.name === 'itemValue') updateAveragePreview();
+    });
+
+    modal.querySelector('form').addEventListener('submit', event => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const activities = Array.from(form.querySelectorAll('[name="itemActivity"]'));
+        const dates = Array.from(form.querySelectorAll('[name="itemDate"]'));
+        const values = Array.from(form.querySelectorAll('[name="itemValue"]'));
+        const gradeItems = activities.map((input, index) => ({
+            activity: input.value.trim(),
+            date: dates[index].value,
+            value: Number(values[index].value)
+        })).filter(item => item.activity && !Number.isNaN(item.value));
+
+        if (!gradeItems.length || gradeItems.some(item => item.value < 0 || item.value > 10)) {
+            notify('Completa los casilleros con notas entre 0 y 10.', 'error');
+            return;
+        }
+
+        const value = gradeItems.reduce((sum, item) => sum + item.value, 0) / gradeItems.length;
+        const fresh = loadWorkspace();
+        const payload = {
+            subject: form.subject.value,
+            evaluation: form.evaluation.value.trim(),
+            value,
+            date: gradeItems[0]?.date || '',
+            observation: form.observation.value.trim(),
+            items: gradeItems
+        };
+
+        if (gradeId) {
+            const item = fresh.grades.find(entry => entry.id === gradeId);
+            if (item) Object.assign(item, payload);
+            addRecent(fresh, `Editaste una calificacion de ${payload.subject}.`);
+        } else {
+            fresh.grades.push({ id: createId(), ...payload });
+            addXP(fresh, 20);
+            addRecent(fresh, `Registraste una calificacion en ${payload.subject}.`);
+        }
+
+        saveWorkspace(fresh);
+        refreshWorkspaceUI();
+        closeModal();
+        notify(gradeId ? 'Calificacion actualizada.' : 'Calificacion registrada.', 'success');
+    });
+
+    document.body.appendChild(modal);
+    updateAveragePreview();
+    modal.querySelector('input, textarea, select')?.focus();
 }
 
 function deleteGrade(gradeId) {
@@ -2218,11 +2377,11 @@ function renderGrades(workspace) {
     const subjectRows = Object.entries(grouped).map(([subject, grades]) => {
         const sortedGrades = [...grades].sort((a, b) => {
             if (gradeSortMode === 'date') return (b.date || '').localeCompare(a.date || '');
-            if (gradeSortMode === 'high') return Number(b.value) - Number(a.value);
-            if (gradeSortMode === 'low') return Number(a.value) - Number(b.value);
+            if (gradeSortMode === 'high') return getGradeFinalValue(b) - getGradeFinalValue(a);
+            if (gradeSortMode === 'low') return getGradeFinalValue(a) - getGradeFinalValue(b);
             return (a.evaluation || '').localeCompare(b.evaluation || '');
         });
-        const subjectAverage = sortedGrades.reduce((sum, grade) => sum + Number(grade.value || 0), 0) / sortedGrades.length;
+        const subjectAverage = sortedGrades.reduce((sum, grade) => sum + getGradeFinalValue(grade), 0) / sortedGrades.length;
         return { subject, grades: sortedGrades, average: subjectAverage };
     }).sort((a, b) => a.subject.localeCompare(b.subject));
 
@@ -2257,14 +2416,17 @@ function renderGrades(workspace) {
                         </div>
                         <div class="gradebook-scores">
                             ${row.grades.map(grade => {
-                                const value = Number(grade.value || 0);
+                                const items = getGradeItems(grade);
+                                const value = getGradeFinalValue(grade);
                                 const status = getGradeStatus(value).replace(' ', '-');
+                                const itemLabel = items.length === 1 ? '1 actividad' : `${items.length} actividades`;
                                 return `
-                                    <div class="gradebook-score ${status}" title="${escapeHTML(grade.evaluation || 'Calificacion')} - ${escapeHTML(grade.date || 'Sin fecha')}">
-                                        <button class="score-action score-edit" data-grade-edit="${escapeHTML(grade.id)}" aria-label="Editar calificacion">↗</button>
-                                        <span class="score-value">${value.toFixed(value % 1 === 0 ? 0 : 1)}</span>
+                                    <div class="gradebook-score ${status} ${items.length > 1 ? 'has-items' : ''}" title="${escapeHTML(grade.evaluation || 'Calificacion')} - ${escapeHTML(itemLabel)}">
+                                        <button class="score-action score-edit" data-grade-edit="${escapeHTML(grade.id)}" aria-label="Editar calificacion">Editar</button>
+                                        <span class="score-value">${formatGradeValue(value)}</span>
                                         <span class="score-label">${escapeHTML(grade.evaluation || 'Nota')}</span>
-                                        <button class="score-action score-delete" data-grade-delete="${escapeHTML(grade.id)}" aria-label="Eliminar calificacion">×</button>
+                                        <span class="score-count">${escapeHTML(itemLabel)}</span>
+                                        <button class="score-action score-delete" data-grade-delete="${escapeHTML(grade.id)}" aria-label="Eliminar calificacion">Eliminar</button>
                                     </div>
                                 `;
                             }).join('')}
@@ -2282,7 +2444,6 @@ function renderGrades(workspace) {
     container.querySelectorAll('[data-grade-edit]').forEach(button => button.addEventListener('click', () => openGradeForm(button.dataset.gradeEdit)));
     container.querySelectorAll('[data-grade-delete]').forEach(button => button.addEventListener('click', () => deleteGrade(button.dataset.gradeDelete)));
 }
-
 function addResourceUI() {
     openResourceForm();
 }
