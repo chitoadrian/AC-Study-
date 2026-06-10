@@ -2688,7 +2688,7 @@ function renderDashboard(workspace) {
     const taskProgress = workspace.tasks.length ? Math.round((completed / workspace.tasks.length) * 100) : 0;
     const gradeProgress = average ? average * 10 : 0;
     const xpProgress = Math.min(100, ((workspace.xp || 0) % 250) / 2.5);
-    const recentItems = (workspace.recent || []).slice(0, 5);
+    const recentItems = (workspace.recent || []).slice(0, 3);
     const steps = [
         { label: 'Crea una materia', done: workspace.subjects.length > 0, action: 'addSubjectUI()', hint: 'Define tus clases y organiza tu espacio.' },
         { label: 'Agrega una tarea', done: workspace.tasks.length > 0, action: 'addTaskUI()', hint: 'Anota pendientes, deberes y entregas.' },
