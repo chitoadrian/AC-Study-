@@ -7772,6 +7772,7 @@ body.light-theme .score-count {
     width: 42px;
     height: 42px;
     flex: 0 0 42px;
+    overflow: hidden;
     border-radius: 14px;
     background: linear-gradient(135deg, #7b68ee, #49ccf9);
     box-shadow: 0 14px 26px rgba(73, 204, 249, 0.16);
@@ -7798,11 +7799,24 @@ body.light-theme .score-count {
 }
 
 #dashboard .panel-icon-chart::before {
-    inset: auto 10px 10px;
-    height: 20px;
-    border-radius: 8px 8px 3px 3px;
-    background: linear-gradient(180deg, #49ccf9, #7b68ee);
-    box-shadow: 9px 5px 0 rgba(253, 113, 175, 0.92), 18px -4px 0 rgba(0, 200, 117, 0.92);
+    left: 10px;
+    bottom: 10px;
+    width: 7px;
+    height: 18px;
+    border-radius: 6px 6px 3px 3px;
+    background: #49ccf9;
+}
+
+#dashboard .panel-icon-chart::after {
+    content: "";
+    position: absolute;
+    left: 19px;
+    bottom: 10px;
+    width: 7px;
+    height: 24px;
+    border-radius: 6px 6px 3px 3px;
+    background: #fd71af;
+    box-shadow: 9px 8px 0 #00c875;
 }
 
 #dashboard .dashboard-steps {
