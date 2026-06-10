@@ -200,19 +200,10 @@ function initializeApp() {
         updateThemeIcon('â˜€ï¸');
     }
 
-    // Verificar si hay usuario en localStorage
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-        try {
-            currentUser = JSON.parse(savedUser);
-            showApp();
-        } catch (error) {
-            localStorage.removeItem('currentUser');
-            showLanding();
-        }
-    } else {
-        showLanding();
-    }
+    // Al abrir el link publico siempre se muestra primero el menu principal.
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    showLanding();
 
     // Event listeners para responsive
     window.addEventListener('resize', handleWindowResize);
