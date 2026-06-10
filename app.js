@@ -2685,46 +2685,87 @@ function renderDashboard(workspace) {
     const average = getAverageGrade(workspace);
     const level = getLevel(workspace.xp);
     const isEmpty = !workspace.subjects.length && !workspace.tasks.length && !workspace.events.length && !workspace.grades.length && !workspace.resources.length;
+    const taskProgress = workspace.tasks.length ? Math.round((completed / workspace.tasks.length) * 100) : 0;
+    const gradeProgress = average ? average * 10 : 0;
+    const xpProgress = Math.min(100, ((workspace.xp || 0) % 250) / 2.5);
+    const recentItems = (workspace.recent || []).slice(0, 5);
+    const steps = [
+        { label: 'Crea una materia', done: workspace.subjects.length > 0, action: 'addSubjectUI()', hint: 'Define tus clases y organiza tu espacio.' },
+        { label: 'Agrega una tarea', done: workspace.tasks.length > 0, action: 'addTaskUI()', hint: 'Anota pendientes, deberes y entregas.' },
+        { label: 'Agenda un examen', done: workspace.events.length > 0, action: 'addCalendarEventUI()', hint: 'Planifica pruebas, exposiciones y entregas.' },
+        { label: 'Sube un apunte', done: workspace.resources.length > 0, action: 'addResourceUI()', hint: 'Guarda tus PDFs y recursos importantes.' },
+        { label: 'Pregunta a AC Assistant', done: workspace.resources.some(resource => resource.usedAI), action: "navigateTo('ai-assistant')", hint: 'Practica con resumenes, preguntas y flashcards.' }
+    ];
 
     section.innerHTML = `
-        <div class="section-header">
-            <h1>Hola ${escapeHTML(firstName)}</h1>
-            <p class="subtitle">${isEmpty ? 'Bienvenido a AC Study. Empieza creando tu primera materia.' : 'Este es el resumen actualizado de tu espacio academico.'}</p>
+        <div class="dashboard-hero">
+            <div>
+                <span class="dashboard-eyebrow">Panel academico</span>
+                <h1>Hola ${escapeHTML(firstName)}</h1>
+                <p>${isEmpty ? 'Bienvenido a AC Study. Empieza creando tu primera materia y construye tu espacio de estudio desde cero.' : 'Este es el resumen actualizado de tu espacio academico. Revisa pendientes, progreso y actividad reciente en un solo lugar.'}</p>
+            </div>
+            <div class="dashboard-hero-actions">
+                <button class="btn-primary btn-small" type="button" onclick="addTaskUI()">+ Nueva tarea</button>
+                <button class="btn-secondary btn-small" type="button" onclick="addSubjectUI()">Crear materia</button>
+            </div>
         </div>
 
         <div class="dashboard-grid">
-            ${dashboardCard('subjects', 'Materias Activas', workspace.subjects.length, workspace.subjects.length ? 'Materias creadas por ti' : 'Sin materias todavia', workspace.subjects.length ? 100 : 0)}
-            ${dashboardCard('tasks', 'Tareas Pendientes', pending, `${completed} completadas`, workspace.tasks.length ? Math.round((completed / workspace.tasks.length) * 100) : 0)}
-            ${dashboardCard('calendar', 'Proximo Evento', nextEvent ? nextEvent.title : 'Sin eventos', nextEvent ? `${nextEvent.day} - ${nextEvent.type}` : 'Agenda tu primer examen o entrega', nextEvent ? 70 : 0)}
-            ${dashboardCard('grades', 'Promedio Actual', average ? average.toFixed(2) : '--', workspace.grades.length ? `${workspace.grades.length} calificaciones registradas` : 'Sin calificaciones', average ? average * 10 : 0)}
-            ${dashboardCard('xp', 'XP Acumulado', workspace.xp || 0, `Nivel ${level}`, Math.min(100, ((workspace.xp || 0) % 250) / 2.5))}
-            ${dashboardCard('streak', 'Racha de Estudio', workspace.streak || 0, 'dias activos', workspace.streak ? 100 : 0)}
-            ${dashboardCard('assistant', 'Recomendacion IA', workspace.resources.length ? 'Repasa un PDF' : 'Sube un apunte', workspace.resources.length ? 'AC Assistant puede crear cuestionarios' : 'Sube tus apuntes y estudia con ayuda de AC Assistant', workspace.resources.length ? 85 : 25)}
+            ${dashboardCard('subjects', 'Materias activas', workspace.subjects.length, workspace.subjects.length ? 'Materias creadas por ti' : 'Crea tu primera materia', workspace.subjects.length ? 100 : 0)}
+            ${dashboardCard('tasks', 'Tareas pendientes', pending, workspace.tasks.length ? `${completed} completadas de ${workspace.tasks.length}` : 'Agrega tu primer pendiente', taskProgress)}
+            ${dashboardCard('calendar', 'Proximo evento', nextEvent ? nextEvent.title : 'Sin eventos', nextEvent ? `${nextEvent.day || nextEvent.date || 'Sin fecha'} - ${nextEvent.type || 'Evento'}` : 'Agenda tu primer examen', nextEvent ? 70 : 0)}
+            ${dashboardCard('grades', 'Promedio actual', average ? average.toFixed(2) : '--', workspace.grades.length ? `${workspace.grades.length} calificaciones registradas` : 'Registra tus calificaciones', gradeProgress)}
+            ${dashboardCard('xp', 'XP acumulado', workspace.xp || 0, `Nivel ${level}`, xpProgress)}
+            ${dashboardCard('streak', 'Racha de estudio', workspace.streak || 0, `${workspace.streak === 1 ? 'dia activo' : 'dias activos'}`, workspace.streak ? 100 : 0)}
+            ${dashboardCard('assistant', 'Recomendacion IA', workspace.resources.length ? 'Practica con tus apuntes' : 'Sube un apunte', workspace.resources.length ? 'AC Assistant puede ayudarte a repasar' : 'Conecta tu mochila con el asistente', workspace.resources.length ? 85 : 25)}
         </div>
 
-        <div class="dashboard-row">
-            <div class="card starter-card">
-                <h3>Centro del estudiante</h3>
-                <ol class="starter-list">
-                    <li class="${workspace.subjects.length ? 'done' : ''}">Crea una materia</li>
-                    <li class="${workspace.tasks.length ? 'done' : ''}">Agrega una tarea</li>
-                    <li class="${workspace.events.length ? 'done' : ''}">Agenda un examen</li>
-                    <li class="${workspace.resources.length ? 'done' : ''}">Sube un apunte</li>
-                    <li class="${workspace.resources.some(resource => resource.usedAI) ? 'done' : ''}">Pregunta a la IA</li>
+        <div class="dashboard-row dashboard-row-main">
+            <div class="card starter-card dashboard-panel-card">
+                <div class="panel-title">
+                    <span class="panel-icon panel-icon-steps"></span>
+                    <div>
+                        <h3>Centro del estudiante</h3>
+                        <p>Completa estos pasos para preparar tu espacio academico.</p>
+                    </div>
+                </div>
+                <ol class="starter-list dashboard-steps">
+                    ${steps.map((step, index) => `
+                        <li class="${step.done ? 'done' : ''}">
+                            <span class="step-number">${step.done ? 'OK' : index + 1}</span>
+                            <div>
+                                <strong>${escapeHTML(step.label)}</strong>
+                                <small>${escapeHTML(step.hint)}</small>
+                            </div>
+                            <button type="button" onclick="${step.action}">${step.done ? 'Listo' : 'Abrir'}</button>
+                        </li>
+                    `).join('')}
                 </ol>
             </div>
 
-            <div class="card">
-                <h3>Actividad reciente</h3>
-                ${workspace.recent.length ? `
-                    <ul class="activity-list">${workspace.recent.map(item => `
+            <div class="card dashboard-panel-card activity-card">
+                <div class="panel-title">
+                    <span class="panel-icon panel-icon-activity"></span>
+                    <div>
+                        <h3>Actividad reciente</h3>
+                        <p>Ultimos movimientos guardados en tu cuenta.</p>
+                    </div>
+                </div>
+                ${recentItems.length ? `
+                    <ul class="activity-list dashboard-activity">${recentItems.map(item => `
                         <li><span class="activity-time">${escapeHTML(item.time)}</span><span class="activity-text">${escapeHTML(item.text)}</span></li>
                     `).join('')}</ul>
                 ` : emptyStateHTML('Tu actividad aparecera cuando empieces a usar la plataforma.', 'Crear primera materia', 'addSubjectUI()')}
             </div>
 
-            <div class="card weekly-progress-card">
-                <h3>Progreso semanal</h3>
+            <div class="card weekly-progress-card dashboard-panel-card">
+                <div class="panel-title">
+                    <span class="panel-icon panel-icon-chart"></span>
+                    <div>
+                        <h3>Progreso semanal</h3>
+                        <p>Vista simulada de tu avance durante la semana.</p>
+                    </div>
+                </div>
                 <div class="weekly-chart" aria-label="Progreso semanal simulado">
                     ${[15, 20, 25, 30, 35, 40, Math.min(95, 20 + completed * 12)].map(value => `<span class="week-day" style="height:${value}%"></span>`).join('')}
                 </div>
@@ -2736,7 +2777,7 @@ function renderDashboard(workspace) {
 
 function dashboardCard(icon, label, value, subtext, progress) {
     return `
-        <div class="stat-card">
+        <div class="stat-card dashboard-stat-card">
             <div class="stat-header">
                 <span class="stat-icon stat-icon-${escapeHTML(icon)}" aria-hidden="true"></span>
                 <span class="stat-label">${escapeHTML(label)}</span>
