@@ -2705,8 +2705,8 @@ function renderDashboard(workspace) {
                 <p>${isEmpty ? 'Bienvenido a AC Study. Empieza creando tu primera materia y construye tu espacio de estudio desde cero.' : 'Este es el resumen actualizado de tu espacio academico. Revisa pendientes, progreso y actividad reciente en un solo lugar.'}</p>
             </div>
             <div class="dashboard-hero-actions">
-                <button class="btn-primary btn-small" type="button" onclick="addTaskUI()">+ Nueva tarea</button>
-                <button class="btn-secondary btn-small" type="button" onclick="addSubjectUI()">Crear materia</button>
+                <button class="btn-primary btn-small" type="button" onclick="navigateTo('tasks')">Ir a tareas</button>
+                <button class="btn-secondary btn-small" type="button" onclick="navigateTo('subjects')">Ir a materias</button>
             </div>
         </div>
 
