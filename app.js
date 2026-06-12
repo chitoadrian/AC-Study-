@@ -2088,6 +2088,48 @@ function addCalendarEventUI() {
     openEventForm();
 }
 
+function toGoogleCalendarDate(date, time) {
+    if (!date) return '';
+    const cleanTime = time || '08:00';
+    return `${date.replaceAll('-', '')}T${cleanTime.replace(':', '')}00`;
+}
+
+function addMinutesToTime(time, minutes) {
+    const [hours = 8, mins = 0] = (time || '08:00').split(':').map(Number);
+    const date = new Date(2026, 0, 1, hours, mins + minutes, 0);
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function getGoogleCalendarUrl(event) {
+    const start = toGoogleCalendarDate(event.date, event.time || '08:00');
+    const end = toGoogleCalendarDate(event.date, addMinutesToTime(event.time || '08:00', 60));
+    const details = [
+        `Evento creado desde AC Study.`,
+        `Tipo: ${event.type || 'Evento academico'}.`,
+        event.emailReminder ? 'Activa las notificaciones de Google Calendar para recibir avisos en correo y celular.' : ''
+    ].filter(Boolean).join('\n');
+    const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text: event.title || 'Evento AC Study',
+        dates: `${start}/${end}`,
+        details,
+        trp: 'true'
+    });
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+function openGoogleCalendarEvent(eventId) {
+    const workspace = loadWorkspace();
+    const event = workspace.events.find(item => item.id === eventId);
+    if (!event) return;
+    if (!event.date) {
+        notify('Agrega una fecha antes de abrir Google Calendar.', 'error');
+        return;
+    }
+    window.open(getGoogleCalendarUrl(event), '_blank', 'noopener');
+    notify('Google Calendar se abrio con el evento listo para guardar.', 'info');
+}
+
 function openEventForm(eventId = null) {
     const workspace = loadWorkspace();
     const event = workspace.events.find(item => item.id === eventId);
@@ -2100,7 +2142,8 @@ function openEventForm(eventId = null) {
             { name: 'date', label: 'Fecha', type: 'date', value: normalizeDate(event?.date) },
             { name: 'time', label: 'Hora', type: 'time', value: event?.time || '08:00' },
             { name: 'email', label: 'Correo del usuario', type: 'email', value: event?.email || currentUser?.email || '', placeholder: 'usuario@email.com' },
-            { name: 'emailReminder', label: 'Recordatorio por correo', type: 'checkbox', checked: Boolean(event?.emailReminder), help: 'Activar recordatorio por correo' }
+            { name: 'emailReminder', label: 'Recordatorio por correo', type: 'checkbox', checked: Boolean(event?.emailReminder), help: 'Activar recordatorio por correo' },
+            { name: 'googleCalendar', label: 'Abrir tambien en Google Calendar', type: 'checkbox', checked: !eventId, help: 'Se abrira Google Calendar para guardar el evento y activar notificaciones reales.' }
         ],
         onSubmit: values => {
             const fresh = loadWorkspace();
@@ -2111,15 +2154,18 @@ function openEventForm(eventId = null) {
                 day: values.date,
                 time: values.time,
                 email: values.email.trim(),
-                emailReminder: values.emailReminder === 'yes'
+                emailReminder: values.emailReminder === 'yes',
+                googleCalendar: values.googleCalendar === 'yes'
             };
+            let savedEventId = eventId;
 
             if (eventId) {
                 const item = fresh.events.find(entry => entry.id === eventId);
                 if (item) Object.assign(item, payload);
                 addRecent(fresh, `Editaste el evento ${payload.title}.`);
             } else {
-                fresh.events.push({ id: createId(), ...payload });
+                savedEventId = createId();
+                fresh.events.push({ id: savedEventId, ...payload });
                 addXP(fresh, 20);
                 addRecent(fresh, `Agendaste ${payload.title}.`);
             }
@@ -2128,6 +2174,9 @@ function openEventForm(eventId = null) {
             saveWorkspace(fresh);
             refreshWorkspaceUI();
             notify(payload.emailReminder ? getReminderMessage(payload) : 'Evento guardado correctamente.', 'success');
+            if (payload.googleCalendar) {
+                openGoogleCalendarEvent(savedEventId);
+            }
 
             // Futuro real: aqui se podria conectar EmailJS, un backend propio,
             // funciones de Supabase o servicios desplegados en Hostinger para enviar correos reales.
@@ -2151,7 +2200,15 @@ function renderCalendarSection(workspace) {
 
     const events = [...workspace.events].sort((a, b) => `${a.date || ''} ${a.time || ''}`.localeCompare(`${b.date || ''} ${b.time || ''}`));
     container.innerHTML = `
-        <div class="calendar-mini" id="mini-calendar"></div>
+        <div class="calendar-side">
+            <div class="calendar-sync-card">
+                <span class="calendar-sync-icon"></span>
+                <h3>Conecta tus fechas con Google Calendar</h3>
+                <p>Crea eventos en AC Study y abre Google Calendar para guardarlos con notificaciones en correo y celular.</p>
+                <button class="btn-primary btn-small" type="button" onclick="addCalendarEventUI()">+ Crear evento</button>
+            </div>
+            <div class="calendar-mini" id="mini-calendar"></div>
+        </div>
         <div class="events-list">
             <h3>Agenda academica</h3>
             <div id="custom-events-list">
@@ -2167,6 +2224,7 @@ function renderCalendarSection(workspace) {
                                 ${isEventSoon(event) ? '<p class="event-alert">Evento cercano</p>' : ''}
                                 ${reminder ? `<p class="email-simulation">${escapeHTML(reminder)}</p>` : ''}
                                 <div class="card-actions">
+                                    <button class="btn-secondary btn-small google-calendar-btn" data-google-event="${escapeHTML(event.id)}">Google Calendar</button>
                                     <button class="btn-secondary btn-small" data-event-edit="${escapeHTML(event.id)}">Editar</button>
                                     <button class="btn-danger btn-small" data-event-delete="${escapeHTML(event.id)}">Eliminar</button>
                                 </div>
@@ -2178,6 +2236,7 @@ function renderCalendarSection(workspace) {
         </div>
     `;
     generateCalendar();
+    container.querySelectorAll('[data-google-event]').forEach(button => button.addEventListener('click', () => openGoogleCalendarEvent(button.dataset.googleEvent)));
     container.querySelectorAll('[data-event-edit]').forEach(button => button.addEventListener('click', () => openEventForm(button.dataset.eventEdit)));
     container.querySelectorAll('[data-event-delete]').forEach(button => button.addEventListener('click', () => deleteEvent(button.dataset.eventDelete)));
 }

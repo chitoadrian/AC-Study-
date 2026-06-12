@@ -8665,3 +8665,82 @@ body.light-theme #register-page .form-group input {
         right: -100px;
     }
 }
+
+/* Integracion visual con Google Calendar */
+.calendar-side {
+    display: grid;
+    gap: 18px;
+}
+
+.calendar-sync-card {
+    position: relative;
+    overflow: hidden;
+    padding: 22px;
+    border: 1px solid rgba(73, 204, 249, 0.20);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(73, 204, 249, 0.18), transparent 42%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
+        rgba(30, 31, 37, 0.72);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);
+}
+
+.calendar-sync-icon {
+    position: relative;
+    display: inline-grid;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 14px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #ffffff, #e0f2fe);
+    box-shadow: inset 0 0 0 5px #ffffff, 0 16px 34px rgba(73, 204, 249, 0.18);
+}
+
+.calendar-sync-icon::before,
+.calendar-sync-icon::after {
+    content: "";
+    position: absolute;
+}
+
+.calendar-sync-icon::before {
+    inset: 10px;
+    border-radius: 6px;
+    background:
+        linear-gradient(#4285f4 0 25%, transparent 26%),
+        linear-gradient(90deg, #34a853 0 25%, #fbbc05 26% 50%, #ea4335 51% 75%, #4285f4 76%);
+}
+
+.calendar-sync-icon::after {
+    left: 18px;
+    top: 19px;
+    width: 13px;
+    height: 11px;
+    border-left: 3px solid #4285f4;
+    border-bottom: 3px solid #4285f4;
+    transform: rotate(-45deg);
+}
+
+.calendar-sync-card h3 {
+    margin: 0 0 8px;
+    color: var(--text-primary);
+    font-size: 20px;
+    line-height: 1.2;
+}
+
+.calendar-sync-card p {
+    margin: 0 0 16px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.google-calendar-btn {
+    border-color: rgba(66, 133, 244, 0.28) !important;
+    color: #7cc4ff !important;
+}
+
+body.light-theme .calendar-sync-card {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.10);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.10);
+}
