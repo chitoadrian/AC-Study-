@@ -8744,3 +8744,54 @@ body.light-theme .calendar-sync-card {
     border-color: rgba(15, 23, 42, 0.10);
     box-shadow: 0 18px 44px rgba(15, 23, 42, 0.10);
 }
+
+.calendar-day {
+    position: relative;
+}
+
+.calendar-day.has-event {
+    border: 1px solid rgba(73, 204, 249, 0.55) !important;
+    background:
+        linear-gradient(135deg, rgba(123, 104, 238, 0.95), rgba(73, 204, 249, 0.95)) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 26px rgba(73, 204, 249, 0.22);
+}
+
+.calendar-day.has-event::after {
+    content: "";
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: 8px;
+    height: 3px;
+    border-radius: 999px;
+    background: #ffc800;
+    box-shadow: 0 0 14px rgba(255, 200, 0, 0.48);
+}
+
+.calendar-day-number {
+    position: relative;
+    z-index: 1;
+}
+
+.calendar-event-marker {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    background: #fd71af;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 950;
+    line-height: 1;
+}
+
+body.light-theme .calendar-day.has-event {
+    color: #ffffff !important;
+    box-shadow: 0 12px 28px rgba(14, 165, 233, 0.20);
+}

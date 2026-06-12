@@ -1448,7 +1448,16 @@ function generateCalendar() {
     if (!miniCalendar) return;
 
     const workspace = loadWorkspace();
-    const eventDays = workspace.events.map(event => parseInt(event.day, 10)).filter(Boolean);
+    const eventsByDay = workspace.events.reduce((acc, event) => {
+        const source = event.date || event.day || '';
+        const match = String(source).match(/\d{4}-\d{2}-(\d{2})$/);
+        const day = match ? Number(match[1]) : Number(source);
+        if (day >= 1 && day <= 30) {
+            acc[day] = acc[day] || [];
+            acc[day].push(event);
+        }
+        return acc;
+    }, {});
     let html = '<div class="calendar-title">Junio 2026</div><div class="calendar-grid">';
     ['L', 'M', 'M', 'J', 'V', 'S', 'D'].forEach(day => {
         html += `<div class="calendar-day-label">${day}</div>`;
@@ -1458,7 +1467,14 @@ function generateCalendar() {
         if (day < 1 || day > 30) {
             html += '<div class="calendar-day muted">-</div>';
         } else {
-            html += `<div class="calendar-day ${eventDays.includes(day) ? 'has-event' : ''}">${day}</div>`;
+            const dayEvents = eventsByDay[day] || [];
+            const title = dayEvents.map(event => event.title).join(', ');
+            html += `
+                <div class="calendar-day ${dayEvents.length ? 'has-event' : ''}" title="${escapeHTML(title)}">
+                    <span class="calendar-day-number">${day}</span>
+                    ${dayEvents.length ? `<span class="calendar-event-marker">${dayEvents.length}</span>` : ''}
+                </div>
+            `;
         }
     }
     html += '</div>';
