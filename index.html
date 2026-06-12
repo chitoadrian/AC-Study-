@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AC Study - Gestion Educativa Inteligente Personalizada</title>
-    <link rel="stylesheet" href="style.css?v=20260612-encoding-fix">
+    <link rel="stylesheet" href="style.css?v=20260612-chat-tutor">
 </head>
 <body>
     <!-- LANDING PAGE -->
@@ -949,13 +949,10 @@
                             <button type="button" onclick="generateQuiz()">Practicar</button>
                         </div>
 
-                        <div class="tutor-messages">
+                        <div class="tutor-messages" id="tutor-messages">
                             <div class="tutor-message tutor-bot">
                                 <strong>Tutor</strong>
                                 <p>Hola, Adrian. Escribe una duda, pega un texto o sube un PDF simulado. Puedo ayudarte con resumenes, preguntas, flashcards y explicaciones sencillas.</p>
-                            </div>
-                            <div class="tutor-message tutor-user">
-                                <p>Necesito estudiar para mi examen y organizar mis apuntes.</p>
                             </div>
                         </div>
 
@@ -993,21 +990,6 @@
                         </button>
                     </div>
 
-                    <div class="ai-output-section tutor-output" id="ai-output-section" style="display: none;">
-                        <div class="ai-result">
-                            <div class="result-header">
-                                <h3 id="result-title">Resultado</h3>
-                                <button class="btn-close" onclick="closeAIResult()">x</button>
-                            </div>
-                            <div class="result-content" id="result-content">
-                                <!-- Contenido generado por Tutor -->
-                            </div>
-                            <div class="result-actions">
-                                <button class="btn-secondary" onclick="copyToClipboard()">Copiar</button>
-                                <button class="btn-secondary" onclick="downloadResult()">Descargar</button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </section>
             <!-- PROGRESS SECTION -->
@@ -1221,6 +1203,6 @@
         </main>
     </div>
 
-    <script src="app.js?v=20260612-encoding-fix"></script>
+    <script src="app.js?v=20260612-chat-tutor"></script>
 </body>
 </html>

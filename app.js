@@ -832,18 +832,24 @@ function generateFlashcards() {
 }
 
 function showAIResult(title, content) {
+    if (appendTutorMessage('bot', content, title)) {
+        return;
+    }
+
     const outputSection = document.getElementById('ai-output-section');
+    if (!outputSection) return;
     document.getElementById('result-title').textContent = title;
     document.getElementById('result-content').textContent = content;
     outputSection.style.display = 'block';
 }
 
 function closeAIResult() {
-    document.getElementById('ai-output-section').style.display = 'none';
+    const outputSection = document.getElementById('ai-output-section');
+    if (outputSection) outputSection.style.display = 'none';
 }
 
 function copyToClipboard() {
-    const content = document.getElementById('result-content').textContent;
+    const content = document.getElementById('result-content')?.textContent || '';
     if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(content).then(() => {
             notify('Contenido copiado al portapapeles.', 'success');
@@ -938,8 +944,8 @@ function fallbackCopy(content) {
 }
 
 function downloadResult() {
-    const title = document.getElementById('result-title').textContent;
-    const content = document.getElementById('result-content').textContent;
+    const title = document.getElementById('result-title')?.textContent || 'Tutor';
+    const content = document.getElementById('result-content')?.textContent || '';
 
     const element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
@@ -2858,6 +2864,22 @@ function getResourceFromAIInput() {
     return loadWorkspace().resources.find(resource => resource.title === title) || null;
 }
 
+function appendTutorMessage(type, content, title = '') {
+    const messages = document.getElementById('tutor-messages');
+    if (!messages) return false;
+
+    const message = document.createElement('div');
+    message.className = `tutor-message ${type === 'user' ? 'tutor-user' : 'tutor-bot'}`;
+
+    const safeContent = escapeHTML(String(content || '')).replace(/\n/g, '<br>');
+    const safeTitle = title ? `<strong>${escapeHTML(title)}</strong>` : '';
+    message.innerHTML = `${safeTitle}<p>${safeContent}</p>`;
+
+    messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
+    return true;
+}
+
 function loadTutorPDF(event) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -2881,7 +2903,14 @@ function generateTutorAnswer() {
         return;
     }
 
-    showAIResult('Respuesta de Tutor', buildAIResponse('tutor', topic));
+    appendTutorMessage('user', topic);
+    showAIResult('Tutor', buildAIResponse('tutor', topic));
+
+    const input = document.getElementById('ai-topic');
+    if (input) {
+        input.value = '';
+        input.focus();
+    }
 }
 
 function buildAIResponse(type, topic) {
@@ -2897,7 +2926,7 @@ function buildAIResponse(type, topic) {
 
     const reference = topic.length > 380 ? `${topic.slice(0, 380)}...` : topic;
     if (type === 'tutor') {
-        return `Tutor responde sobre:\n${reference}\n\nRespuesta guiada:\n1. Identifica la idea principal del tema.\n2. Separa definiciones, ejemplos y dudas.\n3. Practica con preguntas cortas antes de memorizar.\n\nPlan rapido de estudio:\n- Lee el contenido una vez sin subrayar.\n- Escribe 3 ideas clave con tus palabras.\n- Crea 5 preguntas y responde sin mirar.\n- Repasa los errores al final.\n\nPregunta de practica:\nComo explicarias este tema a un companero en menos de un minuto?`;
+        return `Entiendo tu pregunta sobre: ${reference}\n\nExplicacion sencilla:\nLa idea es estudiar el tema por partes. Primero identifica que significa, luego revisa ejemplos y despues practica con preguntas cortas.\n\nPara repasarlo mejor:\n1. Escribe la definicion con tus propias palabras.\n2. Anota 3 ideas importantes.\n3. Busca un ejemplo parecido al de clase.\n4. Responde una pregunta sin mirar tus apuntes.\n\nPregunta de practica:\nComo explicarias este tema a un companero en menos de un minuto?`;
     }
     if (type === 'quiz') {
         return `Cuestionario simulado sobre ${reference}:\n\n1. Cual es la definicion principal?\n2. Que ejemplo puedes resolver?\n3. Cual es el error mas comun?\n4. Como lo explicarias en clase?\n5. Que debes repasar antes del examen?`;

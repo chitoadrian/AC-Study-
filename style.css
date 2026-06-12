@@ -8906,6 +8906,8 @@ body.light-theme .calendar-day.has-event {
         linear-gradient(120deg, rgba(123, 104, 238, 0.65), rgba(73, 204, 249, 0.65), rgba(253, 113, 175, 0.65)) border-box;
     border: 1px solid transparent;
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.24);
+    display: grid;
+    gap: 16px;
 }
 
 .tutor-chat-card::before {
@@ -8948,6 +8950,10 @@ body.light-theme .calendar-day.has-event {
     display: grid;
     gap: 12px;
     margin-bottom: 16px;
+    max-height: 360px;
+    overflow-y: auto;
+    padding: 4px 6px 4px 0;
+    scroll-behavior: smooth;
 }
 
 .tutor-message {
@@ -8955,6 +8961,7 @@ body.light-theme .calendar-day.has-event {
     border-radius: 22px;
     padding: 16px 18px;
     border: 1px solid var(--border-color);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
 }
 
 .tutor-message strong {
@@ -8967,6 +8974,7 @@ body.light-theme .calendar-day.has-event {
     margin: 0;
     color: var(--text-secondary);
     line-height: 1.55;
+    white-space: normal;
 }
 
 .tutor-bot {
@@ -8976,6 +8984,11 @@ body.light-theme .calendar-day.has-event {
 .tutor-user {
     justify-self: end;
     background: linear-gradient(135deg, rgba(253, 113, 175, 0.22), rgba(123, 104, 238, 0.2));
+    color: var(--text-primary);
+}
+
+.tutor-user p {
+    color: var(--text-primary);
 }
 
 .tutor-composer {
@@ -9119,10 +9132,7 @@ body.light-theme .calendar-day.has-event {
 }
 
 .tutor-output {
-    background: var(--bg-secondary);
-    border: 1px solid rgba(73, 204, 249, 0.28);
-    border-radius: 24px;
-    padding: 22px;
+    display: none !important;
 }
 
 body.light-theme .tutor-chat-card,
