@@ -8293,3 +8293,222 @@ body.light-theme .grade-bucket-item {
         width: 100%;
     }
 }
+
+/* Fondo animado para login y registro */
+#login-page .auth-container,
+#register-page .auth-container {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 100vh;
+    padding: 42px 18px;
+    background:
+        radial-gradient(circle at 12% 26%, rgba(123, 104, 238, 0.34), transparent 18%),
+        radial-gradient(circle at 86% 24%, rgba(73, 204, 249, 0.28), transparent 20%),
+        radial-gradient(circle at 62% 78%, rgba(253, 113, 175, 0.22), transparent 18%),
+        linear-gradient(125deg, #18054c 0%, #232065 42%, #1057e7 100%) !important;
+}
+
+#login-page .auth-container::before,
+#register-page .auth-container::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    z-index: -3;
+    background-image:
+        radial-gradient(circle, rgba(255, 255, 255, 0.92) 0 2px, transparent 3px),
+        radial-gradient(circle, rgba(73, 204, 249, 0.72) 0 2px, transparent 3px),
+        radial-gradient(circle, rgba(253, 113, 175, 0.76) 0 2px, transparent 3px);
+    background-size: 180px 180px, 260px 260px, 340px 340px;
+    background-position: 20px 40px, 90px 130px, 160px 80px;
+    opacity: 0.52;
+    animation: authStarsFloat 22s linear infinite;
+}
+
+#login-page .auth-container::after,
+#register-page .auth-container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background:
+        radial-gradient(circle at 8% 56%, rgba(255, 255, 255, 0.22) 0 42px, rgba(123, 104, 238, 0.22) 43px 78px, transparent 80px),
+        radial-gradient(circle at 91% 58%, rgba(73, 204, 249, 0.20) 0 34px, rgba(255, 255, 255, 0.08) 35px 72px, transparent 74px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px);
+    background-size: auto, auto, 82px 82px, 82px 82px;
+    opacity: 0.76;
+    animation: authGlowDrift 12s ease-in-out infinite alternate;
+}
+
+#login-page .auth-card,
+#register-page .auth-card {
+    position: relative;
+    z-index: 1;
+    width: min(440px, 100%);
+    max-width: 440px !important;
+    padding: 34px !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 26px !important;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.055)),
+        rgba(28, 31, 45, 0.86) !important;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.36), 0 0 0 1px rgba(73, 204, 249, 0.08);
+    backdrop-filter: blur(18px);
+}
+
+#login-page .auth-card::before,
+#register-page .auth-card::before {
+    content: "AC Study";
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    margin-bottom: 18px;
+    padding: 0 14px;
+    border: 1px solid rgba(73, 204, 249, 0.24);
+    border-radius: 999px;
+    background: rgba(73, 204, 249, 0.10);
+    color: #49ccf9;
+    font-size: 13px;
+    font-weight: 950;
+}
+
+#login-page .auth-card::after,
+#register-page .auth-card::after {
+    content: "";
+    position: absolute;
+    right: -78px;
+    top: -72px;
+    width: 164px;
+    height: 164px;
+    z-index: -1;
+    border-radius: 38px;
+    background:
+        linear-gradient(135deg, rgba(181, 255, 113, 0.92), rgba(73, 204, 249, 0.92)) 34px 52px / 58px 70px no-repeat,
+        linear-gradient(135deg, rgba(253, 113, 175, 0.88), rgba(123, 104, 238, 0.88)) 72px 70px / 58px 70px no-repeat,
+        rgba(255, 255, 255, 0.06);
+    filter: blur(0.2px);
+    transform: rotate(10deg);
+    animation: authCardFloat 7s ease-in-out infinite;
+}
+
+#login-page .auth-card h2,
+#register-page .auth-card h2 {
+    margin-bottom: 18px !important;
+    color: #ffffff;
+    font-size: 30px !important;
+    text-align: left !important;
+}
+
+#login-page .auth-card h2::after {
+    content: "Organiza tu espacio academico y continua estudiando con ayuda inteligente.";
+}
+
+#register-page .auth-card h2::after {
+    content: "Crea tu cuenta gratis y empieza desde cero con materias, tareas y calificaciones.";
+}
+
+#login-page .auth-card h2::after,
+#register-page .auth-card h2::after {
+    display: block;
+    max-width: 350px;
+    margin-top: 10px;
+    color: rgba(226, 232, 240, 0.70);
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.55;
+}
+
+#login-page .form-group label,
+#register-page .form-group label {
+    color: rgba(226, 232, 240, 0.82);
+}
+
+#login-page .form-group input,
+#register-page .form-group input {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(15, 23, 42, 0.36);
+}
+
+#login-page .auth-link,
+#register-page .auth-link {
+    color: rgba(226, 232, 240, 0.68);
+}
+
+body.light-theme #login-page .auth-container,
+body.light-theme #register-page .auth-container {
+    background:
+        radial-gradient(circle at 12% 26%, rgba(123, 104, 238, 0.18), transparent 18%),
+        radial-gradient(circle at 86% 24%, rgba(73, 204, 249, 0.20), transparent 20%),
+        linear-gradient(125deg, #eef2ff 0%, #e0f7ff 48%, #dbeafe 100%) !important;
+}
+
+body.light-theme #login-page .auth-card,
+body.light-theme #register-page .auth-card {
+    background: rgba(255, 255, 255, 0.86) !important;
+    border-color: rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 28px 76px rgba(30, 64, 175, 0.16);
+}
+
+body.light-theme #login-page .auth-card h2,
+body.light-theme #register-page .auth-card h2 {
+    color: #172033;
+}
+
+body.light-theme #login-page .auth-card h2::after,
+body.light-theme #register-page .auth-card h2::after,
+body.light-theme #login-page .auth-link,
+body.light-theme #register-page .auth-link {
+    color: #64748b;
+}
+
+body.light-theme #login-page .form-group label,
+body.light-theme #register-page .form-group label {
+    color: #475569;
+}
+
+body.light-theme #login-page .form-group input,
+body.light-theme #register-page .form-group input {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.12);
+}
+
+@keyframes authStarsFloat {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+    to {
+        transform: translate3d(120px, 90px, 0);
+    }
+}
+
+@keyframes authGlowDrift {
+    from {
+        transform: translate3d(-10px, -8px, 0) scale(1);
+    }
+    to {
+        transform: translate3d(14px, 10px, 0) scale(1.04);
+    }
+}
+
+@keyframes authCardFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(10deg);
+    }
+    50% {
+        transform: translateY(14px) rotate(6deg);
+    }
+}
+
+@media (max-width: 640px) {
+    #login-page .auth-card,
+    #register-page .auth-card {
+        padding: 26px !important;
+    }
+
+    #login-page .auth-card::after,
+    #register-page .auth-card::after {
+        opacity: 0.48;
+        right: -100px;
+    }
+}
