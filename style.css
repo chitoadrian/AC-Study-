@@ -8795,3 +8795,386 @@ body.light-theme .calendar-day.has-event {
     color: #ffffff !important;
     box-shadow: 0 12px 28px rgba(14, 165, 233, 0.20);
 }
+
+/* Tutor: asistente de estudio simulado */
+.nav-icon-tutor {
+    position: relative;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #7b68ee, #49ccf9);
+}
+
+.nav-icon-tutor::before,
+.nav-icon-tutor::after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+}
+
+.nav-icon-tutor::before {
+    width: 12px;
+    height: 8px;
+    left: 6px;
+    top: 8px;
+    background: #ffffff;
+    box-shadow: -7px 1px 0 -3px #fd71af, 7px 1px 0 -3px #fd71af;
+}
+
+.nav-icon-tutor::after {
+    width: 11px;
+    height: 3px;
+    left: 6px;
+    top: 3px;
+    background: #ffc800;
+}
+
+.tutor-shell {
+    width: min(100%, 980px);
+    margin: 0 auto;
+    display: grid;
+    gap: 22px;
+}
+
+.tutor-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 10px 4px;
+}
+
+.tutor-brand {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.tutor-logo {
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 30% 26%, #ffffff 0 12%, transparent 13%),
+        radial-gradient(circle at 70% 26%, #fd71af 0 18%, transparent 19%),
+        radial-gradient(circle at 28% 70%, #49ccf9 0 20%, transparent 21%),
+        radial-gradient(circle at 72% 70%, #7b68ee 0 20%, transparent 21%),
+        radial-gradient(circle, #ffc800 0 14%, transparent 15%);
+    box-shadow: 0 18px 40px rgba(73, 204, 249, 0.25);
+}
+
+.tutor-brand h1 {
+    margin: 0;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    line-height: 1;
+}
+
+.tutor-brand p {
+    max-width: 620px;
+    margin: 8px 0 0;
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.tutor-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(73, 204, 249, 0.3);
+    background: rgba(73, 204, 249, 0.1);
+    color: var(--text-primary);
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-weight: 800;
+}
+
+.tutor-status span {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: #00c875;
+    box-shadow: 0 0 0 6px rgba(0, 200, 117, 0.12);
+}
+
+.tutor-chat-card {
+    position: relative;
+    border-radius: 28px;
+    padding: 30px;
+    background:
+        linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
+        linear-gradient(120deg, rgba(123, 104, 238, 0.65), rgba(73, 204, 249, 0.65), rgba(253, 113, 175, 0.65)) border-box;
+    border: 1px solid transparent;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.24);
+}
+
+.tutor-chat-card::before {
+    content: "";
+    position: absolute;
+    inset: -60px 12% auto 12%;
+    height: 110px;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(253, 113, 175, 0.25), transparent 65%);
+    filter: blur(18px);
+}
+
+.tutor-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.tutor-tabs button {
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    border-radius: 999px;
+    padding: 9px 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.tutor-tabs button:hover,
+.tutor-tabs button.active {
+    color: #ffffff;
+    border-color: rgba(73, 204, 249, 0.5);
+    background: linear-gradient(135deg, #7b68ee, #49ccf9);
+    transform: translateY(-1px);
+}
+
+.tutor-messages {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.tutor-message {
+    max-width: 74%;
+    border-radius: 22px;
+    padding: 16px 18px;
+    border: 1px solid var(--border-color);
+}
+
+.tutor-message strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+}
+
+.tutor-message p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+
+.tutor-bot {
+    background: linear-gradient(135deg, rgba(123, 104, 238, 0.2), rgba(73, 204, 249, 0.14));
+}
+
+.tutor-user {
+    justify-self: end;
+    background: linear-gradient(135deg, rgba(253, 113, 175, 0.22), rgba(123, 104, 238, 0.2));
+}
+
+.tutor-composer {
+    border-radius: 24px;
+    padding: 14px;
+    border: 1px solid rgba(73, 204, 249, 0.28);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tutor-composer textarea {
+    width: 100%;
+    min-height: 130px;
+    resize: vertical;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--text-primary);
+    font: inherit;
+    line-height: 1.5;
+    padding: 8px;
+}
+
+.tutor-composer textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.tutor-composer-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.tutor-icon-btn,
+.tutor-send {
+    border: 0;
+    cursor: pointer;
+    font-weight: 900;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tutor-icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    font-size: 1.3rem;
+}
+
+.tutor-model {
+    color: var(--text-secondary);
+    font-weight: 800;
+    margin-right: auto;
+}
+
+.tutor-send {
+    border-radius: 999px;
+    padding: 10px 18px;
+    color: #ffffff;
+    background: linear-gradient(135deg, #7b68ee, #49ccf9, #fd71af);
+    box-shadow: 0 14px 28px rgba(123, 104, 238, 0.26);
+}
+
+.tutor-icon-btn:hover,
+.tutor-send:hover,
+.tutor-tool-card:hover {
+    transform: translateY(-2px);
+}
+
+.tutor-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.tutor-tool-card {
+    text-align: left;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 18px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.tutor-tool-card:hover {
+    border-color: rgba(73, 204, 249, 0.55);
+}
+
+.tutor-tool-card strong,
+.tutor-tool-card small {
+    display: block;
+}
+
+.tutor-tool-card strong {
+    margin: 12px 0 6px;
+    font-size: 1rem;
+}
+
+.tutor-tool-card small {
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.tool-icon {
+    width: 42px;
+    height: 42px;
+    display: block;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #7b68ee, #49ccf9);
+    box-shadow: 0 14px 30px rgba(73, 204, 249, 0.2);
+}
+
+.tool-summary {
+    background:
+        linear-gradient(90deg, transparent 28%, #ffffff 29% 34%, transparent 35%),
+        linear-gradient(180deg, #7b68ee, #49ccf9);
+}
+
+.tool-questions {
+    background:
+        radial-gradient(circle at 50% 42%, #ffffff 0 18%, transparent 19%),
+        radial-gradient(circle at 50% 73%, #fd71af 0 7%, transparent 8%),
+        linear-gradient(135deg, #7b68ee, #49ccf9);
+}
+
+.tool-cards {
+    background:
+        linear-gradient(135deg, #ffffff 0 42%, transparent 43%),
+        linear-gradient(135deg, #ffc800 0 50%, #49ccf9 51%);
+}
+
+.tool-simple {
+    background:
+        radial-gradient(circle at 50% 36%, #ffc800 0 18%, transparent 19%),
+        linear-gradient(135deg, #7b68ee, #fd71af);
+}
+
+.tutor-output {
+    background: var(--bg-secondary);
+    border: 1px solid rgba(73, 204, 249, 0.28);
+    border-radius: 24px;
+    padding: 22px;
+}
+
+body.light-theme .tutor-chat-card,
+body.light-theme .tutor-tool-card,
+body.light-theme .tutor-output {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+body.light-theme .tutor-composer {
+    background: rgba(248, 250, 255, 0.86);
+}
+
+@media (max-width: 900px) {
+    .tutor-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .tutor-tools-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tutor-message {
+        max-width: 88%;
+    }
+}
+
+@media (max-width: 560px) {
+    .tutor-chat-card {
+        padding: 20px;
+        border-radius: 22px;
+    }
+
+    .tutor-brand {
+        align-items: flex-start;
+    }
+
+    .tutor-logo {
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+    }
+
+    .tutor-tools-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tutor-message {
+        max-width: 100%;
+    }
+
+    .tutor-composer-bar {
+        flex-wrap: wrap;
+    }
+}

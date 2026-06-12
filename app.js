@@ -1208,7 +1208,7 @@ function renderDashboard(workspace) {
             ${dashboardCard('ðŸ“Š', 'Promedio Actual', average ? average.toFixed(2) : '--', workspace.grades.length ? `${workspace.grades.length} notas registradas` : 'Aun no hay notas', average ? average * 10 : 0)}
             ${dashboardCard('âš¡', 'XP Acumulado', workspace.xp || 0, `Nivel ${level}`, Math.min(100, ((workspace.xp || 0) % 250) / 2.5))}
             ${dashboardCard('ðŸ”¥', 'Racha de Estudio', workspace.streak || 0, 'dias activos', workspace.streak ? 100 : 0)}
-            ${dashboardCard('AI', 'Recomendacion IA', workspace.resources.length ? 'Repasa un PDF' : 'Sube un apunte', workspace.resources.length ? 'AC Assistant puede crear cuestionarios' : 'Sube tus apuntes y estudia con ayuda de AC Assistant', workspace.resources.length ? 85 : 25)}
+            ${dashboardCard('AI', 'Recomendacion IA', workspace.resources.length ? 'Repasa un PDF' : 'Sube un apunte', workspace.resources.length ? 'Tutor puede crear cuestionarios' : 'Sube tus apuntes y estudia con ayuda de Tutor', workspace.resources.length ? 85 : 25)}
         </div>
 
         <div class="dashboard-row">
@@ -2810,7 +2810,7 @@ function askAIAboutResource(resourceId) {
     if (!resource) return;
     navigateTo('ai-assistant');
     setAIContextFromResource(resource);
-    showAIResult('Respuesta simulada de AC Assistant', buildResourceAIResponse(resource, 'summary'));
+    showAIResult('Respuesta de Tutor', buildResourceAIResponse(resource, 'summary'));
 }
 
 function practiceWithResource(resourceId) {
@@ -2858,6 +2858,32 @@ function getResourceFromAIInput() {
     return loadWorkspace().resources.find(resource => resource.title === title) || null;
 }
 
+function loadTutorPDF(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const topic = document.getElementById('ai-topic');
+    const current = topic?.value.trim();
+    const fileInfo = `PDF simulado cargado: ${file.name}\nTamano aproximado: ${(file.size / 1024).toFixed(1)} KB\n\nPega aqui el texto principal del PDF o escribe que quieres que Tutor analice.`;
+
+    if (topic) {
+        topic.value = current ? `${current}\n\n${fileInfo}` : fileInfo;
+        topic.focus();
+    }
+
+    notify(`PDF "${file.name}" cargado en Tutor.`, 'success');
+}
+
+function generateTutorAnswer() {
+    const topic = getAIInput();
+    if (!topic) {
+        notify('Escribe una pregunta o sube un PDF simulado.', 'error');
+        return;
+    }
+
+    showAIResult('Respuesta de Tutor', buildAIResponse('tutor', topic));
+}
+
 function buildAIResponse(type, topic) {
     const resource = getResourceFromAIInput();
     if (resource) {
@@ -2870,6 +2896,9 @@ function buildAIResponse(type, topic) {
     }
 
     const reference = topic.length > 380 ? `${topic.slice(0, 380)}...` : topic;
+    if (type === 'tutor') {
+        return `Tutor responde sobre:\n${reference}\n\nRespuesta guiada:\n1. Identifica la idea principal del tema.\n2. Separa definiciones, ejemplos y dudas.\n3. Practica con preguntas cortas antes de memorizar.\n\nPlan rapido de estudio:\n- Lee el contenido una vez sin subrayar.\n- Escribe 3 ideas clave con tus palabras.\n- Crea 5 preguntas y responde sin mirar.\n- Repasa los errores al final.\n\nPregunta de practica:\nComo explicarias este tema a un companero en menos de un minuto?`;
+    }
     if (type === 'quiz') {
         return `Cuestionario simulado sobre ${reference}:\n\n1. Cual es la definicion principal?\n2. Que ejemplo puedes resolver?\n3. Cual es el error mas comun?\n4. Como lo explicarias en clase?\n5. Que debes repasar antes del examen?`;
     }
@@ -2949,7 +2978,7 @@ function renderDashboard(workspace) {
         { label: 'Agrega una tarea', done: workspace.tasks.length > 0, action: 'addTaskUI()', hint: 'Anota pendientes, deberes y entregas.' },
         { label: 'Agenda un examen', done: workspace.events.length > 0, action: 'addCalendarEventUI()', hint: 'Planifica pruebas, exposiciones y entregas.' },
         { label: 'Sube un apunte', done: workspace.resources.length > 0, action: 'addResourceUI()', hint: 'Guarda tus PDFs y recursos importantes.' },
-        { label: 'Pregunta a AC Assistant', done: workspace.resources.some(resource => resource.usedAI), action: "navigateTo('ai-assistant')", hint: 'Practica con resumenes, preguntas y flashcards.' }
+        { label: 'Pregunta a Tutor', done: workspace.resources.some(resource => resource.usedAI), action: "navigateTo('ai-assistant')", hint: 'Practica con resumenes, preguntas y flashcards.' }
     ];
 
     section.innerHTML = `
@@ -2972,7 +3001,7 @@ function renderDashboard(workspace) {
             ${dashboardCard('grades', 'Promedio actual', average ? average.toFixed(2) : '--', workspace.grades.length ? `${workspace.grades.length} calificaciones registradas` : 'Registra tus calificaciones', gradeProgress)}
             ${dashboardCard('xp', 'XP acumulado', workspace.xp || 0, `Nivel ${level}`, xpProgress)}
             ${dashboardCard('streak', 'Racha de estudio', workspace.streak || 0, `${workspace.streak === 1 ? 'dia activo' : 'dias activos'}`, workspace.streak ? 100 : 0)}
-            ${dashboardCard('assistant', 'Recomendacion IA', workspace.resources.length ? 'Practica con tus apuntes' : 'Sube un apunte', workspace.resources.length ? 'AC Assistant puede ayudarte a repasar' : 'Conecta tu mochila con el asistente', workspace.resources.length ? 85 : 25)}
+            ${dashboardCard('assistant', 'Recomendacion IA', workspace.resources.length ? 'Practica con tus apuntes' : 'Sube un apunte', workspace.resources.length ? 'Tutor puede ayudarte a repasar' : 'Conecta tu mochila con Tutor', workspace.resources.length ? 85 : 25)}
         </div>
 
         <div class="dashboard-row dashboard-row-main">
