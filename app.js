@@ -2868,7 +2868,26 @@ function getResourceFromAIInput() {
 }
 
 let currentTutorPdf = null;
-let currentTutorTopic = '';
+let currentTutorTopic = getStoredTutorTopic();
+
+function getStoredTutorTopic() {
+    try {
+        return localStorage.getItem('acStudyTutorTopic') || '';
+    } catch (error) {
+        return '';
+    }
+}
+
+function setTutorTopic(topic) {
+    currentTutorTopic = String(topic || '').trim();
+    try {
+        if (currentTutorTopic) {
+            localStorage.setItem('acStudyTutorTopic', currentTutorTopic);
+        }
+    } catch (error) {
+        // localStorage puede no estar disponible en algunos navegadores privados.
+    }
+}
 
 function normalizeTutorText(text) {
     return String(text || '')
@@ -2966,7 +2985,7 @@ function loadTutorPDF(event) {
         loadedAt: new Date().toISOString(),
         topic: file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ')
     };
-    currentTutorTopic = currentTutorPdf.topic;
+    setTutorTopic(currentTutorPdf.topic);
 
     appendTutorFileMessage(file);
     if (topic) topic.focus();
@@ -2995,9 +3014,10 @@ function generateTutorAnswer() {
 function extractStudyTopic(prompt) {
     return normalizeTutorText(prompt)
         .replace(/pdf simulado cargado:[\s\S]*/g, '')
-        .replace(/ayudame a|ayudame|por favor|porfa|explicame|explica|dime|hazme|hacer|investiga|ensename|un resumen de|resumen de/g, '')
+        .replace(/ayudame a|ayudame|por favor|porfa|explicame|explica|dime|hazme|hacer|investiga|ensename|dame|un resumen de|resumen de/g, '')
         .replace(/paso a paso|lo paso a paso|con detalle|detalladamente/g, '')
         .replace(/que es|que son|cual es|sobre|acerca de|este pdf|del pdf|de este pdf|mi pdf/g, '')
+        .replace(/conceptos|concepto|debo aprender|aprender|del tema|tema/g, '')
         .replace(/\b(el|la|los|las|un|una|unos|unas|de|del)\b/g, ' ')
         .replace(/[?.,;:!]/g, ' ')
         .replace(/\s+/g, ' ')
@@ -3006,7 +3026,35 @@ function extractStudyTopic(prompt) {
 
 function isTutorFollowUp(prompt) {
     const text = normalizeTutorText(prompt);
-    return Boolean(currentTutorTopic) && /(utilizarlo|usarlo|aplicarlo|eso|esto|lo anterior|vida cotidiana|ocasiones|ejemplo|sirve|para que|cuando se usa|donde se usa|como se usa|ejercicios)/.test(text);
+    return Boolean(currentTutorTopic) && /(utilizarlo|usarlo|aplicarlo|eso|esto|lo anterior|vida cotidiana|ocasiones|ejemplo|sirve|para que|cuando se usa|donde se usa|como se usa|ejercicios|conceptos|debo aprender|tema)/.test(text);
+}
+
+function isConceptRequest(prompt) {
+    return /(concepto|conceptos|ideas clave|puntos clave|debo aprender|que debo aprender|aprender del tema)/.test(normalizeTutorText(prompt));
+}
+
+function isEmptyTutorTopic(topic) {
+    const clean = normalizeTutorText(topic)
+        .replace(/el tema que estas estudiando|tema que estas estudiando/g, '')
+        .replace(/\b(tema|concepto|conceptos|dame|quiero|saber|aprender)\b/g, '')
+        .trim();
+    return clean.length < 3;
+}
+
+function getTutorConcepts(topic) {
+    const plain = normalizeTutorText(topic);
+
+    if (/interes compuesto|interes|compuesto/.test(plain)) {
+        setTutorTopic('interes compuesto');
+        return `Conceptos que debes aprender sobre interes compuesto:\n\n1. Capital inicial:\nEs el dinero con el que empiezas una inversion, ahorro o deuda.\n\n2. Tasa de interes:\nEs el porcentaje que se aplica en cada periodo. Por ejemplo, 10% se escribe como 0.10.\n\n3. Tiempo o periodos:\nEs la cantidad de veces que se aplica el interes. Puede ser en anos, meses o dias, segun el caso.\n\n4. Monto final:\nEs el dinero total que queda despues de aplicar el interes compuesto.\n\n5. Formula:\nA = P(1 + r)^t\nP es capital inicial, r es tasa, t es tiempo y A es monto final.\n\n6. Interes sobre interes:\nEs la idea mas importante: los intereses ganados se suman al capital y luego tambien generan nuevos intereses.\n\n7. Diferencia con interes simple:\nEn interes simple, el interes siempre se calcula sobre el capital inicial. En interes compuesto, se calcula sobre el capital mas los intereses acumulados.\n\n8. Uso real:\nSe usa en ahorros, inversiones, prestamos, tarjetas de credito y planes de retiro.\n\nSi dominas esos conceptos, ya puedes resolver ejercicios basicos de interes compuesto.`;
+    }
+
+    if (/limite|limites/.test(plain)) {
+        setTutorTopic('limites');
+        return `Conceptos que debes aprender sobre limites:\n\n1. Funcion:\nEs la expresion o regla que estas analizando.\n\n2. Variable x:\nEs el valor que se acerca a un numero determinado.\n\n3. Valor al que se acerca la funcion:\nEs el resultado que la funcion va tomando cuando x se aproxima al punto.\n\n4. Limite lateral izquierdo:\nAnaliza que pasa cuando x se acerca desde valores menores.\n\n5. Limite lateral derecho:\nAnaliza que pasa cuando x se acerca desde valores mayores.\n\n6. Existencia del limite:\nEl limite existe si el lado izquierdo y el lado derecho llegan al mismo valor.\n\n7. Continuidad:\nUna funcion es continua si no presenta saltos, huecos o cortes en el punto analizado.\n\n8. Uso real:\nLos limites sirven para entender continuidad, derivadas, graficas y cambios en funciones.`;
+    }
+
+    return `Para darte conceptos correctos necesito el tema exacto.\n\nEscribe, por ejemplo:\n- Dame conceptos de interes compuesto\n- Dame conceptos de limites\n- Dame conceptos de fotosintesis\n\nAsi te respondo con conceptos reales del tema, no con una plantilla general.`;
 }
 
 function getTutorExplanation(topic, originalPrompt) {
@@ -3016,10 +3064,20 @@ function getTutorExplanation(topic, originalPrompt) {
     const pdfName = currentTutorPdf?.name || '';
     const pdfTopic = pdfName ? pdfName.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ') : '';
 
+    if (isConceptRequest(originalPrompt)) {
+        if (currentTutorTopic && isEmptyTutorTopic(topic)) {
+            return getTutorConcepts(currentTutorTopic);
+        }
+        if (!isEmptyTutorTopic(normalized)) {
+            return getTutorConcepts(normalized);
+        }
+        return getTutorConcepts('');
+    }
+
     if (currentTutorPdf && /ejercicio|ejercicios|pregunta|preguntas|practica|practicar/.test(prompt)) {
         const pdfPlain = normalizeTutorText(`${pdfTopic} ${prompt}`);
         if (/limite|limites/.test(pdfPlain)) {
-            currentTutorTopic = 'limites';
+            setTutorTopic('limites');
             return `Ejercicios de practica basados en el PDF "${pdfName}":\n\n1. Concepto basico:\nExplica con tus palabras que significa que una funcion se acerque a un valor.\n\n2. Limite directo:\nSi f(x) = x + 3, cual es el limite cuando x se acerca a 2?\nRespuesta esperada: 5.\n\n3. Limites laterales:\nSi por la izquierda la funcion se acerca a 4 y por la derecha tambien se acerca a 4, el limite existe? Cual es?\nRespuesta esperada: Si existe, y es 4.\n\n4. Caso donde no existe:\nSi por la izquierda la funcion se acerca a 2 y por la derecha se acerca a 6, existe el limite?\nRespuesta esperada: No existe, porque los dos lados no llegan al mismo valor.\n\n5. Aplicacion grafica:\nMira una grafica y observa hacia donde se acercan los valores de y cuando x se acerca al punto indicado.\n\nConsejo:\nPara resolver limites, primero intenta sustitucion directa. Si no funciona, revisa la grafica, simplifica la expresion o analiza los lados.`;
         }
 
@@ -3029,7 +3087,7 @@ function getTutorExplanation(topic, originalPrompt) {
     if (currentTutorPdf && /explica|explicame|que es|que son|entender|no entiendo/.test(prompt)) {
         const pdfPlain = normalizeTutorText(`${pdfTopic} ${prompt}`);
         if (/limite|limites/.test(pdfPlain)) {
-            currentTutorTopic = 'limites';
+            setTutorTopic('limites');
             return `Te explico el PDF "${pdfName}" de forma sencilla.\n\nEl tema es limites.\n\nUn limite sirve para saber a que valor se acerca una funcion cuando x se acerca a un numero. No se trata siempre de reemplazar y ya; muchas veces se trata de observar el comportamiento de la funcion cerca de ese punto.\n\nEjemplo sencillo:\nImagina que x se acerca a 2. Si al mirar la funcion, los valores de y se acercan a 5, entonces decimos que el limite es 5.\n\nLo mas importante:\n1. Mira el numero al que se acerca x.\n2. Observa a que valor se acerca la funcion.\n3. Revisa si por la izquierda y por la derecha se llega al mismo resultado.\n4. Si ambos lados coinciden, el limite existe.\n\nPara que sirve:\nLos limites sirven para entender continuidad, derivadas, graficas y cambios. Son una base importante del calculo.`;
         }
     }
@@ -3037,7 +3095,7 @@ function getTutorExplanation(topic, originalPrompt) {
     if (currentTutorPdf && /resumen|resume|resumir|pdf|apunte/.test(prompt)) {
         const sourceTopic = pdfTopic || normalized;
         if (/limite|limites/.test(normalizeTutorText(`${sourceTopic} ${prompt}`))) {
-            currentTutorTopic = 'limites';
+            setTutorTopic('limites');
             return `Resumen del PDF "${pdfName}":\n\nTema central:\nEl PDF trata sobre limites, un concepto de matematica que explica a que valor se acerca una funcion cuando la variable se aproxima a un numero.\n\nQue es un limite:\nUn limite sirve para estudiar el comportamiento de una funcion cerca de un punto. No siempre importa el valor exacto en ese punto; lo importante es hacia donde se acerca la funcion.\n\nIdea principal:\nSi x se acerca a un numero y los valores de la funcion se acercan a un mismo resultado, entonces ese resultado es el limite.\n\nLimites laterales:\n1. Limite por la izquierda: observa que pasa cuando x se acerca desde valores menores.\n2. Limite por la derecha: observa que pasa cuando x se acerca desde valores mayores.\n3. Si los dos lados llegan al mismo numero, el limite existe.\n4. Si llegan a numeros diferentes, el limite no existe.\n\nEjemplo:\nSi cuando x se acerca a 2, la funcion se acerca a 5 por ambos lados, entonces el limite es 5.\n\nPara que sirve:\nLos limites se usan para entender continuidad, cambios en funciones, derivadas, graficas y problemas donde una funcion se acerca a un valor sin tocarlo exactamente.\n\nResumen final:\nEl PDF explica que los limites ayudan a analizar tendencias. La clave es mirar que pasa cerca de un punto, comparar izquierda y derecha, y confirmar si ambos lados llegan al mismo valor.`;
         }
 
@@ -3045,7 +3103,7 @@ function getTutorExplanation(topic, originalPrompt) {
     }
 
     if (/interes compuesto|interes|compuesto/.test(plainTopic)) {
-        currentTutorTopic = 'interes compuesto';
+        setTutorTopic('interes compuesto');
         if (/ejercicio|ejercicios|practica|practicar|respuesta|respuestas|comprobar|resolver/.test(prompt)) {
             return `Claro. Aqui tienes 5 ejercicios de interes compuesto para resolver. Primero intenta hacerlos tu, y al final te dejo las respuestas para comprobar.\n\nFormula:\nA = P(1 + r)^t\n\nDonde:\nA = monto final\nP = capital inicial\nr = tasa de interes en decimal\nt = tiempo o numero de periodos\n\nEjercicios:\n\n1. Una persona deposita 100 dolares al 10% anual durante 2 anos. Cuanto dinero tendra al final?\n\n2. Si inviertes 250 dolares al 8% anual durante 3 anos, cual sera el monto final?\n\n3. Un estudiante ahorra 500 dolares en una cuenta que paga 5% anual durante 4 anos. Cuanto tendra despues de ese tiempo?\n\n4. Una deuda de 300 dolares crece con interes compuesto del 12% anual durante 2 anos. Cuanto se debera pagar al final?\n\n5. Si una inversion de 1000 dolares crece al 6% anual durante 5 anos, cual sera el monto final aproximado?\n\nRespuestas para comprobar:\n\n1. A = 100(1 + 0.10)^2 = 121.00 dolares.\n\n2. A = 250(1 + 0.08)^3 = 314.93 dolares aproximadamente.\n\n3. A = 500(1 + 0.05)^4 = 607.75 dolares aproximadamente.\n\n4. A = 300(1 + 0.12)^2 = 376.32 dolares.\n\n5. A = 1000(1 + 0.06)^5 = 1338.23 dolares aproximadamente.\n\nComo comprobarlos:\nConvierte el porcentaje a decimal, suma 1, eleva al tiempo y multiplica por el capital inicial.`;
         }
@@ -3062,7 +3120,7 @@ function getTutorExplanation(topic, originalPrompt) {
     }
 
     if (/limite|limites/.test(plainTopic)) {
-        currentTutorTopic = 'limites';
+        setTutorTopic('limites');
         return `Un limite en matematica describe a que valor se acerca una funcion cuando la variable se aproxima a un numero.\n\nExplicacion sencilla:\nNo siempre importa el valor exacto de la funcion en un punto. A veces importa hacia donde se acerca. Eso es un limite.\n\nEjemplo:\nSi x se acerca a 2 y la funcion se acerca a 5, decimos que el limite es 5.\n\nPara entender limites:\n1. Mira a que numero se acerca x.\n2. Observa a que valor se acerca la funcion.\n3. Revisa el comportamiento por la izquierda y por la derecha.\n4. Si ambos lados llegan al mismo valor, el limite existe.\n\nEn resumen:\nLos limites sirven para estudiar continuidad, derivadas y cambios en funciones.`;
     }
 
@@ -3070,7 +3128,12 @@ function getTutorExplanation(topic, originalPrompt) {
         return `La fisica es la ciencia que estudia la materia, la energia, el movimiento, las fuerzas y los fenomenos naturales.\n\nExplicacion sencilla:\nLa fisica intenta responder preguntas como: por que cae un objeto, como se mueve un carro, como viaja la luz o como se transfiere el calor.\n\nRamas importantes:\n1. Mecanica: estudia movimiento y fuerzas.\n2. Termica: estudia calor y temperatura.\n3. Electricidad: estudia cargas y corriente electrica.\n4. Optica: estudia la luz.\n\nEjemplo:\nCuando lanzas una pelota, la fisica explica su velocidad, su trayectoria y por que vuelve a caer.\n\nEn resumen:\nLa fisica ayuda a entender como funciona el mundo que nos rodea.`;
     }
 
-    return `${normalized.charAt(0).toUpperCase() + normalized.slice(1)}\n\nQue es:\n${normalized} es un tema que se debe entender desde su definicion, sus partes principales y su aplicacion. La idea es saber que significa, para que sirve y como se usa en ejercicios o situaciones reales.\n\nDefinicion:\nEs el concepto principal relacionado con ${normalized}. Para dominarlo, debes reconocer sus elementos, sus caracteristicas y la forma en que se aplica.\n\nCaracteristicas principales:\n1. Tiene una idea central que explica el tema.\n2. Puede tener reglas, formulas, pasos o componentes segun la materia.\n3. Se entiende mejor con ejemplos concretos.\n4. Sirve para resolver problemas o explicar situaciones de clase.\n\nPara que sirve:\n${normalized} sirve para comprender un contenido academico y aplicarlo en tareas, examenes, exposiciones o ejercicios practicos.\n\nEjemplo sencillo:\nSi el tema es de matematica, identifica la formula o regla. Si es de ciencias, identifica el fenomeno y sus causas. Si es de sociales o lenguaje, identifica definicion, contexto y ejemplos.\n\nComo aprenderlo:\n1. Lee la definicion.\n2. Mira un ejemplo resuelto.\n3. Haz un ejercicio parecido.\n4. Explica el tema con tus propias palabras.\n\nResumen:\n${normalized} no debe memorizarse solo como una frase. Debes entender que significa, como funciona, para que sirve y como se aplica en un ejemplo.`;
+    if (isEmptyTutorTopic(normalized)) {
+        return `Necesito que me digas el tema exacto para responder bien.\n\nPor ejemplo:\n- Que es el interes compuesto?\n- Dame conceptos de limites\n- Explicame la fotosintesis\n- Dame ejercicios de ecuaciones\n\nAsi puedo darte una respuesta real sobre el tema, no una plantilla generica.`;
+    }
+
+    setTutorTopic(normalized);
+    return `Te respondo sobre ${normalized}.\n\nNo tengo una explicacion especifica guardada para ese tema todavia, pero puedo ayudarte mejor si me haces una pregunta concreta.\n\nPuedes pedirme:\n1. Que es ${normalized}?\n2. Conceptos principales de ${normalized}.\n3. Ejemplos de ${normalized}.\n4. Ejercicios de ${normalized}.\n5. Resumen de ${normalized}.\n\nEscribe una de esas opciones y te respondo directamente.`;
 }
 
 function buildAIResponse(type, topic) {
