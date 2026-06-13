@@ -1759,10 +1759,13 @@ function buildAIResponse(type, topic) {
 }
 
 function generateSummary() {
-    const topic = getAIInput();
+    const topic = getAIInput() || (currentTutorPdf?.name ? `resumen del pdf ${currentTutorPdf.name}` : '');
     if (!topic) {
-        notify('Ingresa un tema o carga un apunte desde la mochila digital.', 'error');
+        notify('Ingresa un tema o sube un PDF para resumir.', 'error');
         return;
+    }
+    if (currentTutorPdf && !getAIInput()) {
+        appendTutorMessage('user', `Hazme un resumen del PDF ${currentTutorPdf.name}`);
     }
     showAIResult('Resumen generado', buildAIResponse('summary', topic));
 }
@@ -2882,6 +2885,49 @@ function appendTutorMessage(type, content, title = '') {
     return true;
 }
 
+function appendTutorPracticeCards(topic) {
+    const messages = document.getElementById('tutor-messages');
+    if (!messages) return false;
+
+    const cleanTopic = escapeHTML(topic || 'tu tema');
+    const lowerTopic = String(topic || '').toLowerCase();
+    const isLimits = /limite|limites/.test(lowerTopic);
+    const questions = isLimits
+        ? [
+            'Que significa que una funcion se acerque a un valor?',
+            'Cuando existe un limite por izquierda y por derecha?',
+            'Como reconocerias una discontinuidad en una grafica?',
+            'Resuelve un ejemplo sencillo usando sustitucion directa.',
+            'Explica con tus palabras para que sirven los limites.'
+        ]
+        : [
+            `Que es ${topic} con tus propias palabras?`,
+            `Cual es la idea principal de ${topic}?`,
+            `Menciona un ejemplo practico de ${topic}.`,
+            `Que parte de ${topic} te parece mas dificil y por que?`,
+            `Como explicarias ${topic} a un companero en un minuto?`
+        ];
+
+    const message = document.createElement('div');
+    message.className = 'tutor-message tutor-bot tutor-practice-response';
+    message.innerHTML = `
+        <strong>Practica sobre ${cleanTopic}</strong>
+        <p>Responde estas tarjetas una por una. Cuando termines, puedes pedirme que revise tus respuestas.</p>
+        <div class="tutor-practice-grid">
+            ${questions.map((question, index) => `
+                <article class="tutor-practice-card">
+                    <span>${index + 1}</span>
+                    <p>${escapeHTML(question)}</p>
+                </article>
+            `).join('')}
+        </div>
+    `;
+
+    messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
+    return true;
+}
+
 function appendTutorFileMessage(file) {
     const messages = document.getElementById('tutor-messages');
     if (!messages || !file) return false;
@@ -2953,7 +2999,12 @@ function getTutorExplanation(topic, originalPrompt) {
     const pdfTopic = pdfName ? pdfName.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ') : '';
 
     if (currentTutorPdf && /resumen|resume|resumir|pdf|apunte/.test(prompt)) {
-        return `Claro. Te preparo un resumen de estudio tomando como referencia el PDF "${pdfName}".\n\nResumen:\nEl documento parece tratar sobre ${pdfTopic || normalized}. La idea principal es comprender los conceptos base, identificar definiciones importantes y relacionarlas con ejercicios o ejemplos de clase.\n\nPuntos clave:\n1. Lee primero los titulos y subtitulos para ubicar el tema central.\n2. Anota las definiciones que se repiten o que parecen importantes.\n3. Separa formulas, ejemplos y ejercicios en partes diferentes.\n4. Convierte cada seccion en una pregunta para practicar.\n\nPara estudiar este PDF:\n- Haz una lista de conceptos principales.\n- Resume cada pagina en 2 o 3 lineas.\n- Practica explicando el tema con tus palabras.\n\nPregunta de repaso:\nCual es la idea principal del PDF y que ejemplo podrias resolver para comprobar que la entendiste?`;
+        const sourceTopic = pdfTopic || normalized;
+        if (/limite|limites/.test(`${sourceTopic} ${prompt}`.toLowerCase())) {
+            return `Resumen del PDF "${pdfName}":\n\nTema central:\nEl documento trata sobre la introduccion a los limites, una idea base del calculo que permite estudiar a que valor se acerca una funcion cuando la variable se aproxima a un punto.\n\nIdeas principales:\n1. Un limite no siempre busca el valor exacto de la funcion, sino el valor al que se acerca.\n2. Para saber si un limite existe, se revisa el comportamiento por la izquierda y por la derecha.\n3. Si ambos lados se acercan al mismo resultado, el limite existe.\n4. Los limites ayudan a entender continuidad, graficas, cambios y luego derivadas.\n\nResumen corto:\nEl PDF explica que los limites sirven para analizar el comportamiento de una funcion cerca de un valor. La clave es observar la tendencia de la funcion, comparar ambos lados y usar ejemplos numericos o graficos para confirmar el resultado.\n\nPara estudiar:\nRepasa definicion de limite, limites laterales, continuidad y ejercicios donde x se acerca a un numero.\n\nPregunta de practica:\nSi una funcion se acerca a 4 por la izquierda y tambien a 4 por la derecha, cual es el limite?`;
+        }
+
+        return `Resumen del PDF "${pdfName}":\n\nTema central:\nEl documento se enfoca en ${sourceTopic}. Presenta conceptos principales, ejemplos y puntos que el estudiante debe organizar para estudiar mejor.\n\nIdeas principales:\n1. El tema se puede dividir en definicion, caracteristicas y ejemplos.\n2. Las partes importantes son los conceptos que se repiten o que aparecen como base para ejercicios.\n3. Los ejemplos ayudan a comprobar si el contenido fue entendido.\n4. Las preguntas de repaso sirven para practicar antes de una prueba.\n\nResumen corto:\nEste PDF explica ${sourceTopic} de manera introductoria. La idea principal es entender que significa el tema, reconocer sus elementos mas importantes y aplicarlo en ejercicios o situaciones de clase.\n\nConclusiones:\n- Identifica las definiciones clave.\n- Separa ejemplos de teoria.\n- Practica con preguntas cortas.\n- Explica el tema con tus propias palabras para comprobar que lo entendiste.\n\nPregunta de practica:\nCual es la idea principal de ${sourceTopic} y que ejemplo podrias resolver para demostrarlo?`;
     }
 
     if (/termica|termodinamica|calor|temperatura/.test(normalized)) {
@@ -2986,6 +3037,9 @@ function buildAIResponse(type, topic) {
     if (type === 'tutor') {
         return getTutorExplanation(extractStudyTopic(reference), reference);
     }
+    if (currentTutorPdf && type === 'summary') {
+        return getTutorExplanation(extractStudyTopic(reference), reference);
+    }
     if (type === 'quiz') {
         return `Cuestionario simulado sobre ${reference}:\n\n1. Cual es la definicion principal?\n2. Que ejemplo puedes resolver?\n3. Cual es el error mas comun?\n4. Como lo explicarias en clase?\n5. Que debes repasar antes del examen?`;
     }
@@ -3011,6 +3065,28 @@ function generateQuiz() {
         return;
     }
     showAIResult('Cuestionario generado', buildAIResponse('quiz', topic));
+}
+
+function generatePracticeCards() {
+    const input = document.getElementById('ai-topic');
+    const typedTopic = getAIInput();
+    const pdfTopic = currentTutorPdf?.name
+        ? currentTutorPdf.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ')
+        : '';
+    const topic = typedTopic || pdfTopic;
+
+    if (!topic) {
+        notify('Escribe un tema o sube un PDF para practicar.', 'error');
+        return;
+    }
+
+    appendTutorMessage('user', `Practicar: ${topic}`);
+    appendTutorPracticeCards(extractStudyTopic(topic) || topic);
+
+    if (input) {
+        input.value = '';
+        input.focus();
+    }
 }
 
 function generateOpenQuestions() {

@@ -9366,3 +9366,193 @@ body.light-theme .theme-toggle::before {
         radial-gradient(circle at 50% 28%, #ffffff 0 22%, transparent 23%),
         linear-gradient(135deg, #7b68ee, #49ccf9);
 }
+
+/* Tutor: cuadro de pregunta estilo asistente moderno */
+#ai-assistant .tutor-shell {
+    max-width: 920px;
+    margin: 0 auto;
+}
+
+#ai-assistant .tutor-hero {
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+#ai-assistant .tutor-brand {
+    justify-content: center;
+    text-align: center;
+}
+
+#ai-assistant .tutor-brand p {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#ai-assistant .tutor-status {
+    display: none;
+}
+
+#ai-assistant .tutor-chat-card {
+    padding: 12px;
+    gap: 12px;
+    background:
+        linear-gradient(#ffffff, #ffffff) padding-box,
+        linear-gradient(135deg, rgba(123, 104, 238, 0.2), rgba(73, 204, 249, 0.28), rgba(253, 113, 175, 0.2)) border-box;
+    border: 8px solid transparent;
+    border-radius: 28px;
+    box-shadow: 0 22px 60px rgba(20, 24, 38, 0.2);
+}
+
+#ai-assistant .tutor-chat-card::before {
+    opacity: 0.45;
+}
+
+#ai-assistant .tutor-tabs {
+    position: relative;
+    z-index: 2;
+    margin: -50px 0 0 44px;
+    gap: 0;
+}
+
+#ai-assistant .tutor-tabs button {
+    border: 0;
+    border-radius: 18px 18px 0 0;
+    padding: 10px 18px;
+    background: rgba(241, 245, 249, 0.95);
+    color: #64748b;
+    box-shadow: none;
+}
+
+#ai-assistant .tutor-tabs button:hover,
+#ai-assistant .tutor-tabs button.active {
+    color: #0f172a;
+    background: #e9f5ff;
+    transform: none;
+}
+
+#ai-assistant .tutor-messages {
+    margin: 4px 0 0;
+    padding: 12px;
+    max-height: 340px;
+}
+
+#ai-assistant .tutor-message {
+    border-color: rgba(148, 163, 184, 0.28);
+}
+
+#ai-assistant .tutor-bot {
+    background: linear-gradient(135deg, rgba(123, 104, 238, 0.12), rgba(73, 204, 249, 0.1));
+}
+
+#ai-assistant .tutor-bot strong,
+#ai-assistant .tutor-bot p {
+    color: #1f2937;
+}
+
+#ai-assistant .tutor-user {
+    background: linear-gradient(135deg, rgba(253, 113, 175, 0.26), rgba(123, 104, 238, 0.18));
+}
+
+#ai-assistant .tutor-composer {
+    border: 0;
+    border-radius: 22px;
+    padding: 16px 14px 12px;
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.28);
+}
+
+#ai-assistant .tutor-composer textarea {
+    min-height: 116px;
+    color: #111827;
+    font-size: 1rem;
+}
+
+#ai-assistant .tutor-composer textarea::placeholder {
+    color: #64748b;
+}
+
+#ai-assistant .tutor-composer-bar {
+    border-top: 0;
+    padding-top: 8px;
+}
+
+#ai-assistant .tutor-icon-btn {
+    background: #f1f5f9;
+    color: #334155;
+}
+
+#ai-assistant .tutor-model {
+    color: #334155;
+}
+
+#ai-assistant .tutor-tools-grid {
+    max-width: 920px;
+    margin: 8px auto 0;
+}
+
+.tutor-practice-response {
+    max-width: 92%;
+}
+
+.tutor-practice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.tutor-practice-card {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 10px;
+    align-items: start;
+    padding: 14px;
+    border-radius: 18px;
+    border: 1px solid rgba(73, 204, 249, 0.22);
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.tutor-practice-card span {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: #ffffff;
+    font-weight: 900;
+    background: linear-gradient(135deg, #7b68ee, #49ccf9);
+}
+
+.tutor-practice-card p {
+    color: #1f2937 !important;
+    font-weight: 750;
+}
+
+@media (max-width: 720px) {
+    #ai-assistant .tutor-chat-card {
+        border-width: 5px;
+        border-radius: 22px;
+    }
+
+    #ai-assistant .tutor-tabs {
+        margin: -42px 0 0 16px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 2px;
+    }
+
+    #ai-assistant .tutor-tabs button {
+        white-space: nowrap;
+        padding: 9px 13px;
+    }
+
+    #ai-assistant .tutor-message,
+    .tutor-practice-response {
+        max-width: 100%;
+    }
+
+    .tutor-practice-grid {
+        grid-template-columns: 1fr;
+    }
+}
