@@ -2868,6 +2868,14 @@ function getResourceFromAIInput() {
 }
 
 let currentTutorPdf = null;
+let currentTutorTopic = '';
+
+function normalizeTutorText(text) {
+    return String(text || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+}
 
 function appendTutorMessage(type, content, title = '') {
     const messages = document.getElementById('tutor-messages');
@@ -2955,8 +2963,10 @@ function loadTutorPDF(event) {
     currentTutorPdf = {
         name: file.name,
         size: file.size,
-        loadedAt: new Date().toISOString()
+        loadedAt: new Date().toISOString(),
+        topic: file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ')
     };
+    currentTutorTopic = currentTutorPdf.topic;
 
     appendTutorFileMessage(file);
     if (topic) topic.focus();
@@ -2971,8 +2981,9 @@ function generateTutorAnswer() {
         return;
     }
 
+    const answer = buildAIResponse('tutor', topic);
     appendTutorMessage('user', topic);
-    showAIResult('Tutor', buildAIResponse('tutor', topic));
+    showAIResult('Tutor', answer);
 
     const input = document.getElementById('ai-topic');
     if (input) {
@@ -2982,8 +2993,7 @@ function generateTutorAnswer() {
 }
 
 function extractStudyTopic(prompt) {
-    return String(prompt || '')
-        .toLowerCase()
+    return normalizeTutorText(prompt)
         .replace(/pdf simulado cargado:[\s\S]*/g, '')
         .replace(/ayudame a|ayudame|por favor|porfa|explicame|explica|dime|hazme|hacer|investiga|ensename|un resumen de|resumen de/g, '')
         .replace(/paso a paso|lo paso a paso|con detalle|detalladamente/g, '')
@@ -2994,34 +3004,65 @@ function extractStudyTopic(prompt) {
         .trim();
 }
 
+function isTutorFollowUp(prompt) {
+    const text = normalizeTutorText(prompt);
+    return Boolean(currentTutorTopic) && /(utilizarlo|usarlo|aplicarlo|eso|esto|lo anterior|vida cotidiana|ocasiones|ejemplo|sirve|para que|cuando se usa|donde se usa|como se usa|ejercicios)/.test(text);
+}
+
 function getTutorExplanation(topic, originalPrompt) {
-    const normalized = topic || 'el tema que estas estudiando';
-    const prompt = String(originalPrompt || '').toLowerCase();
+    const normalized = topic || currentTutorTopic || 'el tema que estas estudiando';
+    const plainTopic = normalizeTutorText(normalized);
+    const prompt = normalizeTutorText(originalPrompt);
     const pdfName = currentTutorPdf?.name || '';
     const pdfTopic = pdfName ? pdfName.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ') : '';
 
+    if (currentTutorPdf && /ejercicio|ejercicios|pregunta|preguntas|practica|practicar/.test(prompt)) {
+        const pdfPlain = normalizeTutorText(`${pdfTopic} ${prompt}`);
+        if (/limite|limites/.test(pdfPlain)) {
+            currentTutorTopic = 'limites';
+            return `Ejercicios de practica basados en el PDF "${pdfName}":\n\n1. Concepto basico:\nExplica con tus palabras que significa que una funcion se acerque a un valor.\n\n2. Limite directo:\nSi f(x) = x + 3, cual es el limite cuando x se acerca a 2?\nRespuesta esperada: 5.\n\n3. Limites laterales:\nSi por la izquierda la funcion se acerca a 4 y por la derecha tambien se acerca a 4, el limite existe? Cual es?\nRespuesta esperada: Si existe, y es 4.\n\n4. Caso donde no existe:\nSi por la izquierda la funcion se acerca a 2 y por la derecha se acerca a 6, existe el limite?\nRespuesta esperada: No existe, porque los dos lados no llegan al mismo valor.\n\n5. Aplicacion grafica:\nMira una grafica y observa hacia donde se acercan los valores de y cuando x se acerca al punto indicado.\n\nConsejo:\nPara resolver limites, primero intenta sustitucion directa. Si no funciona, revisa la grafica, simplifica la expresion o analiza los lados.`;
+        }
+
+        return `Ejercicios de practica basados en el PDF "${pdfName}":\n\n1. Explica el tema principal del PDF con tus palabras.\n2. Escribe tres conceptos importantes que aparezcan en el documento.\n3. Crea un ejemplo relacionado con ${pdfTopic || normalized}.\n4. Responde: para que sirve este tema en clase?\n5. Resume el contenido en cinco lineas.\n\nCuando respondas, puedo ayudarte a revisar si esta correcto.`;
+    }
+
+    if (currentTutorPdf && /explica|explicame|que es|que son|entender|no entiendo/.test(prompt)) {
+        const pdfPlain = normalizeTutorText(`${pdfTopic} ${prompt}`);
+        if (/limite|limites/.test(pdfPlain)) {
+            currentTutorTopic = 'limites';
+            return `Te explico el PDF "${pdfName}" de forma sencilla.\n\nEl tema es limites.\n\nUn limite sirve para saber a que valor se acerca una funcion cuando x se acerca a un numero. No se trata siempre de reemplazar y ya; muchas veces se trata de observar el comportamiento de la funcion cerca de ese punto.\n\nEjemplo sencillo:\nImagina que x se acerca a 2. Si al mirar la funcion, los valores de y se acercan a 5, entonces decimos que el limite es 5.\n\nLo mas importante:\n1. Mira el numero al que se acerca x.\n2. Observa a que valor se acerca la funcion.\n3. Revisa si por la izquierda y por la derecha se llega al mismo resultado.\n4. Si ambos lados coinciden, el limite existe.\n\nPara que sirve:\nLos limites sirven para entender continuidad, derivadas, graficas y cambios. Son una base importante del calculo.`;
+        }
+    }
+
     if (currentTutorPdf && /resumen|resume|resumir|pdf|apunte/.test(prompt)) {
         const sourceTopic = pdfTopic || normalized;
-        if (/limite|limites/.test(`${sourceTopic} ${prompt}`.toLowerCase())) {
-            return `Resumen del PDF "${pdfName}":\n\nTema central:\nEl documento trata sobre la introduccion a los limites, una idea base del calculo que permite estudiar a que valor se acerca una funcion cuando la variable se aproxima a un punto.\n\nIdeas principales:\n1. Un limite no siempre busca el valor exacto de la funcion, sino el valor al que se acerca.\n2. Para saber si un limite existe, se revisa el comportamiento por la izquierda y por la derecha.\n3. Si ambos lados se acercan al mismo resultado, el limite existe.\n4. Los limites ayudan a entender continuidad, graficas, cambios y luego derivadas.\n\nResumen corto:\nEl PDF explica que los limites sirven para analizar el comportamiento de una funcion cerca de un valor. La clave es observar la tendencia de la funcion, comparar ambos lados y usar ejemplos numericos o graficos para confirmar el resultado.\n\nPara estudiar:\nRepasa definicion de limite, limites laterales, continuidad y ejercicios donde x se acerca a un numero.\n\nPregunta de practica:\nSi una funcion se acerca a 4 por la izquierda y tambien a 4 por la derecha, cual es el limite?`;
+        if (/limite|limites/.test(normalizeTutorText(`${sourceTopic} ${prompt}`))) {
+            currentTutorTopic = 'limites';
+            return `Resumen del PDF "${pdfName}":\n\nTema central:\nEl PDF trata sobre limites, un concepto de matematica que explica a que valor se acerca una funcion cuando la variable se aproxima a un numero.\n\nQue es un limite:\nUn limite sirve para estudiar el comportamiento de una funcion cerca de un punto. No siempre importa el valor exacto en ese punto; lo importante es hacia donde se acerca la funcion.\n\nIdea principal:\nSi x se acerca a un numero y los valores de la funcion se acercan a un mismo resultado, entonces ese resultado es el limite.\n\nLimites laterales:\n1. Limite por la izquierda: observa que pasa cuando x se acerca desde valores menores.\n2. Limite por la derecha: observa que pasa cuando x se acerca desde valores mayores.\n3. Si los dos lados llegan al mismo numero, el limite existe.\n4. Si llegan a numeros diferentes, el limite no existe.\n\nEjemplo:\nSi cuando x se acerca a 2, la funcion se acerca a 5 por ambos lados, entonces el limite es 5.\n\nPara que sirve:\nLos limites se usan para entender continuidad, cambios en funciones, derivadas, graficas y problemas donde una funcion se acerca a un valor sin tocarlo exactamente.\n\nResumen final:\nEl PDF explica que los limites ayudan a analizar tendencias. La clave es mirar que pasa cerca de un punto, comparar izquierda y derecha, y confirmar si ambos lados llegan al mismo valor.`;
         }
 
         return `Resumen del PDF "${pdfName}":\n\nTema central:\nEl documento se enfoca en ${sourceTopic}. Presenta conceptos principales, ejemplos y puntos que el estudiante debe organizar para estudiar mejor.\n\nIdeas principales:\n1. El tema se puede dividir en definicion, caracteristicas y ejemplos.\n2. Las partes importantes son los conceptos que se repiten o que aparecen como base para ejercicios.\n3. Los ejemplos ayudan a comprobar si el contenido fue entendido.\n4. Las preguntas de repaso sirven para practicar antes de una prueba.\n\nResumen corto:\nEste PDF explica ${sourceTopic} de manera introductoria. La idea principal es entender que significa el tema, reconocer sus elementos mas importantes y aplicarlo en ejercicios o situaciones de clase.\n\nConclusiones:\n- Identifica las definiciones clave.\n- Separa ejemplos de teoria.\n- Practica con preguntas cortas.\n- Explica el tema con tus propias palabras para comprobar que lo entendiste.\n\nPregunta de practica:\nCual es la idea principal de ${sourceTopic} y que ejemplo podrias resolver para demostrarlo?`;
     }
 
-    if (/interes compuesto|interes|compuesto/.test(normalized)) {
+    if (/interes compuesto|interes|compuesto/.test(plainTopic)) {
+        currentTutorTopic = 'interes compuesto';
+        if (/vida cotidiana|ocasiones|utilizar|usar|sirve|aplicar|aplicarlo/.test(prompt)) {
+            return `El interes compuesto se usa en muchas situaciones de la vida cotidiana porque explica como crece una cantidad cuando se acumulan intereses sobre intereses.\n\nOcasiones donde se utiliza:\n1. Ahorros bancarios:\nSi guardas dinero en una cuenta que genera intereses, cada periodo el banco calcula intereses sobre el dinero inicial mas lo que ya ganaste.\n\n2. Inversiones:\nCuando inviertes en fondos, certificados o planes de ahorro, el dinero puede crecer con interes compuesto si las ganancias se reinvierten.\n\n3. Prestamos:\nAlgunos prestamos calculan intereses sobre saldos acumulados. Por eso, si no pagas a tiempo, la deuda puede aumentar mas rapido.\n\n4. Tarjetas de credito:\nSi dejas una deuda pendiente, los intereses pueden sumarse al saldo y luego generar mas intereses. Esto hace que la deuda crezca.\n\n5. Planes de retiro:\nMientras mas temprano empiezas a ahorrar, mas tiempo tiene el interes compuesto para hacer crecer el dinero.\n\nEjemplo de vida diaria:\nSi ahorras 100 dolares al 10% anual y no retiras las ganancias, despues del primer ano tienes 110. En el segundo ano ya no ganas interes sobre 100, sino sobre 110. Por eso crece mas rapido.\n\nConclusion:\nEl interes compuesto sirve para entender como crece el dinero con el tiempo, tanto para ganar mas en ahorros e inversiones como para evitar que una deuda aumente demasiado.`;
+        }
+
         return `Interes compuesto\n\nQue es:\nEl interes compuesto es una forma de calcular ganancias o deudas donde los intereses se suman al capital inicial y despues tambien generan nuevos intereses. Por eso se dice que es "interes sobre interes".\n\nFormula principal:\nMonto final = Capital inicial x (1 + tasa) ^ tiempo\n\nTambien se puede escribir asi:\nA = P(1 + r)^t\n\nDonde:\nP = capital inicial, es decir, el dinero con el que empiezas.\nr = tasa de interes por periodo, escrita en decimal. Por ejemplo, 10% = 0.10.\nt = numero de periodos.\nA = monto final despues de aplicar el interes compuesto.\n\nComo funciona:\nSi inviertes 100 dolares al 10% anual durante 3 anos:\nAno 1: 100 x 1.10 = 110\nAno 2: 110 x 1.10 = 121\nAno 3: 121 x 1.10 = 133.10\n\nResultado:\nAl final tendrias 133.10 dolares. La ganancia no fue solo 30, porque cada ano el interes se calculo sobre una cantidad mas grande.\n\nEn que se usa:\n1. Ahorros e inversiones.\n2. Prestamos y deudas.\n3. Tarjetas de credito.\n4. Cuentas bancarias.\n5. Crecimiento de dinero en el tiempo.\n\nDiferencia con interes simple:\nEn el interes simple, el interes siempre se calcula sobre el capital inicial.\nEn el interes compuesto, el interes se calcula sobre el capital inicial mas los intereses acumulados.\n\nEjemplo rapido:\nSi tienes 200 dolares al 5% durante 2 anos:\nA = 200(1 + 0.05)^2\nA = 200(1.05)^2\nA = 200 x 1.1025\nA = 220.50\n\nConclusion:\nEl interes compuesto es importante porque muestra como el dinero puede crecer mas rapido con el tiempo. Mientras mayor sea la tasa o mas largo sea el tiempo, mas grande sera el monto final.`;
     }
 
-    if (/termica|termodinamica|calor|temperatura/.test(normalized)) {
+    if (/termica|termodinamica|calor|temperatura/.test(plainTopic)) {
         return `La termica es una parte de la fisica que estudia el calor, la temperatura y como la energia se transfiere entre los cuerpos.\n\nExplicacion sencilla:\nCuando un cuerpo esta caliente, sus particulas se mueven con mas energia. Cuando esta frio, se mueven con menos energia. La termica ayuda a entender como cambia esa energia y por que el calor pasa de un cuerpo caliente a uno mas frio.\n\nConceptos importantes:\n1. Temperatura: indica que tan caliente o frio esta un cuerpo.\n2. Calor: es energia que se transfiere por diferencia de temperatura.\n3. Equilibrio termico: ocurre cuando dos cuerpos llegan a la misma temperatura.\n4. Dilatacion: algunos materiales aumentan su tamano cuando se calientan.\n\nEjemplo:\nSi pones una cuchara fria dentro de una taza de cafe caliente, la cuchara se calienta porque recibe energia termica del cafe.\n\nEn resumen:\nLa termica explica como se comporta el calor y como afecta a los objetos.`;
     }
 
-    if (/limite|limites/.test(normalized)) {
+    if (/limite|limites/.test(plainTopic)) {
+        currentTutorTopic = 'limites';
         return `Un limite en matematica describe a que valor se acerca una funcion cuando la variable se aproxima a un numero.\n\nExplicacion sencilla:\nNo siempre importa el valor exacto de la funcion en un punto. A veces importa hacia donde se acerca. Eso es un limite.\n\nEjemplo:\nSi x se acerca a 2 y la funcion se acerca a 5, decimos que el limite es 5.\n\nPara entender limites:\n1. Mira a que numero se acerca x.\n2. Observa a que valor se acerca la funcion.\n3. Revisa el comportamiento por la izquierda y por la derecha.\n4. Si ambos lados llegan al mismo valor, el limite existe.\n\nEn resumen:\nLos limites sirven para estudiar continuidad, derivadas y cambios en funciones.`;
     }
 
-    if (/fisica/.test(normalized)) {
+    if (/fisica/.test(plainTopic)) {
         return `La fisica es la ciencia que estudia la materia, la energia, el movimiento, las fuerzas y los fenomenos naturales.\n\nExplicacion sencilla:\nLa fisica intenta responder preguntas como: por que cae un objeto, como se mueve un carro, como viaja la luz o como se transfiere el calor.\n\nRamas importantes:\n1. Mecanica: estudia movimiento y fuerzas.\n2. Termica: estudia calor y temperatura.\n3. Electricidad: estudia cargas y corriente electrica.\n4. Optica: estudia la luz.\n\nEjemplo:\nCuando lanzas una pelota, la fisica explica su velocidad, su trayectoria y por que vuelve a caer.\n\nEn resumen:\nLa fisica ayuda a entender como funciona el mundo que nos rodea.`;
     }
 
@@ -3041,7 +3082,13 @@ function buildAIResponse(type, topic) {
 
     const reference = topic.length > 380 ? `${topic.slice(0, 380)}...` : topic;
     if (type === 'tutor') {
-        return getTutorExplanation(extractStudyTopic(reference), reference);
+        const contextReference = isTutorFollowUp(reference)
+            ? `${currentTutorTopic}. Pregunta del estudiante: ${reference}`
+            : reference;
+        const extractedTopic = isTutorFollowUp(reference)
+            ? currentTutorTopic
+            : extractStudyTopic(reference);
+        return getTutorExplanation(extractedTopic, contextReference);
     }
     if (currentTutorPdf && type === 'summary') {
         return getTutorExplanation(extractStudyTopic(reference), reference);
