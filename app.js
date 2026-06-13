@@ -1625,47 +1625,242 @@ function renderGrades(workspace) {
 function updateGradeSubjectOptions() {}
 
 function addAttendanceUI() {
+    openAttendanceForm();
+}
+
+function getAttendanceStatusLabel(status) {
+    if (status === 'Asisti') return 'Presente';
+    if (status === 'Falta') return 'Falta';
+    if (status === 'Atraso') return 'Atraso';
+    if (status === 'Justificado') return 'Justificado';
+    return 'Pendiente';
+}
+
+function getAttendanceStatusKey(status) {
+    if (status === 'Asisti') return 'present';
+    if (status === 'Falta') return 'absent';
+    if (status === 'Atraso') return 'late';
+    if (status === 'Justificado') return 'justified';
+    return 'pending';
+}
+
+function isAttendancePositive(status) {
+    return status === 'Asisti' || status === 'Atraso' || status === 'Justificado';
+}
+
+function getAttendanceStats(records) {
+    const total = records.length;
+    const present = records.filter(item => item.status === 'Asisti').length;
+    const absent = records.filter(item => item.status === 'Falta').length;
+    const late = records.filter(item => item.status === 'Atraso').length;
+    const justified = records.filter(item => item.status === 'Justificado').length;
+    const positive = records.filter(item => isAttendancePositive(item.status)).length;
+    const percentage = total ? Math.round((positive / total) * 100) : 0;
+    return { total, present, absent, late, justified, positive, percentage };
+}
+
+function getAttendanceSubjectStats(workspace) {
+    return getSubjectOptions(workspace).map(subject => {
+        const records = workspace.attendance.filter(item => item.subject === subject);
+        const stats = getAttendanceStats(records);
+        return { subject, records, ...stats };
+    }).filter(item => item.records.length);
+}
+
+function openAttendanceForm(attendanceId = null) {
     const workspace = loadWorkspace();
+    const attendance = workspace.attendance.find(item => item.id === attendanceId);
     openQuickForm({
-        title: 'Registrar asistencia',
-        submitLabel: 'Guardar asistencia',
+        title: attendance ? 'Editar asistencia' : 'Registrar asistencia',
+        submitLabel: attendance ? 'Actualizar asistencia' : 'Guardar asistencia',
         fields: [
-            { name: 'subject', label: 'Materia', type: 'select', options: getSubjectOptions(workspace) },
-            { name: 'date', label: 'Fecha', type: 'date', value: normalizeDate(new Date().toISOString()) },
-            { name: 'status', label: 'Estado', type: 'select', options: attendanceStatusOptions }
+            { name: 'subject', label: 'Materia', type: 'select', options: getSubjectOptions(workspace), value: attendance?.subject || '' },
+            { name: 'date', label: 'Fecha', type: 'date', value: normalizeDate(attendance?.date || new Date().toISOString()) },
+            { name: 'status', label: 'Estado', type: 'choice-grid', options: attendanceStatusOptions, value: attendance?.status || 'Asisti' }
         ],
         onSubmit: values => {
             const fresh = loadWorkspace();
-            fresh.attendance.push({
-                id: createId(),
-                subject: values.subject,
-                date: values.date,
-                status: values.status
-            });
-            addXP(fresh, values.status === 'Asisti' ? 10 : 0);
-            addRecent(fresh, `Registraste asistencia en ${values.subject}.`);
+            if (attendanceId) {
+                const item = fresh.attendance.find(entry => entry.id === attendanceId);
+                if (item) {
+                    item.subject = values.subject;
+                    item.date = values.date;
+                    item.status = values.status;
+                    addRecent(fresh, `Editaste asistencia en ${values.subject}.`);
+                }
+            } else {
+                fresh.attendance.push({
+                    id: createId(),
+                    subject: values.subject,
+                    date: values.date,
+                    status: values.status,
+                    createdAt: new Date().toISOString()
+                });
+                addXP(fresh, values.status === 'Asisti' ? 10 : 4);
+                addRecent(fresh, `Registraste asistencia en ${values.subject}.`);
+            }
             saveWorkspace(fresh);
             refreshWorkspaceUI();
-            notify('Asistencia registrada.', 'success');
+            notify(attendanceId ? 'Asistencia actualizada.' : 'Asistencia registrada.', 'success');
         }
     });
+}
+
+function deleteAttendance(attendanceId) {
+    const workspace = loadWorkspace();
+    const attendance = workspace.attendance.find(item => item.id === attendanceId);
+    workspace.attendance = workspace.attendance.filter(item => item.id !== attendanceId);
+    if (attendance) addRecent(workspace, `Eliminaste asistencia de ${attendance.subject}.`);
+    saveWorkspace(workspace);
+    refreshWorkspaceUI();
+    notify('Registro de asistencia eliminado.', 'info');
+}
+
+function filterAttendance(filter, button) {
+    currentAttendanceFilter = filter || 'all';
+    document.querySelectorAll('#attendance .filter-btn').forEach(btn => btn.classList.remove('active'));
+    if (button) button.classList.add('active');
+    renderAttendance(loadWorkspace());
+}
+
+function getAttendanceCalendarDays(records) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const offset = (firstDay.getDay() + 6) % 7;
+    const cells = [];
+
+    for (let i = 0; i < offset; i += 1) {
+        cells.push({ empty: true });
+    }
+    for (let day = 1; day <= daysInMonth; day += 1) {
+        const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const record = records.find(item => normalizeDate(item.date) === iso);
+        cells.push({ day, record });
+    }
+    return cells;
 }
 
 function renderAttendance(workspace) {
     const container = document.getElementById('attendance-container');
     if (!container) return;
 
-    container.innerHTML = workspace.attendance.length ? `
-        <div class="attendance-grid">
-            ${workspace.attendance.map(item => `
-                <div class="attendance-card">
-                    <h3>${escapeHTML(item.subject)}</h3>
-                    <p>${escapeHTML(item.date || 'Sin fecha')}</p>
-                    <span class="event-badge">${escapeHTML(item.status || 'Pendiente')}</span>
-                </div>
-            `).join('')}
+    if (!workspace.attendance.length) {
+        container.innerHTML = emptyStateHTML('Todavia no registras asistencias. Comienza agregando tu primera clase.', '+ Registrar asistencia', 'addAttendanceUI()');
+        return;
+    }
+
+    const stats = getAttendanceStats(workspace.attendance);
+    const subjectStats = getAttendanceSubjectStats(workspace);
+    const filterTabs = [
+        ['all', 'Todos'],
+        ['present', 'Presentes'],
+        ['absent', 'Faltas'],
+        ['late', 'Atrasos'],
+        ['justified', 'Justificados']
+    ];
+    const filteredRecords = workspace.attendance
+        .map(item => ({ ...item, statusKey: getAttendanceStatusKey(item.status) }))
+        .filter(item => currentAttendanceFilter === 'all' || item.statusKey === currentAttendanceFilter)
+        .sort((a, b) => normalizeDate(b.date).localeCompare(normalizeDate(a.date)));
+    const calendarDays = getAttendanceCalendarDays(workspace.attendance);
+    const lowSubject = subjectStats.find(item => item.percentage < 80);
+    const bestSubject = subjectStats.find(item => item.percentage >= 90 && item.total >= 3);
+
+    container.innerHTML = `
+        <div class="attendance-overview">
+            ${attendanceStatCard('classes', 'Clases', stats.total)}
+            ${attendanceStatCard('present', 'Asistencias', stats.present)}
+            ${attendanceStatCard('absent', 'Faltas', stats.absent)}
+            ${attendanceStatCard('late', 'Atrasos', stats.late)}
+            ${attendanceStatCard('percent', 'Asistencia general', `${stats.percentage}%`)}
         </div>
-    ` : emptyStateHTML('No hay registros de asistencia.', 'Registrar asistencia', 'addAttendanceUI()');
+
+        <div class="attendance-alert ${lowSubject ? 'warning' : 'success'}">
+            <strong>${lowSubject ? `Tu asistencia en ${escapeHTML(lowSubject.subject)} bajo de 80%.` : 'Llevas una buena racha de asistencia.'}</strong>
+            <span>${lowSubject ? 'Revisa tus faltas y registra justificaciones si corresponde.' : (bestSubject ? `Excelente avance en ${escapeHTML(bestSubject.subject)}.` : 'Sigue registrando tus clases para medir tu progreso.')}</span>
+        </div>
+
+        <div class="attendance-layout">
+            <section class="attendance-panel attendance-history-panel">
+                <div class="attendance-panel-head">
+                    <div>
+                        <h3>Historial de asistencia</h3>
+                        <p>Filtra tus clases por estado.</p>
+                    </div>
+                </div>
+                <div class="attendance-filter task-filter-modern">
+                    ${filterTabs.map(([key, label]) => `
+                        <button class="filter-btn ${currentAttendanceFilter === key ? 'active' : ''}" type="button" data-attendance-filter="${key}">
+                            ${label}
+                        </button>
+                    `).join('')}
+                </div>
+                <div class="attendance-grid">
+                    ${filteredRecords.length ? filteredRecords.map(item => {
+                        const key = getAttendanceStatusKey(item.status);
+                        return `
+                            <article class="attendance-card attendance-${key}">
+                                <div class="attendance-card-icon" aria-hidden="true"></div>
+                                <div class="attendance-card-main">
+                                    <h3>${escapeHTML(item.subject || 'General')}</h3>
+                                    <span class="attendance-status">${escapeHTML(getAttendanceStatusLabel(item.status))}</span>
+                                    <p class="attendance-date">${escapeHTML(item.date || 'Sin fecha')}</p>
+                                    <p class="attendance-note">${key === 'present' ? 'Clase asistida correctamente.' : key === 'absent' ? 'Clase marcada como falta.' : key === 'late' ? 'Llegada tarde registrada.' : 'Registro justificado.'}</p>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="btn-secondary btn-small" data-attendance-edit="${escapeHTML(item.id)}">Editar</button>
+                                    <button class="btn-danger btn-small" data-attendance-delete="${escapeHTML(item.id)}">Eliminar</button>
+                                </div>
+                            </article>
+                        `;
+                    }).join('') : '<div class="dashboard-empty-note"><strong>No hay registros en este filtro.</strong><span>Cambia el filtro o registra una nueva clase.</span></div>'}
+                </div>
+            </section>
+
+            <aside class="attendance-side">
+                <section class="attendance-panel attendance-calendar-panel">
+                    <h3>Calendario del mes</h3>
+                    <div class="attendance-calendar-weekdays"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+                    <div class="attendance-calendar-grid">
+                        ${calendarDays.map(cell => cell.empty ? '<span class="attendance-day empty"></span>' : `<span class="attendance-day ${cell.record ? `day-${getAttendanceStatusKey(cell.record.status)}` : ''}">${cell.day}</span>`).join('')}
+                    </div>
+                </section>
+
+                <section class="attendance-panel attendance-subject-panel">
+                    <h3>Seguimiento por materia</h3>
+                    ${subjectStats.length ? subjectStats.map(item => `
+                        <div class="attendance-subject-row">
+                            <div>
+                                <strong>${escapeHTML(item.subject)}</strong>
+                                <span>${item.total} clases - ${item.present} presentes - ${item.absent} faltas</span>
+                            </div>
+                            <em>${item.percentage}%</em>
+                            <div class="progress-bar"><div class="progress-fill" style="width:${item.percentage}%"></div></div>
+                        </div>
+                    `).join('') : '<p class="muted-panel">Cuando registres clases, apareceran aqui.</p>'}
+                </section>
+            </aside>
+        </div>
+    `;
+
+    container.querySelectorAll('[data-attendance-filter]').forEach(button => button.addEventListener('click', () => filterAttendance(button.dataset.attendanceFilter, button)));
+    container.querySelectorAll('[data-attendance-edit]').forEach(button => button.addEventListener('click', () => openAttendanceForm(button.dataset.attendanceEdit)));
+    container.querySelectorAll('[data-attendance-delete]').forEach(button => button.addEventListener('click', () => deleteAttendance(button.dataset.attendanceDelete)));
+}
+
+function attendanceStatCard(type, label, value) {
+    return `
+        <div class="attendance-stat-card stat-${type}">
+            <span class="attendance-stat-icon" aria-hidden="true"></span>
+            <div>
+                <strong>${escapeHTML(value)}</strong>
+                <p>${escapeHTML(label)}</p>
+            </div>
+        </div>
+    `;
 }
 
 function addResourceUI() {
@@ -1879,10 +2074,13 @@ const eventTypeOptions = [
 ];
 
 const attendanceStatusOptions = [
-    { value: 'Asisti', label: 'Asisti' },
-    { value: 'Falta', label: 'Falta' },
-    { value: 'Atraso', label: 'Atraso' }
+    { value: 'Asisti', label: 'Presente', tone: '#00c875', iconClass: 'choice-icon-present' },
+    { value: 'Falta', label: 'Falta', tone: '#fd71af', iconClass: 'choice-icon-absent' },
+    { value: 'Atraso', label: 'Atraso', tone: '#ffc800', iconClass: 'choice-icon-late' },
+    { value: 'Justificado', label: 'Justificado', tone: '#49ccf9', iconClass: 'choice-icon-justified' }
 ];
+
+let currentAttendanceFilter = 'all';
 
 function createId() {
     return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
