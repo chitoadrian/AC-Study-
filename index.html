@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AC Study - Gestion Educativa Inteligente Personalizada</title>
-    <link rel="stylesheet" href="style.css?v=20260613-dashboard-links">
+    <link rel="stylesheet" href="style.css?v=20260613-tasks-panel">
 </head>
 <body>
     <!-- LANDING PAGE -->
@@ -609,18 +609,11 @@
             <section id="tasks" class="section">
                 <div class="section-header">
                     <h1>Tareas</h1>
-                    <p class="subtitle">Organiza y completa tus actividades academicas</p>
+                    <p class="subtitle">Organiza, prioriza y completa tus actividades academicas</p>
                     <button class="btn-primary btn-small" onclick="addTaskUI()">+ Nueva tarea</button>
                 </div>
 
                 <div class="tasks-container">
-                    <div class="task-filter">
-                        <button class="filter-btn active" onclick="filterTasks('all', this)">Todas</button>
-                        <button class="filter-btn" onclick="filterTasks('pending', this)">Pendientes</button>
-                        <button class="filter-btn" onclick="filterTasks('completed', this)">Completadas</button>
-                        <button class="filter-btn" onclick="filterTasks('upcoming', this)">Proximas</button>
-                    </div>
-
                     <div class="tasks-list" id="tasks-list">
                         <div class="task-item" data-status="pending">
                             <div class="task-checkbox">
@@ -1207,6 +1200,6 @@
         </main>
     </div>
 
-    <script src="app.js?v=20260613-dashboard-links"></script>
+    <script src="app.js?v=20260613-tasks-panel"></script>
 </body>
 </html>

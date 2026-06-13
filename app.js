@@ -1411,12 +1411,10 @@ function toggleTask(checkbox) {
 }
 
 function filterTasks(filter, button) {
+    currentTaskFilter = filter || 'all';
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
     if (button) button.classList.add('active');
-    document.querySelectorAll('.task-item').forEach(task => {
-        const status = task.getAttribute('data-status');
-        task.style.display = filter === 'all' || filter === status ? 'flex' : 'none';
-    });
+    renderTasks(loadWorkspace());
 }
 
 function addCalendarEventUI() {
@@ -1871,6 +1869,8 @@ const taskStatusOptions = [
     { value: 'completed', label: 'Completada' }
 ];
 
+let currentTaskFilter = 'all';
+
 const eventTypeOptions = [
     { value: 'examen', label: 'Examen' },
     { value: 'tarea', label: 'Tarea' },
@@ -1906,20 +1906,74 @@ function getGradeStatus(value) {
 
 function getTaskStatusLabel(status) {
     if (status === 'completed') return 'Completada';
+    if (status === 'overdue') return 'Vencida';
     if (status === 'upcoming') return 'Proxima / mas tarde';
     return 'Pendiente ahora';
 }
 
 function getTaskPriorityLabel(priority) {
-    if (priority === 'alta') return 'Importante';
-    if (priority === 'baja') return 'Mas tarde';
-    return 'Normal';
+    if (priority === 'alta') return 'Alta';
+    if (priority === 'baja') return 'Baja';
+    if (priority === 'normal') return 'Normal';
+    return 'Media';
 }
 
 function normalizeDate(value) {
     if (!value) return '';
     const parsed = new Date(value);
     return Number.isNaN(parsed.getTime()) ? value : parsed.toISOString().slice(0, 10);
+}
+
+function getTodayStart() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+}
+
+function parseTaskDate(value) {
+    if (!value) return null;
+    const parsed = new Date(`${normalizeDate(value)}T00:00:00`);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function getTaskDaysRemaining(task) {
+    const dueDate = parseTaskDate(task.due);
+    if (!dueDate) return null;
+    return Math.ceil((dueDate.getTime() - getTodayStart().getTime()) / 86400000);
+}
+
+function getTaskVisualStatus(task) {
+    if (task.status === 'completed') return 'completed';
+    const days = getTaskDaysRemaining(task);
+    if (days === null) return 'pending';
+    if (days < 0) return 'overdue';
+    if (days <= 3) return 'upcoming';
+    return 'pending';
+}
+
+function getTaskDaysText(task) {
+    const days = getTaskDaysRemaining(task);
+    if (days === null) return 'Sin fecha limite';
+    if (task.status === 'completed') return 'Completada';
+    if (days < 0) return `Vencio hace ${Math.abs(days)} ${Math.abs(days) === 1 ? 'dia' : 'dias'}`;
+    if (days === 0) return 'Vence hoy';
+    if (days === 1) return 'Falta 1 dia';
+    return `Faltan ${days} dias`;
+}
+
+function getTaskPriorityClass(priority) {
+    if (priority === 'alta') return 'high';
+    if (priority === 'baja') return 'low';
+    if (priority === 'normal') return 'normal';
+    return 'medium';
+}
+
+function getTaskReminderAlert(task) {
+    // Futuro backend: aqui se puede conectar Supabase + Gmail API para enviar recordatorios reales.
+    const visualStatus = getTaskVisualStatus(task);
+    if (!task.emailReminder || !task.email || task.status === 'completed') return '';
+    if (visualStatus !== 'upcoming' && visualStatus !== 'overdue') return '';
+    return `Se enviaria un recordatorio a ${task.email} para la tarea: ${task.title}`;
 }
 
 function isEventSoon(event) {
@@ -2056,13 +2110,24 @@ function openTaskForm(taskId = null) {
             { name: 'description', label: 'Descripcion', type: 'textarea', value: task?.description || '', placeholder: 'Detalles de la tarea' },
             { name: 'due', label: 'Fecha limite', type: 'date', value: normalizeDate(task?.due) },
             { name: 'priority', label: 'Prioridad', type: 'select', options: taskPriorityOptions, value: task?.priority || 'media' },
-            { name: 'status', label: 'Estado', type: 'select', options: taskStatusOptions, value: task?.status || 'pending' }
+            { name: 'emailReminder', label: 'Recordarme por Gmail', type: 'checkbox', checked: !!task?.emailReminder, required: false, help: 'Mostrar alerta visual cuando este proxima a vencer' },
+            { name: 'email', label: 'Correo para notificacion', type: 'email', value: task?.email || currentUser?.email || '', required: false, placeholder: 'usuario@gmail.com' }
         ],
         onSubmit: values => {
             const fresh = loadWorkspace();
             if (taskId) {
                 const item = fresh.tasks.find(entry => entry.id === taskId);
-                if (item) Object.assign(item, values, { title: values.title.trim(), description: values.description.trim(), due: values.due });
+                if (item) {
+                    Object.assign(item, values, {
+                        title: values.title.trim(),
+                        description: values.description.trim(),
+                        due: values.due,
+                        priority: values.priority || 'media',
+                        emailReminder: values.emailReminder === 'yes',
+                        email: values.email.trim(),
+                        status: item.status === 'completed' ? 'completed' : 'pending'
+                    });
+                }
                 addRecent(fresh, `Editaste la tarea ${values.title.trim()}.`);
             } else {
                 fresh.tasks.push({
@@ -2072,7 +2137,9 @@ function openTaskForm(taskId = null) {
                     description: values.description.trim(),
                     due: values.due,
                     priority: values.priority || 'media',
-                    status: values.status || 'pending'
+                    emailReminder: values.emailReminder === 'yes',
+                    email: values.email.trim(),
+                    status: 'pending'
                 });
                 addXP(fresh, 15);
                 addRecent(fresh, `Agregaste la tarea ${values.title.trim()}.`);
@@ -2094,48 +2161,136 @@ function deleteTask(taskId) {
     notify('Tarea eliminada.', 'info');
 }
 
+function completeTask(taskId) {
+    const workspace = loadWorkspace();
+    const task = workspace.tasks.find(item => item.id === taskId);
+    if (!task) return;
+    task.status = 'completed';
+    addXP(workspace, 25);
+    addRecent(workspace, `Completaste la tarea ${task.title}.`);
+    saveWorkspace(workspace);
+    refreshWorkspaceUI();
+    notify('Tarea marcada como completada.', 'success');
+}
+
+function getTaskGoogleCalendarUrl(task) {
+    // Futuro backend: este enlace puede reemplazarse por Google Calendar API con OAuth del usuario.
+    const date = normalizeDate(task.due) || normalizeDate(new Date().toISOString());
+    const start = toGoogleCalendarDate(date, '08:00');
+    const end = toGoogleCalendarDate(date, '09:00');
+    const details = [
+        task.description || 'Tarea academica creada en AC Study.',
+        `Materia: ${task.subject || 'General'}`,
+        `Prioridad: ${getTaskPriorityLabel(task.priority || 'media')}`
+    ].join('\n');
+
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(task.title)}&dates=${start}/${end}&details=${encodeURIComponent(details)}&sf=true&output=xml`;
+}
+
+function openTaskInGoogleCalendar(taskId) {
+    const workspace = loadWorkspace();
+    const task = workspace.tasks.find(item => item.id === taskId);
+    if (!task) return;
+    const opened = window.open(getTaskGoogleCalendarUrl(task), '_blank', 'noopener,noreferrer');
+    if (!opened) {
+        notify('Permite ventanas emergentes para abrir Google Calendar.', 'info');
+    }
+}
+
 function renderTasks(workspace) {
     const list = document.getElementById('tasks-list');
     if (!list) return;
 
     if (!workspace.tasks.length) {
-        list.innerHTML = emptyStateHTML('No tienes tareas pendientes.', 'Agregar tarea', 'addTaskUI()');
+        list.innerHTML = emptyStateHTML('No tienes tareas todavia. Crea tu primera tarea para organizar tus estudios.', '+ Crear tarea', 'addTaskUI()');
         return;
     }
 
-    const groups = [
+    const counts = {
+        all: workspace.tasks.length,
+        pending: workspace.tasks.filter(task => getTaskVisualStatus(task) === 'pending').length,
+        upcoming: workspace.tasks.filter(task => getTaskVisualStatus(task) === 'upcoming').length,
+        completed: workspace.tasks.filter(task => getTaskVisualStatus(task) === 'completed').length,
+        overdue: workspace.tasks.filter(task => getTaskVisualStatus(task) === 'overdue').length
+    };
+    const filteredTasks = workspace.tasks
+        .map(task => ({ ...task, visualStatus: getTaskVisualStatus(task) }))
+        .filter(task => currentTaskFilter === 'all' || task.visualStatus === currentTaskFilter)
+        .sort((a, b) => {
+            if (a.visualStatus === 'overdue' && b.visualStatus !== 'overdue') return -1;
+            if (a.visualStatus !== 'overdue' && b.visualStatus === 'overdue') return 1;
+            const dateA = parseTaskDate(a.due)?.getTime() || Number.MAX_SAFE_INTEGER;
+            const dateB = parseTaskDate(b.due)?.getTime() || Number.MAX_SAFE_INTEGER;
+            return dateA - dateB;
+        });
+
+    const filterTabs = [
+        ['all', 'Todas'],
         ['pending', 'Pendientes'],
         ['upcoming', 'Proximas'],
-        ['completed', 'Completadas']
+        ['completed', 'Completadas'],
+        ['overdue', 'Vencidas']
     ];
 
-    list.innerHTML = `<div class="task-board">${groups.map(([status, title]) => {
-        const tasks = workspace.tasks.filter(task => task.status === status);
-        return `
-            <div class="task-column" data-task-column="${status}">
-                <h3>${title} <span>${tasks.length}</span></h3>
-                ${tasks.length ? tasks.map(task => `
-                    <div class="task-item" data-status="${escapeHTML(task.status)}" data-id="${escapeHTML(task.id)}">
-                        <div class="task-checkbox"><input type="checkbox" onclick="toggleTask(this)" ${task.status === 'completed' ? 'checked' : ''}></div>
-                        <div class="task-content">
-                            <h4>${escapeHTML(task.title)}</h4>
-                            <p class="task-subject">${escapeHTML(task.subject)}</p>
-                            <p class="task-date">${escapeHTML(task.due || 'Sin fecha limite')}</p>
-                            <p class="task-description">${escapeHTML(task.description || 'Sin descripcion')}</p>
+    list.innerHTML = `
+        <div class="task-filter task-filter-modern">
+            ${filterTabs.map(([key, label]) => `
+                <button class="filter-btn ${currentTaskFilter === key ? 'active' : ''}" type="button" data-task-filter="${key}">
+                    ${label}<span>${counts[key]}</span>
+                </button>
+            `).join('')}
+        </div>
+        <div class="task-summary-strip">
+            <div><strong>${counts.pending}</strong><span>Pendientes</span></div>
+            <div><strong>${counts.upcoming}</strong><span>Proximas</span></div>
+            <div><strong>${counts.completed}</strong><span>Completadas</span></div>
+            <div><strong>${counts.overdue}</strong><span>Vencidas</span></div>
+        </div>
+        <div class="task-board task-list-modern">
+            ${filteredTasks.length ? filteredTasks.map(task => {
+                const visualStatus = task.visualStatus;
+                const reminder = getTaskReminderAlert(task);
+                const priorityClass = getTaskPriorityClass(task.priority || 'media');
+                return `
+                    <article class="task-item task-card-modern priority-${priorityClass}" data-status="${escapeHTML(visualStatus)}" data-id="${escapeHTML(task.id)}">
+                        <div class="task-card-main">
+                            <label class="task-checkbox task-check-modern" title="Marcar como completada">
+                                <input type="checkbox" onclick="toggleTask(this)" ${task.status === 'completed' ? 'checked' : ''}>
+                                <span></span>
+                            </label>
+                            <div class="task-content">
+                                <div class="task-title-row">
+                                    <h4>${escapeHTML(task.title)}</h4>
+                                    <span class="task-status status-${escapeHTML(visualStatus)}">${escapeHTML(getTaskStatusLabel(visualStatus))}</span>
+                                </div>
+                                <p class="task-subject">${escapeHTML(task.subject || 'General')}</p>
+                                <p class="task-description">${escapeHTML(task.description || 'Sin descripcion registrada.')}</p>
+                                <div class="task-meta-grid">
+                                    <span><strong>Fecha:</strong> ${escapeHTML(task.due || 'Sin fecha')}</span>
+                                    <span><strong>Tiempo:</strong> ${escapeHTML(getTaskDaysText(task))}</span>
+                                    <span><strong>Prioridad:</strong> <em class="task-priority ${priorityClass}">${escapeHTML(getTaskPriorityLabel(task.priority || 'media'))}</em></span>
+                                    <span><strong>Gmail:</strong> ${task.emailReminder ? escapeHTML(task.email || 'correo pendiente') : 'Sin recordatorio'}</span>
+                                </div>
+                                ${reminder ? `<div class="task-reminder-alert">${escapeHTML(reminder)}</div>` : ''}
+                            </div>
                         </div>
-                        <div class="task-priority ${escapeHTML(task.priority || 'media')}">${escapeHTML(getTaskPriorityLabel(task.priority || 'media'))}</div>
-                        <div class="card-actions">
+                        <div class="card-actions task-actions">
                             <button class="btn-secondary btn-small" data-task-edit="${escapeHTML(task.id)}">Editar</button>
+                            ${task.status !== 'completed' ? `<button class="btn-primary btn-small" data-task-complete="${escapeHTML(task.id)}">Completar</button>` : ''}
+                            <button class="btn-secondary btn-small" data-task-calendar="${escapeHTML(task.id)}">Google Calendar</button>
                             <button class="btn-danger btn-small" data-task-delete="${escapeHTML(task.id)}">Eliminar</button>
                         </div>
-                    </div>
-                `).join('') : '<p class="muted-panel">Sin tareas en esta seccion.</p>'}
-            </div>
-        `;
-    }).join('')}</div>`;
+                    </article>
+                `;
+            }).join('') : '<div class="dashboard-empty-note task-empty-filter"><strong>No hay tareas en este filtro.</strong><span>Cambia de filtro o crea una nueva tarea.</span></div>'}
+        </div>
+    `;
 
+    list.querySelectorAll('[data-task-filter]').forEach(button => button.addEventListener('click', () => filterTasks(button.dataset.taskFilter, button)));
     list.querySelectorAll('[data-task-edit]').forEach(button => button.addEventListener('click', () => openTaskForm(button.dataset.taskEdit)));
     list.querySelectorAll('[data-task-delete]').forEach(button => button.addEventListener('click', () => deleteTask(button.dataset.taskDelete)));
+    list.querySelectorAll('[data-task-complete]').forEach(button => button.addEventListener('click', () => completeTask(button.dataset.taskComplete)));
+    list.querySelectorAll('[data-task-calendar]').forEach(button => button.addEventListener('click', () => openTaskInGoogleCalendar(button.dataset.taskCalendar)));
 }
 
 function addCalendarEventUI() {
@@ -4140,8 +4295,14 @@ function renderDashboard(workspace) {
     if (!section) return;
 
     const firstName = currentUser?.name ? currentUser.name.split(' ')[0] : 'Estudiante';
-    const pending = workspace.tasks.filter(task => task.status !== 'completed').length;
-    const completed = workspace.tasks.filter(task => task.status === 'completed').length;
+    const taskCounts = {
+        pending: workspace.tasks.filter(task => getTaskVisualStatus(task) === 'pending').length,
+        upcoming: workspace.tasks.filter(task => getTaskVisualStatus(task) === 'upcoming').length,
+        completed: workspace.tasks.filter(task => getTaskVisualStatus(task) === 'completed').length,
+        overdue: workspace.tasks.filter(task => getTaskVisualStatus(task) === 'overdue').length
+    };
+    const pending = taskCounts.pending + taskCounts.upcoming + taskCounts.overdue;
+    const completed = taskCounts.completed;
     const nextEvent = getNextEvent(workspace);
     const average = getAverageGrade(workspace);
     const level = getLevel(workspace.xp);
@@ -4200,7 +4361,7 @@ function renderDashboard(workspace) {
 
         <div class="dashboard-grid">
             ${dashboardCard('subjects', 'Materias activas', workspace.subjects.length, workspace.subjects.length ? 'Materias creadas por ti' : 'Crea tu primera materia', workspace.subjects.length ? 100 : 0)}
-            ${dashboardCard('tasks', 'Tareas pendientes', pending, workspace.tasks.length ? `${completed} completadas de ${workspace.tasks.length}` : 'Agrega tu primer pendiente', taskProgress)}
+            ${dashboardCard('tasks', 'Tareas pendientes', pending, workspace.tasks.length ? `${taskCounts.upcoming} proximas - ${taskCounts.overdue} vencidas - ${completed} completadas` : 'Agrega tu primer pendiente', taskProgress)}
             ${dashboardCard('calendar', 'Proximo evento', nextEvent ? nextEvent.title : 'Sin eventos', nextEvent ? `${nextEvent.day || nextEvent.date || 'Sin fecha'} - ${nextEvent.type || 'Evento'}` : 'Agenda tu primer examen', nextEvent ? 70 : 0)}
             ${dashboardCard('grades', 'Promedio actual', average ? average.toFixed(2) : '--', workspace.grades.length ? `${workspace.grades.length} calificaciones registradas` : 'Registra tus calificaciones', gradeProgress)}
         </div>
