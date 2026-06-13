@@ -1748,14 +1748,14 @@ function buildAIResponse(type, topic) {
     }
 
     if (type === 'flashcards') {
-        return `${prefix}:\n\nTarjeta 1\nPregunta: Que significa el tema?\nRespuesta: Explicalo con tus palabras.\n\nTarjeta 2\nPregunta: Cual es el punto clave?\nRespuesta: Identifica la idea central.\n\nTarjeta 3\nPregunta: Como lo usarias en clase?\nRespuesta: Crea un ejemplo corto.\n\nReferencia:\n${reference}`;
+        return `${prefix}:\n\nTarjeta 1\nPregunta: Que significa el contenido?\nRespuesta: Explicalo con tus palabras.\n\nTarjeta 2\nPregunta: Cual es el dato mas importante?\nRespuesta: Identifica la informacion central.\n\nTarjeta 3\nPregunta: Como lo usarias?\nRespuesta: Crea un ejemplo corto.\n\nReferencia:\n${reference}`;
     }
 
     if (type === 'simple') {
-        return `${prefix}:\n\nExplicacion sencilla:\nImagina que este contenido es una guia de estudio. Primero identifica la idea central, luego separa los conceptos importantes y finalmente practica con un ejemplo propio.\n\nReferencia:\n${reference}`;
+        return `${prefix}:\n\nExplicacion sencilla:\nLee el contenido, ubica la informacion mas importante y practica con un ejemplo propio.\n\nReferencia:\n${reference}`;
     }
 
-    return `${prefix}:\n\nResumen:\nEl contenido trata sobre los puntos principales del tema. Para estudiarlo mejor, divide la informacion en definiciones, ejemplos y posibles preguntas de examen.\n\nIdeas clave:\n- Tema central identificado\n- Conceptos importantes organizados\n- Recomendacion: crear preguntas y flashcards\n\nReferencia:\n${reference}`;
+    return `${prefix}:\n\nResumen:\nEl contenido se organiza en informacion principal, ejemplos y posibles preguntas de examen.\n\nReferencia:\n${reference}`;
 }
 
 function generateSummary() {
@@ -3164,7 +3164,7 @@ function buildAIResponse(type, topic) {
         return getTutorExplanation(extractStudyTopic(reference), reference);
     }
     if (type === 'quiz') {
-        return `Cuestionario simulado sobre ${reference}:\n\n1. Cual es la definicion principal?\n2. Que ejemplo puedes resolver?\n3. Cual es el error mas comun?\n4. Como lo explicarias en clase?\n5. Que debes repasar antes del examen?`;
+        return `Cuestionario simulado sobre ${reference}:\n\n1. Explica el tema con tus palabras.\n2. Que ejemplo puedes resolver?\n3. Cual es el error mas comun?\n4. Como lo explicarias en clase?\n5. Que debes repasar antes del examen?`;
     }
     if (type === 'open') {
         return `Preguntas abiertas:\n\n1. Explica ${reference} con tus palabras.\n2. Crea un ejemplo propio.\n3. Relaciona el tema con una situacion real.`;
@@ -3173,7 +3173,7 @@ function buildAIResponse(type, topic) {
         return `Verdadero/Falso:\n\n1. El tema tiene conceptos clave que se pueden resumir. (V)\n2. No hace falta practicar. (F)\n3. Crear preguntas ayuda a estudiar. (V)\n4. Las flashcards sirven para repasar rapido. (V)`;
     }
     if (type === 'flashcards') {
-        return `Flashcards:\n\nTarjeta 1\nPregunta: Que es ${reference}?\nRespuesta: Escribe una definicion corta.\n\nTarjeta 2\nPregunta: Cual es un ejemplo?\nRespuesta: Crea un caso practico.\n\nTarjeta 3\nPregunta: Que debo recordar?\nRespuesta: La idea central y sus aplicaciones.`;
+        return `Flashcards:\n\nTarjeta 1\nPregunta: Que es ${reference}?\nRespuesta: Escribe una definicion corta.\n\nTarjeta 2\nPregunta: Cual es un ejemplo?\nRespuesta: Crea un caso practico.\n\nTarjeta 3\nPregunta: Que debo recordar?\nRespuesta: La informacion principal y sus aplicaciones.`;
     }
     if (type === 'simple') {
         return `Explicacion sencilla:\n\nPiensa en este tema como una idea principal con varias piezas alrededor. Primero entiende la definicion, luego mira ejemplos y finalmente practica respondiendo preguntas.`;
@@ -3415,6 +3415,48 @@ function extractTutorTopic(message, intent) {
 }
 
 const knowledgeBase = {
+    'fisica termica': {
+        aliases: ['fisica termica', 'termica', 'termodinamica', 'calor y temperatura'],
+        title: 'fisica termica',
+        definition: 'La fisica termica es la rama de la fisica que estudia el calor, la temperatura y los cambios de energia termica entre los cuerpos.',
+        explanation: 'La temperatura indica que tan caliente o frio esta un cuerpo. El calor es energia que se transfiere de un cuerpo a otro por diferencia de temperatura. El equilibrio termico ocurre cuando dos cuerpos alcanzan la misma temperatura. En algunos procesos puede haber cambio de temperatura y en otros puede haber cambio de estado.',
+        characteristics: ['La temperatura mide el estado termico de un cuerpo', 'El calor se transfiere por diferencia de temperatura', 'El equilibrio termico ocurre cuando dos cuerpos llegan a la misma temperatura', 'Puede existir cambio de temperatura o cambio de estado', 'Relaciona masa, calor especifico y calor latente'],
+        concepts: ['Calor', 'Temperatura', 'Equilibrio termico', 'Energia termica', 'Calor especifico', 'Calor latente', 'Cambio de estado'],
+        formula: 'Q = m * c * DeltaT\nQ = m * L\n\nDonde:\nQ es el calor.\nm es la masa.\nc es el calor especifico.\nDeltaT es el cambio de temperatura.\nL es el calor latente.',
+        example: 'Si calientas agua en una olla, la energia del fuego pasa al agua como calor. Por eso aumenta su temperatura. Si sigue recibiendo calor, puede llegar a hervir y cambiar de liquido a vapor.',
+        uses: 'Sirve para explicar calentamiento, enfriamiento, cambios de estado, equilibrio termico, cocina, clima, motores, refrigeracion y procesos industriales.',
+        exercises: ['Cual es la diferencia entre calor y temperatura?', 'Que significa equilibrio termico?', 'Para que sirve la formula Q = m * c * DeltaT?', 'Que ocurre cuando una sustancia cambia de estado?', 'Que representa el calor latente?'],
+        answers: ['La temperatura mide que tan caliente o frio esta un cuerpo; el calor es energia transferida.', 'Que dos cuerpos alcanzan la misma temperatura.', 'Para calcular calor cuando cambia la temperatura.', 'La sustancia cambia de fase, por ejemplo de liquido a vapor.', 'La energia necesaria para cambiar de estado sin cambiar temperatura.'],
+        flashcards: [['Que estudia la fisica termica?', 'Calor, temperatura y energia termica entre cuerpos.'], ['Que es calor?', 'Energia que se transfiere por diferencia de temperatura.'], ['Formula con cambio de temperatura', 'Q = m * c * DeltaT'], ['Formula con cambio de estado', 'Q = m * L']]
+    },
+    'calor especifico': {
+        aliases: ['calor especifico'],
+        title: 'calor especifico',
+        definition: 'El calor especifico es la cantidad de calor que necesita una unidad de masa de una sustancia para aumentar su temperatura en un grado.',
+        explanation: 'Cada material necesita distinta energia para calentarse. Por eso el agua tarda mas en calentarse que otros materiales: tiene calor especifico alto.',
+        characteristics: ['Depende del material', 'Se relaciona con cambios de temperatura', 'Aparece en la formula Q = m * c * DeltaT', 'Mientras mayor es c, mas calor se necesita'],
+        concepts: ['Calor', 'Masa', 'Cambio de temperatura', 'Material', 'Energia termica'],
+        formula: 'Q = m * c * DeltaT',
+        example: 'Para calentar una masa de agua se necesita mas energia que para calentar una masa similar de metal, porque el agua tiene mayor calor especifico.',
+        uses: 'Se usa para calcular energia necesaria al calentar o enfriar sustancias.',
+        exercises: ['Que representa c en Q = m * c * DeltaT?', 'Si c aumenta, se necesita mas o menos calor?', 'En que procesos se usa el calor especifico?'],
+        answers: ['El calor especifico.', 'Mas calor.', 'En calentamiento o enfriamiento con cambio de temperatura.'],
+        flashcards: [['c', 'Calor especifico'], ['Formula', 'Q = m * c * DeltaT'], ['Idea clave', 'Materiales distintos requieren distinta energia']]
+    },
+    'calor latente': {
+        aliases: ['calor latente'],
+        title: 'calor latente',
+        definition: 'El calor latente es la energia que una sustancia absorbe o libera para cambiar de estado sin cambiar su temperatura.',
+        explanation: 'Durante un cambio de estado, como hielo a agua o agua a vapor, la energia se usa para romper o formar enlaces, no para subir la temperatura.',
+        characteristics: ['Ocurre en cambios de estado', 'No cambia la temperatura durante el proceso', 'Depende de la sustancia', 'Puede ser de fusion o vaporizacion'],
+        concepts: ['Cambio de estado', 'Fusion', 'Vaporizacion', 'Energia', 'Masa'],
+        formula: 'Q = m * L',
+        example: 'Cuando el agua hierve, sigue recibiendo calor, pero su temperatura se mantiene cerca de 100 grados Celsius mientras cambia a vapor.',
+        uses: 'Se usa para estudiar ebullicion, fusion, evaporacion, refrigeracion y cambios de fase.',
+        exercises: ['Que representa L?', 'Por que no cambia la temperatura durante el cambio de estado?', 'Que formula usa calor latente?'],
+        answers: ['El calor latente.', 'Porque la energia se usa para cambiar de estado.', 'Q = m * L.'],
+        flashcards: [['Calor latente', 'Energia para cambiar de estado'], ['Formula', 'Q = m * L'], ['Ejemplo', 'Agua hirviendo que pasa a vapor']]
+    },
     'funciones geometricas': {
         aliases: ['funciones geometricas', 'funcion geometrica', 'geometricas', 'geometria con funciones'],
         title: 'funciones geometricas',
@@ -3646,18 +3688,12 @@ function getTopicProfile(topic) {
 
     return knowledgeBase[knownKey] || {
         title: topic,
-        unknown: true,
-        definition: `Todavia no tengo una explicacion completa guardada sobre ${topic}, pero puedo ayudarte con una guia general usando ese tema como contexto.`,
-        explanation: `Para estudiar ${topic}, identifica primero que significa, despues separa sus ideas principales y finalmente busca un ejemplo concreto de tu clase o tarea.`,
-        characteristics: [`Idea central de ${topic}`, 'Palabras clave del tema', 'Ejemplo visto en clase', 'Aplicacion o uso practico'],
-        concepts: [`Definicion de ${topic}`, 'Ideas principales', 'Ejemplo', 'Uso practico'],
-        formula: 'Si tu profesor dio una formula o regla, escribela aqui y puedo ayudarte a interpretarla.',
-        example: `Ejemplo general: explica ${topic} con tus palabras y relaciona el concepto con una situacion de clase.`,
-        uses: `${topic} puede servir para resolver actividades, estudiar para pruebas o preparar una exposicion, segun la materia.`,
-        exercises: [`Define ${topic} con tus palabras.`, `Escribe tres ideas principales de ${topic}.`, `Crea un ejemplo relacionado con ${topic}.`, `Haz una pregunta que todavia tengas sobre ${topic}.`, `Resume ${topic} en cinco lineas.`],
-        answers: ['Debe incluir una definicion clara.', 'Deben ser ideas conectadas al tema.', 'Debe ser un ejemplo concreto.', 'Debe mostrar una duda real.', 'Debe tener inicio, idea central y cierre.'],
-        flashcards: [[`Que es ${topic}?`, 'Respuesta: escribe una definicion clara del tema.'], ['Que debo recordar?', 'Las ideas principales y un ejemplo.']]
+        unknown: true
     };
+}
+
+function getTutorResponse(userMessage) {
+    return buildTutorSimulatedReply(userMessage);
 }
 
 function buildTutorSimulatedReply(message) {
@@ -3676,6 +3712,10 @@ function buildTutorSimulatedReply(message) {
     if (topic) rememberTutorTopic(topic);
     const profile = getTopicProfile(topic || currentTutorPdf?.topic || 'tu apunte');
     const pdfIntro = currentTutorPdf ? `Segun tu PDF "${currentTutorPdf.name}", ` : '';
+
+    if (profile.unknown) {
+        return `Todavia estoy en modo prototipo y no tengo ese tema completo. Escribe el tema con mas detalle o agregalo a la base de conocimiento simulada.`;
+    }
 
     if (intent === 'concepts') {
         return `${pdfIntro}estos son los conceptos principales de ${profile.title}:\n\n${profile.concepts.map((item, index) => `${index + 1}. ${item}`).join('\n')}\n\nExplicacion central:\n${profile.definition}`;
@@ -3755,7 +3795,7 @@ function generateTutorAnswer() {
 
     const thinking = showTutorThinking();
     setTimeout(() => {
-        const answer = buildTutorSimulatedReply(topic);
+        const answer = getTutorResponse(topic);
         if (thinking) thinking.remove();
         appendTutorMessage('bot', answer, 'Tutor');
         addTutorHistory('assistant', answer);
@@ -3765,15 +3805,15 @@ function generateTutorAnswer() {
 
 function buildAIResponse(type, topic) {
     if (type === 'questions' || type === 'quiz' || type === 'open' || type === 'truefalse') {
-        return buildTutorSimulatedReply(`hazme preguntas sobre ${topic || tutorState.topic}`);
+        return getTutorResponse(`hazme preguntas sobre ${topic || tutorState.topic}`);
     }
     if (type === 'flashcards') {
-        return buildTutorSimulatedReply(`flashcards sobre ${topic || tutorState.topic}`);
+        return getTutorResponse(`flashcards sobre ${topic || tutorState.topic}`);
     }
     if (type === 'simple' || type === 'tutor') {
-        return buildTutorSimulatedReply(topic || tutorState.topic);
+        return getTutorResponse(topic || tutorState.topic);
     }
-    return buildTutorSimulatedReply(`resumen de ${topic || tutorState.topic}`);
+    return getTutorResponse(`resumen de ${topic || tutorState.topic}`);
 }
 
 function generateSummary() {
@@ -3783,7 +3823,7 @@ function generateSummary() {
         return;
     }
     appendTutorMessage('user', `Resumen de ${topic}`);
-    const answer = buildTutorSimulatedReply(`resumen de ${topic}`);
+    const answer = getTutorResponse(`resumen de ${topic}`);
     appendTutorMessage('bot', answer, 'Tutor');
     addTutorHistory('assistant', answer);
 }
@@ -3795,7 +3835,7 @@ function generateQuestions() {
         return;
     }
     appendTutorMessage('user', `Preguntas sobre ${topic}`);
-    const answer = buildTutorSimulatedReply(`hazme preguntas sobre ${topic}`);
+    const answer = getTutorResponse(`hazme preguntas sobre ${topic}`);
     appendTutorMessage('bot', answer, 'Tutor');
     addTutorHistory('assistant', answer);
 }
@@ -3807,7 +3847,7 @@ function generateFlashcards() {
         return;
     }
     appendTutorMessage('user', `Flashcards de ${topic}`);
-    const answer = buildTutorSimulatedReply(`flashcards de ${topic}`);
+    const answer = getTutorResponse(`flashcards de ${topic}`);
     appendTutorMessage('bot', answer, 'Tutor');
     addTutorHistory('assistant', answer);
 }
@@ -3819,7 +3859,7 @@ function generateSimpleExplanation() {
         return;
     }
     appendTutorMessage('user', `Explicame ${topic}`);
-    const answer = buildTutorSimulatedReply(`explicame ${topic}`);
+    const answer = getTutorResponse(`explicame ${topic}`);
     appendTutorMessage('bot', answer, 'Tutor');
     addTutorHistory('assistant', answer);
 }
@@ -3831,7 +3871,7 @@ function generatePracticeCards() {
         return;
     }
     appendTutorMessage('user', `Practicar ${topic}`);
-    const answer = buildTutorSimulatedReply(`preguntas para practicar ${topic}`);
+    const answer = getTutorResponse(`preguntas para practicar ${topic}`);
     appendTutorMessage('bot', answer, 'Tutor');
     addTutorHistory('assistant', answer);
 }
