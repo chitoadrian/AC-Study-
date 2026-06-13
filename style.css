@@ -8151,13 +8151,13 @@ body.light-theme #dashboard .progress-bar {
 }
 
 #dashboard .dashboard-grid {
-    grid-template-columns: repeat(6, minmax(150px, 1fr)) !important;
-    gap: 12px !important;
+    grid-template-columns: repeat(4, minmax(190px, 1fr)) !important;
+    gap: 16px !important;
 }
 
 #dashboard .dashboard-stat-card {
-    min-height: 150px;
-    padding: 18px !important;
+    min-height: 164px;
+    padding: 20px !important;
 }
 
 #dashboard .dashboard-stat-card .stat-icon {
@@ -8418,7 +8418,7 @@ body.light-theme .nav-item.active {
 
 @media (max-width: 1220px) {
     #dashboard .dashboard-grid {
-        grid-template-columns: repeat(3, minmax(170px, 1fr)) !important;
+        grid-template-columns: repeat(2, minmax(190px, 1fr)) !important;
     }
 
     #dashboard .dashboard-layout {

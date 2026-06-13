@@ -4163,10 +4163,10 @@ function renderDashboard(workspace) {
         ...(!tasksToday.length && !upcomingEvents.length ? upcomingTasks.map(task => ({ title: task.title, meta: `${task.subject || 'General'} - ${task.due || 'Sin fecha'}`, type: 'Pendiente' })) : [])
     ].slice(0, 4);
     const steps = [
-        { label: 'Crea una materia', done: workspace.subjects.length > 0, action: 'addSubjectUI()', hint: 'Define tus clases y organiza tu espacio.' },
-        { label: 'Agrega una tarea', done: workspace.tasks.length > 0, action: 'addTaskUI()', hint: 'Anota pendientes, deberes y entregas.' },
-        { label: 'Agenda un evento', done: workspace.events.length > 0, action: 'addCalendarEventUI()', hint: 'Planifica pruebas, exposiciones y entregas.' },
-        { label: 'Sube un apunte', done: workspace.resources.length > 0, action: 'addResourceUI()', hint: 'Guarda tus PDFs y recursos importantes.' },
+        { label: 'Crea una materia', done: workspace.subjects.length > 0, action: "navigateTo('subjects')", hint: 'Define tus clases y organiza tu espacio.' },
+        { label: 'Agrega una tarea', done: workspace.tasks.length > 0, action: "navigateTo('tasks')", hint: 'Anota pendientes, deberes y entregas.' },
+        { label: 'Agenda un evento', done: workspace.events.length > 0, action: "navigateTo('calendar')", hint: 'Planifica pruebas, exposiciones y entregas.' },
+        { label: 'Sube un apunte', done: workspace.resources.length > 0, action: "navigateTo('backpack')", hint: 'Guarda tus PDFs y recursos importantes.' },
         { label: 'Pregunta a Tutor', done: workspace.resources.some(resource => resource.usedAI), action: "navigateTo('ai-assistant')", hint: 'Practica con resumenes, preguntas y flashcards.' }
     ];
 
@@ -4192,10 +4192,10 @@ function renderDashboard(workspace) {
         </div>
 
         <div class="quick-actions-bar">
-            <button type="button" onclick="addSubjectUI()">+ Nueva materia</button>
-            <button type="button" onclick="addTaskUI()">+ Nueva tarea</button>
-            <button type="button" onclick="addCalendarEventUI()">+ Nuevo evento</button>
-            <button type="button" onclick="addResourceUI()">+ Subir apunte</button>
+            <button type="button" onclick="navigateTo('subjects')">+ Nueva materia</button>
+            <button type="button" onclick="navigateTo('tasks')">+ Nueva tarea</button>
+            <button type="button" onclick="navigateTo('calendar')">+ Nuevo evento</button>
+            <button type="button" onclick="navigateTo('backpack')">+ Subir apunte</button>
         </div>
 
         <div class="dashboard-grid">
@@ -4203,8 +4203,6 @@ function renderDashboard(workspace) {
             ${dashboardCard('tasks', 'Tareas pendientes', pending, workspace.tasks.length ? `${completed} completadas de ${workspace.tasks.length}` : 'Agrega tu primer pendiente', taskProgress)}
             ${dashboardCard('calendar', 'Proximo evento', nextEvent ? nextEvent.title : 'Sin eventos', nextEvent ? `${nextEvent.day || nextEvent.date || 'Sin fecha'} - ${nextEvent.type || 'Evento'}` : 'Agenda tu primer examen', nextEvent ? 70 : 0)}
             ${dashboardCard('grades', 'Promedio actual', average ? average.toFixed(2) : '--', workspace.grades.length ? `${workspace.grades.length} calificaciones registradas` : 'Registra tus calificaciones', gradeProgress)}
-            ${dashboardCard('streak', 'Racha de estudio', workspace.streak || 0, `${workspace.streak === 1 ? 'dia activo' : 'dias activos'}`, workspace.streak ? 100 : 0)}
-            ${dashboardCard('level', 'Nivel del estudiante', level, `${workspace.xp || 0} XP acumulado`, xpProgress)}
         </div>
 
         <div class="dashboard-layout">
@@ -4267,7 +4265,7 @@ function renderDashboard(workspace) {
                 <div class="dashboard-tutor-actions">
                     <button type="button" onclick="navigateTo('ai-assistant')">Preguntar</button>
                     <button type="button" onclick="generatePracticeCards()">Practicar</button>
-                    <button type="button" onclick="addResourceUI()">Subir PDF</button>
+                    <button type="button" onclick="navigateTo('backpack')">Subir PDF</button>
                 </div>
             </div>
 
