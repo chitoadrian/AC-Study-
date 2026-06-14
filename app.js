@@ -40,6 +40,11 @@ function saveUsers(users) {
     localStorage.setItem('simulatedUsers', JSON.stringify(users));
 }
 
+function getPublicUser(email, userRecord = {}) {
+    const { password, ...publicData } = userRecord;
+    return { email, ...publicData };
+}
+
 // Mensajes visuales propios de AC Edunity. Evitan ventanas nativas del navegador.
 let toastTimeout = null;
 
@@ -1172,10 +1177,22 @@ function handleRegister(event) {
     }
 
     const users = getUsers();
-    users[email] = { password, name };
+    const createdAt = new Date().toISOString();
+    users[email] = {
+        password,
+        name,
+        role: 'Estudiante',
+        career: 'Informatica',
+        bio: 'Construyendo mi camino de aprendizaje.',
+        interests: 'Organizacion academica, IA educativa, productividad',
+        avatarStyle: 'initials',
+        avatarText: '',
+        createdAt,
+        goals: []
+    };
     saveUsers(users);
 
-    currentUser = { email, name };
+    currentUser = getPublicUser(email, users[email]);
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     saveWorkspace(getEmptyWorkspace());
 
@@ -1196,7 +1213,7 @@ function handleLogin(event) {
     const users = getUsers();
 
     if (users[email] && users[email].password === password) {
-        currentUser = { email, name: users[email].name };
+        currentUser = getPublicUser(email, users[email]);
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
         ensureWorkspace();
         document.getElementById('login-email').value = '';
@@ -5504,54 +5521,281 @@ function getDisplayStreak(workspace) {
     return currentUser?.email ? Math.max(1, Number(workspace.streak || 0)) : 0;
 }
 
-function renderProfile(workspace) {
-    const profileLayout = document.querySelector('#profile .profile-layout');
-    if (!profileLayout) return;
+function getCurrentUserProfile() {
+    const users = getUsers();
+    const stored = currentUser?.email ? users[currentUser.email] || {} : {};
+    return {
+        name: currentUser?.name || stored.name || 'Estudiante AC',
+        role: stored.role || currentUser?.role || 'Estudiante',
+        career: stored.career || currentUser?.career || '',
+        bio: stored.bio || currentUser?.bio || '',
+        interests: stored.interests || currentUser?.interests || '',
+        avatarStyle: stored.avatarStyle || currentUser?.avatarStyle || 'initials',
+        avatarText: stored.avatarText || currentUser?.avatarText || '',
+        createdAt: stored.createdAt || currentUser?.createdAt || '',
+        goals: Array.isArray(stored.goals) ? stored.goals : []
+    };
+}
 
-    const name = currentUser?.name || 'Estudiante AC';
-    const initials = name
+function saveCurrentUserProfile(profileUpdates) {
+    if (!currentUser?.email) return;
+    const users = getUsers();
+    const previous = users[currentUser.email] || {};
+    users[currentUser.email] = { ...previous, ...profileUpdates };
+    saveUsers(users);
+    currentUser = getPublicUser(currentUser.email, users[currentUser.email]);
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+}
+
+function getProfileInitials(name) {
+    return String(name || 'AC')
         .split(' ')
         .filter(Boolean)
         .slice(0, 2)
         .map(part => part[0].toUpperCase())
         .join('') || 'AC';
+}
+
+function getProfileAvatarContent(profile) {
+    if (profile.avatarStyle === 'photo' && profile.avatarText.trim()) {
+        return `<img src="${escapeHTML(profile.avatarText.trim())}" alt="Foto de perfil">`;
+    }
+    if (profile.avatarStyle === 'custom' && profile.avatarText.trim()) return escapeHTML(profile.avatarText.trim().slice(0, 4));
+    if (profile.avatarStyle === 'rocket') return '🚀';
+    if (profile.avatarStyle === 'book') return '📚';
+    if (profile.avatarStyle === 'code') return '💻';
+    if (profile.avatarStyle === 'star') return '⭐';
+    return escapeHTML(getProfileInitials(profile.name));
+}
+
+function formatProfileDate(dateValue) {
+    if (!dateValue) return 'Sin fecha registrada';
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return 'Sin fecha registrada';
+    return date.toLocaleDateString('es-EC', { month: 'long', year: 'numeric' });
+}
+
+function getProfileAchievements(workspace) {
+    const completedTasks = workspace.tasks.filter(task => task.status === 'completed').length;
+    const level = getLevel(workspace.xp);
+    return [
+        { name: 'Primera materia', icon: '📚', unlocked: workspace.subjects.length > 0 },
+        { name: 'Primera racha', icon: '🔥', unlocked: getDisplayStreak(workspace) > 0 },
+        { name: 'Uso de Tutor', icon: '🤖', unlocked: workspace.resources.some(resource => resource.usedAI) },
+        { name: 'Primer PDF', icon: '📂', unlocked: workspace.resources.length > 0 },
+        { name: 'Buen promedio', icon: '⭐', unlocked: getAverageGrade(workspace) >= 8 },
+        { name: 'Tarea completada', icon: '✅', unlocked: completedTasks > 0 },
+        { name: 'Nivel 5', icon: '🏆', unlocked: level >= 5 }
+    ];
+}
+
+function openProfileForm() {
+    const profile = getCurrentUserProfile();
+    openQuickForm({
+        title: 'Editar perfil',
+        submitLabel: 'Guardar perfil',
+        fields: [
+            { name: 'name', label: 'Nombre', value: profile.name, placeholder: 'Tu nombre' },
+            { name: 'career', label: 'Carrera o area de estudio', value: profile.career, placeholder: 'Ej: Informatica' },
+            { name: 'bio', label: 'Descripcion personal', type: 'textarea', rows: 3, value: profile.bio, placeholder: 'Ej: Construyendo mi camino de aprendizaje.' },
+            { name: 'interests', label: 'Intereses', value: profile.interests, placeholder: 'Ej: IA educativa, programacion, robotica' },
+            { name: 'avatarStyle', label: 'Avatar', type: 'select', options: [
+                { value: 'initials', label: 'Iniciales' },
+                { value: 'rocket', label: 'Cohete' },
+                { value: 'book', label: 'Libros' },
+                { value: 'code', label: 'Programacion' },
+                { value: 'star', label: 'Estrella' },
+                { value: 'photo', label: 'URL de foto' },
+                { value: 'custom', label: 'Texto o emoji propio' }
+            ], value: profile.avatarStyle },
+            { name: 'avatarText', label: 'Foto o avatar personalizado', value: profile.avatarText, required: false, placeholder: 'Ej: AC, 🚀 o https://...' }
+        ],
+        onSubmit: values => {
+            saveCurrentUserProfile({
+                name: values.name.trim(),
+                career: values.career.trim(),
+                bio: values.bio.trim(),
+                interests: values.interests.trim(),
+                avatarStyle: values.avatarStyle || 'initials',
+                avatarText: values.avatarText.trim()
+            });
+            refreshWorkspaceUI();
+            notify('Perfil actualizado.', 'success');
+        }
+    });
+}
+
+function openAvatarForm() {
+    openProfileForm();
+}
+
+function openGoalForm() {
+    openQuickForm({
+        title: 'Agregar meta',
+        submitLabel: 'Guardar meta',
+        fields: [
+            { name: 'goal', label: 'Nueva meta personal', placeholder: 'Ej: Estudiar 30 minutos diarios' }
+        ],
+        onSubmit: values => {
+            const profile = getCurrentUserProfile();
+            const text = values.goal.trim();
+            if (!text) return;
+            saveCurrentUserProfile({
+                goals: [{ id: createId(), text, done: false }, ...profile.goals].slice(0, 6)
+            });
+            refreshWorkspaceUI();
+            notify('Meta agregada.', 'success');
+        }
+    });
+}
+
+function toggleProfileGoal(goalId) {
+    const profile = getCurrentUserProfile();
+    saveCurrentUserProfile({
+        goals: profile.goals.map(goal => goal.id === goalId ? { ...goal, done: !goal.done } : goal)
+    });
+    renderProfile(loadWorkspace());
+}
+
+function renderProfile(workspace) {
+    const profileLayout = document.querySelector('#profile .profile-layout');
+    if (!profileLayout) return;
+
+    const profile = getCurrentUserProfile();
+    const name = profile.name || 'Estudiante AC';
     const level = getLevel(workspace.xp);
     const average = getAverageGrade(workspace);
     const streak = getDisplayStreak(workspace);
+    const completedTasks = workspace.tasks.filter(task => task.status === 'completed').length;
+    const achievements = getProfileAchievements(workspace);
+    const unlockedAchievements = achievements.filter(item => item.unlocked).length;
+    const xp = workspace.xp || 0;
+    const xpPerLevel = 250;
+    const xpCurrent = xp % xpPerLevel;
+    const xpToNext = xpPerLevel - xpCurrent;
+    const xpProgress = Math.min(100, (xpCurrent / xpPerLevel) * 100);
+    const goals = profile.goals.length ? profile.goals : [
+        { id: 'default-weekly', text: 'Completar tareas semanales', done: completedTasks > 0 },
+        { id: 'default-average', text: 'Mejorar promedio', done: average >= 8 },
+        { id: 'default-streak', text: 'Mantener racha de estudio', done: streak > 1 }
+    ];
+    const recentItems = (workspace.recent || []).slice(0, 5);
+    const interests = String(profile.interests || 'Organizacion academica, IA educativa, Productividad')
+        .split(',')
+        .map(item => item.trim())
+        .filter(Boolean)
+        .slice(0, 4);
 
     profileLayout.innerHTML = `
-        <div class="profile-card">
-            <div class="profile-avatar">${escapeHTML(initials)}</div>
-            <div class="profile-details">
-                <span class="profile-role">Estudiante</span>
+        <section class="profile-hero premium-profile-card">
+            <div class="profile-avatar-zone">
+                <div class="profile-avatar profile-avatar-premium">${getProfileAvatarContent(profile)}</div>
+                <button class="btn-secondary btn-small" type="button" onclick="openAvatarForm()">Cambiar avatar</button>
+            </div>
+            <div class="profile-details profile-details-premium">
+                <span class="profile-role">${escapeHTML(profile.role || 'Estudiante')}</span>
                 <h2 id="profile-name">${escapeHTML(name)}</h2>
-                <p>Estudiante de Informatica desarrollando AC Edunity como proyecto de grado.</p>
+                <p class="profile-career">${escapeHTML(profile.career || 'Personaliza tu carrera o area de estudio')}</p>
+                <p>${escapeHTML(profile.bio || 'Personaliza tu perfil para empezar.')}</p>
+                <div class="profile-meta-line">
+                    <span>Miembro desde: ${escapeHTML(formatProfileDate(profile.createdAt))}</span>
+                    <span>Nivel ${level}</span>
+                </div>
                 <div class="profile-tags">
-                    <span>Organizacion academica</span>
-                    <span>IA educativa</span>
-                    <span>Productividad</span>
+                    ${interests.map(tag => `<span>${escapeHTML(tag)}</span>`).join('')}
+                </div>
+                <button class="btn-primary btn-small" type="button" onclick="openProfileForm()">Editar perfil</button>
+            </div>
+        </section>
+
+        <section class="profile-stats-grid">
+            ${profileStatCard('⭐', 'Nivel actual', level, 'avance academico')}
+            ${profileStatCard('🔥', 'Racha', `${streak} ${streak === 1 ? 'dia' : 'dias'}`, 'constancia')}
+            ${profileStatCard('⚡', 'XP acumulado', xp, 'experiencia')}
+            ${profileStatCard('🏆', 'Logros', `${unlockedAchievements}/${achievements.length}`, 'insignias')}
+            ${profileStatCard('📚', 'Materias', workspace.subjects.length, 'creadas')}
+            ${profileStatCard('📝', 'Tareas', completedTasks, 'completadas')}
+            ${profileStatCard('📂', 'PDFs', workspace.resources.length, 'subidos')}
+        </section>
+
+        <section class="profile-progress-card premium-profile-card">
+            <div>
+                <span class="profile-section-kicker">Mi camino academico</span>
+                <h3>Nivel ${level}</h3>
+                <p>${xp ? `Te faltan ${xpToNext} XP para subir al nivel ${level + 1}.` : 'Completa actividades para ganar XP y desbloquear logros.'}</p>
+            </div>
+            <div class="profile-xp-track">
+                <div class="profile-xp-fill" style="width:${xpProgress}%"></div>
+            </div>
+            <div class="profile-xp-meta">
+                <span>${xpCurrent} / ${xpPerLevel} XP</span>
+                <span>${xp} XP acumulado</span>
+            </div>
+        </section>
+
+        <section class="profile-achievements-card premium-profile-card">
+            <div class="profile-section-header">
+                <div>
+                    <span class="profile-section-kicker">Mis logros</span>
+                    <h3>Insignias destacadas</h3>
                 </div>
             </div>
-        </div>
+            <div class="profile-badges-grid">
+                ${achievements.map(item => `
+                    <article class="profile-badge ${item.unlocked ? 'unlocked' : 'locked'}">
+                        <span>${escapeHTML(item.icon)}</span>
+                        <strong>${escapeHTML(item.name)}</strong>
+                        <small>${item.unlocked ? 'Desbloqueado' : 'Bloqueado'}</small>
+                    </article>
+                `).join('')}
+            </div>
+        </section>
 
-        <div class="profile-metrics">
-            <div class="profile-metric">
-                <span>Nivel</span>
-                <strong>${level}</strong>
+        <section class="profile-goals-card premium-profile-card">
+            <div class="profile-section-header">
+                <div>
+                    <span class="profile-section-kicker">Mis metas</span>
+                    <h3>Objetivos personales</h3>
+                </div>
+                <button class="btn-secondary btn-small" type="button" onclick="openGoalForm()">+ Meta</button>
             </div>
-            <div class="profile-metric">
-                <span>XP</span>
-                <strong>${workspace.xp || 0}</strong>
+            <div class="profile-goals-list">
+                ${goals.map(goal => `
+                    <button class="profile-goal ${goal.done ? 'done' : ''}" type="button" onclick="${String(goal.id).startsWith('default-') ? '' : `toggleProfileGoal('${escapeHTML(goal.id)}')`}">
+                        <span>${goal.done ? '✓' : '+'}</span>
+                        <strong>${escapeHTML(goal.text)}</strong>
+                    </button>
+                `).join('')}
             </div>
-            <div class="profile-metric">
-                <span>Racha</span>
-                <strong>${streak} ${streak === 1 ? 'dia' : 'dias'}</strong>
+        </section>
+
+        <section class="profile-activity-card premium-profile-card">
+            <span class="profile-section-kicker">Actividad reciente</span>
+            <h3>Historial del estudiante</h3>
+            ${recentItems.length ? `
+                <ul class="profile-activity-list">
+                    ${recentItems.map(item => `<li><span>${escapeHTML(item.time)}</span><strong>${escapeHTML(item.text)}</strong></li>`).join('')}
+                </ul>
+            ` : `
+                <div class="profile-empty-note">
+                    <strong>Tu actividad aparecera aqui cuando empieces.</strong>
+                    <span>Crea materias, completa tareas, usa Tutor o sube PDFs.</span>
+                </div>
+            `}
+        </section>
+    `;
+}
+
+function profileStatCard(icon, label, value, detail) {
+    return `
+        <article class="profile-stat-card premium-profile-card">
+            <span class="profile-stat-icon">${escapeHTML(icon)}</span>
+            <div>
+                <small>${escapeHTML(label)}</small>
+                <strong>${escapeHTML(value)}</strong>
+                <em>${escapeHTML(detail)}</em>
             </div>
-            <div class="profile-metric">
-                <span>Promedio</span>
-                <strong class="${workspace.grades.length ? '' : 'empty-profile-value'}">${workspace.grades.length ? average.toFixed(2) : 'Sin calificaciones'}</strong>
-            </div>
-        </div>
+        </article>
     `;
 }
 
