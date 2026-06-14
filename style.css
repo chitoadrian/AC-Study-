@@ -1,5 +1,5 @@
 /* ============================================
-   AC STUDY - ESTILOS PRINCIPALES
+   AC Edunity - ESTILOS PRINCIPALES
    Diseño tipo SaaS con tema oscuro y claro
    ============================================ */
 
@@ -489,7 +489,7 @@ body {
 }
 
 /* ============================================
-   UI/UX PREMIUM 2026 - AC STUDY SAAS
+   UI/UX PREMIUM 2026 - AC Edunity SAAS
    Capa visual inspirada en productos SaaS modernos
    ============================================ */
 
@@ -3285,7 +3285,7 @@ button {
 }
 
 /* ============================================
-   AJUSTES PROFESIONALES AC STUDY
+   AJUSTES PROFESIONALES AC Edunity
    Mejora visual tipo SaaS sin mover estilos al HTML
    ============================================ */
 
@@ -3682,7 +3682,7 @@ body.light-theme .auth-card {
     line-height: 1.2;
 }
 
-/* Mascota flotante de AC Study */
+/* Mascota flotante de AC Edunity */
 .study-pet {
     position: fixed;
     right: 26px;
@@ -4867,7 +4867,7 @@ body.light-theme .quick-modal {
 }
 
 /* ============================================
-   PRIORIDAD VISUAL FINAL - AC STUDY PRODUCT UI
+   PRIORIDAD VISUAL FINAL - AC Edunity PRODUCT UI
    ============================================ */
 
 :root {
@@ -6323,7 +6323,7 @@ body.light-theme .resource-card {
     opacity: 0.55;
 }
 
-/* Marca AC Study */
+/* Marca AC Edunity */
 .nav-logo,
 .sidebar-logo {
     display: inline-flex;
@@ -8917,7 +8917,7 @@ body.light-theme .grade-bucket-item {
 
 #login-page .auth-card::before,
 #register-page .auth-card::before {
-    content: "AC Study";
+    content: "AC Edunity";
     display: inline-flex;
     align-items: center;
     min-height: 34px;

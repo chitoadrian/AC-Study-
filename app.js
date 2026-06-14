@@ -1,5 +1,5 @@
 /* ============================================
-   AC STUDY - LOGICA PRINCIPAL
+   AC Edunity - LOGICA PRINCIPAL
    JavaScript puro - Funcionalidades SPA
    ============================================ */
 
@@ -40,7 +40,7 @@ function saveUsers(users) {
     localStorage.setItem('simulatedUsers', JSON.stringify(users));
 }
 
-// Mensajes visuales propios de AC Study. Evitan ventanas nativas del navegador.
+// Mensajes visuales propios de AC Edunity. Evitan ventanas nativas del navegador.
 let toastTimeout = null;
 
 function notify(message, type = 'info') {
@@ -380,7 +380,7 @@ function handleRegister(event) {
     document.getElementById('register-password').value = '';
 
     showApp();
-    notify('Cuenta creada correctamente. Ya puedes personalizar AC Study.', 'success');
+    notify('Cuenta creada correctamente. Ya puedes personalizar AC Edunity.', 'success');
 }
 
 function handleLogout() {
@@ -1184,7 +1184,7 @@ function handleRegister(event) {
     document.getElementById('register-password').value = '';
 
     showApp();
-    notify('Bienvenido a AC Study. Empieza creando tu primera materia.', 'success');
+    notify('Bienvenido a AC Edunity. Empieza creando tu primera materia.', 'success');
 }
 
 function handleLogin(event) {
@@ -1223,7 +1223,7 @@ function renderDashboard(workspace) {
     section.innerHTML = `
         <div class="section-header">
             <h1>Hola ${escapeHTML(firstName)}</h1>
-            <p class="subtitle">${isEmpty ? 'Bienvenido a AC Study. Empieza creando tu primera materia.' : 'Este es el resumen actualizado de tu espacio academico.'}</p>
+            <p class="subtitle">${isEmpty ? 'Bienvenido a AC Edunity. Empieza creando tu primera materia.' : 'Este es el resumen actualizado de tu espacio academico.'}</p>
         </div>
 
         <div class="dashboard-grid">
@@ -2377,7 +2377,7 @@ function getTaskGoogleCalendarUrl(task) {
     const start = toGoogleCalendarDate(date, '08:00');
     const end = toGoogleCalendarDate(date, '09:00');
     const details = [
-        task.description || 'Tarea academica creada en AC Study.',
+        task.description || 'Tarea academica creada en AC Edunity.',
         `Materia: ${task.subject || 'General'}`,
         `Prioridad: ${getTaskPriorityLabel(task.priority || 'media')}`
     ].join('\n');
@@ -2511,13 +2511,13 @@ function getGoogleCalendarUrl(event) {
     const start = toGoogleCalendarDate(event.date, event.time || '08:00');
     const end = toGoogleCalendarDate(event.date, addMinutesToTime(event.time || '08:00', 60));
     const details = [
-        `Evento creado desde AC Study.`,
+        `Evento creado desde AC Edunity.`,
         `Tipo: ${event.type || 'Evento academico'}.`,
         event.emailReminder ? 'Activa las notificaciones de Google Calendar para recibir avisos en correo y celular.' : ''
     ].filter(Boolean).join('\n');
     const params = new URLSearchParams({
         action: 'TEMPLATE',
-        text: event.title || 'Evento AC Study',
+        text: event.title || 'Evento AC Edunity',
         dates: `${start}/${end}`,
         details,
         trp: 'true'
@@ -2611,7 +2611,7 @@ function renderCalendarSection(workspace) {
             <div class="calendar-sync-card">
                 <span class="calendar-sync-icon"></span>
                 <h3>Conecta tus fechas con Google Calendar</h3>
-                <p>Crea eventos en AC Study y abre Google Calendar para guardarlos con notificaciones en correo y celular.</p>
+                <p>Crea eventos en AC Edunity y abre Google Calendar para guardarlos con notificaciones en correo y celular.</p>
                 <button class="btn-primary btn-small" type="button" onclick="addCalendarEventUI()">+ Crear evento</button>
             </div>
             <div class="calendar-mini" id="mini-calendar"></div>
@@ -4063,9 +4063,9 @@ const knowledgeBase = {
         characteristics: ['Organiza datos', 'Usa tablas o colecciones', 'Permite consultas', 'Puede relacionar informacion'],
         concepts: ['Tabla', 'Registro', 'Campo', 'Clave primaria', 'Consulta', 'Relacion'],
         formula: 'Ejemplo SQL: SELECT * FROM usuarios;',
-        example: 'AC Study podria tener tablas de usuarios, materias, tareas, notas y recursos.',
+        example: 'AC Edunity podria tener tablas de usuarios, materias, tareas, notas y recursos.',
         uses: 'Aplicaciones web, bancos, tiendas, escuelas y plataformas educativas.',
-        exercises: ['Nombra tres tablas para AC Study.', 'Que es un registro?', 'Para que sirve una clave primaria?'],
+        exercises: ['Nombra tres tablas para AC Edunity.', 'Que es un registro?', 'Para que sirve una clave primaria?'],
         answers: ['Usuarios, materias y tareas.', 'Una fila de datos.', 'Para identificar un registro.'],
         flashcards: [['Tabla', 'Conjunto de datos'], ['Registro', 'Fila'], ['Campo', 'Columna']]
     },
@@ -5073,7 +5073,7 @@ function renderProgress(workspace) {
         <section class="progress-path premium-border">
             <div class="progress-section-title">
                 <h3>Camino del estudiante</h3>
-                <p>Avanza por niveles mientras usas AC Study.</p>
+                <p>Avanza por niveles mientras usas AC Edunity.</p>
             </div>
             <div class="student-path">
                 ${pathLevels.map(pathLevel => `
@@ -5333,7 +5333,7 @@ function renderProfile(workspace) {
             <div class="profile-details">
                 <span class="profile-role">Estudiante</span>
                 <h2 id="profile-name">${escapeHTML(name)}</h2>
-                <p>Estudiante de Informatica desarrollando AC Study como proyecto de grado.</p>
+                <p>Estudiante de Informatica desarrollando AC Edunity como proyecto de grado.</p>
                 <div class="profile-tags">
                     <span>Organizacion academica</span>
                     <span>IA educativa</span>

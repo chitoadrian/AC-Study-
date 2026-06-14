@@ -1,8 +1,8 @@
-# AC Study - Gestión Educativa Inteligente Personalizada
+# AC Edunity - Gestión Educativa Inteligente Personalizada
 
 ## 🎯 Descripción del Proyecto
 
-**AC Study** es un prototipo funcional de plataforma web para gestión educativa personalizada, inspirada visualmente en ClickUp. Diseñada como un avance de proyecto de grado, ofrece una interfaz moderna tipo SaaS con funcionalidades educativas completas y un asistente IA simulado.
+**AC Edunity** es un prototipo funcional de plataforma web para gestión educativa personalizada, inspirada visualmente en ClickUp. Diseñada como un avance de proyecto de grado, ofrece una interfaz moderna tipo SaaS con funcionalidades educativas completas y un asistente IA simulado.
 
 ## ✨ Características Principales
 
@@ -115,7 +115,7 @@ Amarillo:        #ffc800
 ## 📁 Estructura de Archivos
 
 ```
-AC Study/
+AC Edunity/
 ├── index.html       # Estructura HTML completa (16 secciones)
 ├── style.css        # Estilos modernos tipo SaaS (900+ líneas)
 ├── app.js          # Lógica y funcionalidades en JavaScript puro
@@ -151,7 +151,7 @@ AC Study/
 ## 💻 Tecnologías Utilizadas
 
 - **HTML5**: Estructura semántica completa
-- **CSS3**: 
+- **CSS3**:
   - Flexbox y Grid
   - Gradientes lineales
   - Animaciones suaves
@@ -244,7 +244,7 @@ El proyecto está preparado para integración con:
 
 ## 📞 Contacto
 
-Proyecto de Grado - AC Study
+Proyecto de Grado - AC Edunity
 Gestión Educativa Inteligente Personalizada
 Año: 2026
 
