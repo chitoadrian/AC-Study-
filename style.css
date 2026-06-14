@@ -12524,3 +12524,109 @@ body.light-theme #profile .profile-activity-list li {
         grid-column: 2 / 3;
     }
 }
+
+/* Dashboard: recorte final de espacios sobrantes */
+#dashboard .dashboard-layout {
+    gap: 12px !important;
+    grid-auto-flow: row dense;
+}
+
+#dashboard .dashboard-day-card,
+#dashboard .dashboard-progress-card,
+#dashboard .dashboard-tutor-card,
+#dashboard .starter-card,
+#dashboard .activity-card,
+#dashboard .weekly-progress-card {
+    padding: 16px !important;
+}
+
+#dashboard .dashboard-day-card,
+#dashboard .dashboard-progress-card {
+    min-height: auto !important;
+    align-self: start !important;
+}
+
+#dashboard .dashboard-progress-card {
+    max-height: 315px;
+    overflow: hidden;
+}
+
+#dashboard .dashboard-progress-card .panel-title {
+    margin-bottom: 10px;
+}
+
+#dashboard .dashboard-xp-ring {
+    width: 92px;
+    height: 92px;
+    margin: 0 auto 10px;
+}
+
+#dashboard .dashboard-xp-ring span {
+    font-size: 22px;
+}
+
+#dashboard .dashboard-xp-ring small {
+    margin-top: -12px;
+    font-size: 9px;
+}
+
+#dashboard .dashboard-progress-card .progress-bar {
+    height: 8px;
+}
+
+#dashboard .dashboard-achievements {
+    gap: 6px;
+    margin-top: 10px;
+}
+
+#dashboard .dashboard-achievements span {
+    padding: 6px 9px;
+    font-size: 10px;
+}
+
+#dashboard .dashboard-day-list {
+    gap: 8px;
+}
+
+#dashboard .dashboard-day-list li {
+    padding: 10px;
+    grid-template-columns: 80px minmax(0, 1fr);
+}
+
+#dashboard .dashboard-tutor-card {
+    max-height: 220px;
+}
+
+#dashboard .starter-card {
+    max-height: 410px;
+}
+
+#dashboard .activity-card {
+    max-height: 330px;
+}
+
+#dashboard .weekly-progress-card {
+    grid-column: 1 / span 2 !important;
+    max-height: 300px;
+    overflow: hidden;
+}
+
+#dashboard .weekly-progress-card .panel-title {
+    margin-bottom: 12px;
+}
+
+#dashboard .weekly-chart {
+    min-height: 118px !important;
+    padding: 12px 14px 0 !important;
+}
+
+#dashboard .chart-caption {
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+@media (max-width: 1180px) {
+    #dashboard .weekly-progress-card {
+        grid-column: 1 / -1 !important;
+    }
+}
