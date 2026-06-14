@@ -12165,14 +12165,6 @@ body.light-theme #progress .path-step {
     font-weight: 900;
 }
 
-#profile .profile-meta-line {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 16px 0 0;
-}
-
-#profile .profile-meta-line span,
 #profile .profile-tags span {
     border-color: rgba(73, 204, 249, 0.18);
     background: rgba(73, 204, 249, 0.08);
@@ -12464,7 +12456,6 @@ body.light-theme #profile .profile-activity-list li {
         text-align: center;
     }
 
-    #profile .profile-meta-line,
     #profile .profile-tags,
     #profile .profile-xp-meta,
     #profile .profile-section-header {

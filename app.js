@@ -5568,13 +5568,6 @@ function getProfileAvatarContent(profile) {
     return escapeHTML(getProfileInitials(profile.name));
 }
 
-function formatProfileDate(dateValue) {
-    if (!dateValue) return 'Sin fecha registrada';
-    const date = new Date(dateValue);
-    if (Number.isNaN(date.getTime())) return 'Sin fecha registrada';
-    return date.toLocaleDateString('es-EC', { month: 'long', year: 'numeric' });
-}
-
 function getProfileAchievements(workspace) {
     const completedTasks = workspace.tasks.filter(task => task.status === 'completed').length;
     const level = getLevel(workspace.xp);
