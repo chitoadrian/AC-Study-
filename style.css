@@ -6356,6 +6356,24 @@ body.light-theme .resource-card {
     border-radius: 20px;
     background: linear-gradient(135deg, var(--resource-color), #49ccf9);
     box-shadow: 0 18px 38px color-mix(in srgb, var(--resource-color) 28%, transparent);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+#backpack .library-resource-card .resource-icon.resource-pdf-icon::before {
+    width: 32px;
+    height: 38px;
+    left: 15px;
+    top: 11px;
+    border-radius: 8px;
+}
+
+#backpack .library-resource-card .resource-icon.resource-pdf-icon::after {
+    left: 20px;
+    bottom: 14px;
+    font-size: 9px;
+    line-height: 1;
 }
 
 #backpack .resource-meta-row,
